@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { ChevronDownRegular, ChevronRightRegular } from "@fluentui/react-icons";
+import { ChevronDownRegular, ChevronRightRegular, FilterRegular } from "@fluentui/react-icons";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import {
   CUSTOM_STORE_SOURCE_ID,
@@ -37,7 +37,7 @@ import {
   Trash2,
   Wrench,
 } from "@/components/icons/platform-icons";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   PANEL_SHELL as STORE_PANEL_SHELL,
   PANEL_INSET as STORE_PANEL_INSET,
@@ -168,6 +168,8 @@ function SourceBadge({ sourceName, sourceKind }: Pick<StoreAppSummary, "sourceNa
 // ── Catalog sidebar ───────────────────────────────────────────────────────────
 
 function CatalogSidebar({
+  id,
+  mobileExpanded,
   categories,
   selectedCategory,
   onSelectCategory,
@@ -175,6 +177,8 @@ function CatalogSidebar({
   selectedSourceId,
   onSelectSource,
 }: {
+  id: string;
+  mobileExpanded: boolean;
   categories: StoreCatalogCategory[];
   selectedCategory: string | null;
   onSelectCategory: (category: string | null) => void;
@@ -183,7 +187,7 @@ function CatalogSidebar({
   onSelectSource: (sourceId: string) => void;
 }) {
   return (
-    <aside className={cn("mx-4 max-[360px]:mx-3 mb-2 flex min-w-0 shrink-0 flex-row gap-2 border-0 bg-transparent px-0 py-0 shadow-none backdrop-blur-none md:m-2 md:w-48 md:flex-col md:gap-0 md:overflow-y-auto md:border md:bg-card/78 md:px-2 md:py-3 md:shadow-sm md:backdrop-blur-xl handheld:!mx-[var(--mobile-gutter)] handheld:!mb-2 handheld:!w-auto handheld:!flex-row handheld:!gap-2 handheld:!overflow-visible handheld:!border-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-0 handheld:!shadow-none handheld:!backdrop-blur-none", STORE_PANEL_SHELL)}>
+    <aside id={id} className={cn("mx-4 max-[360px]:mx-3 mb-2 flex min-w-0 shrink-0 flex-row gap-2 border-0 bg-transparent px-0 py-0 shadow-none backdrop-blur-none md:m-2 md:w-48 md:flex-col md:gap-0 md:overflow-y-auto md:border md:bg-card/78 md:px-2 md:py-3 md:shadow-sm md:backdrop-blur-xl handheld:!mx-[var(--mobile-gutter)] handheld:!mb-2 handheld:!w-auto handheld:!flex-row handheld:!gap-2 handheld:!overflow-visible handheld:!border-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-0 handheld:!shadow-none handheld:!backdrop-blur-none", STORE_PANEL_SHELL, !mobileExpanded && "handheld:!hidden")}>
       <label className="relative flex min-w-0 flex-1 flex-col gap-1.5 md:mb-3 md:flex-none md:px-3 handheld:!mb-0 handheld:!flex-1 handheld:!px-0">
         <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted-foreground md:font-sans md:text-[10px] handheld:!font-mono md:font-semibold md:uppercase md:tracking-[0.16em] md:text-muted-foreground/50">
           Source
@@ -445,10 +449,10 @@ function AppStoreDetailPanel({
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col">
       {/* Nav bar */}
-      <div className="shrink-0 border-b border-glass-border/60 px-4 py-2.5">
+      <div className="shrink-0 border-b border-glass-border/60 px-4 py-2.5 handheld:px-[var(--mobile-gutter)] handheld:py-0">
         <button
           onClick={onBack}
-          className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80 md:min-h-0 md:text-xs md:text-muted-foreground"
+          className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80 md:min-h-0 md:text-xs md:text-muted-foreground handheld:min-h-[var(--mobile-touch-target)] handheld:text-[var(--mobile-accent-text)]"
         >
           <ChevronLeft className="size-3.5" />
           Back to Store
@@ -464,14 +468,14 @@ function AppStoreDetailPanel({
           App details unavailable.
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto">
-          <div className="space-y-5 p-4 md:p-5 handheld:!p-4">
+        <div className="min-h-0 flex-1 overflow-y-auto handheld:overscroll-contain">
+          <div className="space-y-5 p-4 md:p-5 handheld:!px-[var(--mobile-gutter)] handheld:!py-3 handheld:space-y-4">
 
             {/* App header */}
-            <div className="flex flex-wrap items-start gap-4 md:flex-nowrap">
+            <div className="flex flex-wrap items-start gap-4 md:flex-nowrap handheld:gap-3">
               {/* Logo */}
-              <div className={cn(STORE_PANEL_INSET, "flex size-16 shrink-0 items-center justify-center overflow-hidden")}>
-                <StoreLogo logoUrl={detail.logoUrl} alt={detail.name} className="size-9 object-contain" />
+              <div className={cn(STORE_PANEL_INSET, "flex size-16 shrink-0 items-center justify-center overflow-hidden handheld:size-12")}>
+                <StoreLogo logoUrl={detail.logoUrl} alt={detail.name} className="size-9 object-contain handheld:size-7" />
               </div>
 
               {/* Name + badges + progress */}
@@ -626,9 +630,11 @@ function AppStoreDetailPanel({
 // ── Main store ────────────────────────────────────────────────────────────────
 
 export function AppStore({
+  active = true,
   onOpenCustomInstall,
   launchRequest,
 }: {
+  active?: boolean;
   onOpenCustomInstall: () => void;
   launchRequest?: { nonce: number; search?: string; appId?: string } | null;
 }) {
@@ -645,6 +651,8 @@ export function AppStore({
   const [uninstallPending, setUninstallPending] = useState(false);
   const [visibleCatalogCount, setVisibleCatalogCount] = useState(STORE_PAGE_SIZE);
   const [isSourcesDialogOpen, setIsSourcesDialogOpen] = useState(false);
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
+  const filtersId = useId();
 
   const queryClient = useQueryClient();
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
@@ -840,7 +848,7 @@ export function AppStore({
 
   const uninstallDialog = (
     <UninstallAppDialog
-      open={Boolean(uninstallDialogApp)}
+      open={active && Boolean(uninstallDialogApp)}
       appName={uninstallDialogApp?.name ?? null}
       isSubmitting={uninstallPending}
       error={uninstallError}
@@ -916,7 +924,8 @@ export function AppStore({
         />
 
         {/* Search */}
-        <div className="relative order-first w-full md:order-none md:w-52 handheld:!order-first handheld:!w-full handheld:@xl/mobile-store:!order-none handheld:@xl/mobile-store:!w-auto handheld:@xl/mobile-store:min-w-0 handheld:@xl/mobile-store:flex-1">
+        <div className="order-first flex w-full items-center gap-2 md:order-none md:w-52 handheld:!order-first handheld:!w-full handheld:@xl/mobile-store:!order-none handheld:@xl/mobile-store:!w-auto handheld:@xl/mobile-store:min-w-0 handheld:@xl/mobile-store:flex-1">
+          <div className="relative min-w-0 flex-1">
           <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/60" />
           <input
             type="text"
@@ -925,14 +934,20 @@ export function AppStore({
             placeholder="Search apps…"
             aria-label="Search apps"
             enterKeyHint="search"
-            className="min-h-11 w-full rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] md:border-glass-border md:bg-background/55 handheld:!border-[var(--mobile-divider)] handheld:!bg-[var(--mobile-panel)] pl-8 pr-3 md:min-h-0 text-base md:text-xs handheld:!min-h-11 handheld:!text-base text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/50"
+            className="min-h-11 w-full rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] md:border-glass-border md:bg-background/55 handheld:!border-[var(--mobile-divider)] handheld:!bg-[var(--mobile-panel)] pl-8 pr-3 md:min-h-0 text-base md:text-xs handheld:!min-h-[var(--mobile-touch-target)] handheld:!text-[length:max(16px,1rem)] text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/50"
           />
+          </div>
+          <button type="button" aria-controls={filtersId} aria-expanded={filtersExpanded} onClick={() => setFiltersExpanded((current) => !current)} className="hidden min-h-[var(--mobile-touch-target)] min-w-[var(--mobile-touch-target)] shrink-0 items-center gap-1.5 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-2.5 text-xs font-medium active:bg-primary/15 focus-visible:outline-2 focus-visible:outline-primary handheld:inline-flex">
+            <FilterRegular aria-hidden="true" className="size-4" />
+            Filters
+            {(selectedCategory || sourceFilter) && <span className="rounded-full bg-primary/15 px-1.5 text-[var(--mobile-accent-text)]" aria-label="active filters">{Number(Boolean(selectedCategory)) + Number(Boolean(sourceFilter))}</span>}
+          </button>
         </div>
       </div>
 
       {uninstallDialog}
       <AppStoreSourcesDialog
-        open={isSourcesDialogOpen}
+        open={active && isSourcesDialogOpen}
         onOpenChange={setIsSourcesDialogOpen}
         sources={storeSourcesQuery.data ?? catalog?.sources ?? []}
         isLoading={storeSourcesQuery.isLoading}
@@ -952,6 +967,8 @@ export function AppStore({
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col md:flex-row md:overflow-hidden handheld:!flex-none handheld:!flex-col handheld:!overflow-visible">
         <CatalogSidebar
+          id={filtersId}
+          mobileExpanded={filtersExpanded}
           categories={categories}
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
