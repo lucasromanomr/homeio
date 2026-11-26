@@ -346,13 +346,13 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
           <h2 className="min-w-0 [overflow-wrap:anywhere] text-lg font-semibold tracking-tight">{systemMetrics?.hostname ?? "System overview"}</h2>
           {systemMetrics && <span className="text-xs text-muted-foreground">Latest reading</span>}
         </div>
-        <div className={cn("grid items-start gap-3", systemMetrics && cpuStats.average !== null && "@xl/mobile-monitor:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]")}>
+        <div className={cn("grid items-start gap-3", systemMetrics && cpuStats.average !== null && "@xl/mobile-monitor:grid-cols-2")}>
           {systemMetrics ? (
             <dl className="grid grid-cols-2 gap-2">
               {[
                 { label: "CPU load", percent: systemMetrics.cpu.normalizedPercent, detail: null },
-                { label: "Memory", percent: systemMetrics.memory.usedPercent, detail: `${formatBytesCompact(systemMetrics.memory.usedBytes)} of ${formatBytesCompact(systemMetrics.memory.totalBytes)}` },
-                { label: "Disk", percent: systemMetrics.storage?.usedPercent, detail: systemMetrics.storage ? `${formatBytesCompact(systemMetrics.storage.usedBytes)} of ${formatBytesCompact(systemMetrics.storage.totalBytes)}` : null },
+                { label: "Memory", percent: systemMetrics.memory.usedPercent, detail: `${formatBytesCompact(systemMetrics.memory.usedBytes, 1)} of ${formatBytesCompact(systemMetrics.memory.totalBytes, 1)}` },
+                { label: "Disk", percent: systemMetrics.storage?.usedPercent, detail: systemMetrics.storage ? `${formatBytesCompact(systemMetrics.storage.usedBytes, 1)} of ${formatBytesCompact(systemMetrics.storage.totalBytes, 1)}` : null },
               ].map(({ label, percent, detail }, index) => {
                 const hasReading = typeof percent === "number" && Number.isFinite(percent);
                 return (
