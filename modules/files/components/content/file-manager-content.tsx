@@ -110,7 +110,7 @@ export function FileManagerFileArea({
 }: FileManagerFileAreaProps) {
   return (
     <div
-      className="relative min-h-0 flex-1 overflow-y-auto p-3 handheld:overscroll-contain handheld:min-[36rem]:py-0"
+      className="relative min-h-0 flex-1 overflow-y-auto p-3 handheld:overscroll-contain handheld:@lg/mobile-files:py-0"
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}

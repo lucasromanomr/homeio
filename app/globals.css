@@ -7,6 +7,11 @@
     @slot;
   }
 }
+@custom-variant short-screen {
+  @media (height <= 24rem) {
+    @slot;
+  }
+}
 
 :root {
   --mobile-canvas: #f4efe8;
@@ -17,13 +22,18 @@
   --mobile-glass-fill: color-mix(in srgb, var(--mobile-panel) 73%, transparent);
   --mobile-glass-rim: rgb(255 255 255 / 0.44);
   --mobile-nav-height: 3.5rem;
-  --mobile-gutter: 1rem;
+  --mobile-gutter: clamp(0.75rem, 4vw, 1.25rem);
   --mobile-header-height: 3.75rem;
   --mobile-dock-bottom: max(0.625rem, env(safe-area-inset-bottom));
   --mobile-dock-clearance: calc(var(--mobile-nav-height) + var(--mobile-dock-bottom) + 1.125rem);
-  --mobile-grid-min-row: 96px;
-  --mobile-app-tile: 3.75rem;
-  --mobile-overlay-gutter: max(1rem, env(safe-area-inset-left), env(safe-area-inset-right));
+  --mobile-home-width: 44rem;
+  --mobile-launcher-controls: 3rem;
+  --mobile-grid-min-row: 108px;
+  --mobile-app-tile: clamp(3.25rem, 15.4vw, 4rem);
+  --mobile-app-inset: 0.5rem;
+  --mobile-app-gap: 0.375rem;
+  --mobile-app-label: 0.72rem;
+  --mobile-overlay-gutter: max(var(--mobile-gutter), env(safe-area-inset-left), env(safe-area-inset-right));
   --background: oklch(0.96 0.006 250);
   --foreground: oklch(0.2 0.02 250);
   --card: oklch(0.99 0.004 250 / 0.8);
@@ -163,15 +173,39 @@
 }
 
 @media (width <= 22.5rem) {
-  :root { --mobile-gutter: 0.75rem; }
+  :root {
+    --mobile-grid-min-row: 92px;
+    --mobile-app-inset: 0.25rem;
+    --mobile-app-gap: 0.25rem;
+  }
+}
+
+@media (height <= 42rem) {
+  :root {
+    --mobile-nav-height: 3rem;
+    --mobile-header-height: 3.5rem;
+  }
 }
 
 @media (height <= 32rem) {
   :root {
     --mobile-nav-height: 2.75rem;
     --mobile-header-height: 3.25rem;
-    --mobile-grid-min-row: 80px;
+    --mobile-grid-min-row: 84px;
     --mobile-app-tile: 3rem;
+    --mobile-app-inset: 0.25rem;
+    --mobile-app-gap: 0.1875rem;
+  }
+}
+
+@media (height <= 24rem) {
+  :root {
+    --mobile-launcher-controls: 2.75rem;
+    --mobile-grid-min-row: 76px;
+    --mobile-app-tile: 2.75rem;
+    --mobile-app-inset: 0.125rem;
+    --mobile-app-gap: 0.125rem;
+    --mobile-app-label: 0.7rem;
   }
 }
 

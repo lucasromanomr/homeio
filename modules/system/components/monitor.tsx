@@ -341,48 +341,50 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <section aria-label="System overview" className="hidden min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[var(--mobile-canvas)] p-4 text-foreground [scrollbar-width:none] handheld:block">
+      <section aria-label="System overview" className="@container/mobile-monitor hidden min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[var(--mobile-canvas)] px-[var(--mobile-gutter)] py-3 text-foreground [scrollbar-width:none] handheld:block">
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <h2 className="min-w-0 break-all text-lg font-semibold tracking-tight">{systemMetrics?.hostname ?? "System overview"}</h2>
+          <h2 className="min-w-0 [overflow-wrap:anywhere] text-lg font-semibold tracking-tight">{systemMetrics?.hostname ?? "System overview"}</h2>
           {systemMetrics && <span className="text-xs text-muted-foreground">Latest reading</span>}
         </div>
-        {systemMetrics ? (
-          <dl className="grid grid-cols-2 gap-2">
-            {[
-              { label: "CPU load", percent: systemMetrics.cpu.normalizedPercent, detail: null },
-              { label: "Memory", percent: systemMetrics.memory.usedPercent, detail: `${formatBytesCompact(systemMetrics.memory.usedBytes)} of ${formatBytesCompact(systemMetrics.memory.totalBytes)}` },
-              { label: "Disk", percent: systemMetrics.storage?.usedPercent, detail: systemMetrics.storage ? `${formatBytesCompact(systemMetrics.storage.usedBytes)} of ${formatBytesCompact(systemMetrics.storage.totalBytes)}` : null },
-            ].map(({ label, percent, detail }, index) => {
-              const hasReading = typeof percent === "number" && Number.isFinite(percent);
-              return (
-                <div key={label} className={cn("min-w-0 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-3", index === 0 && "col-span-2 bg-[linear-gradient(115deg,var(--mobile-panel),color-mix(in_srgb,var(--primary)_13%,var(--mobile-panel)))] p-3.5")}>
-                  <dt className="text-sm font-medium">{label}</dt>
-                  <dd className={cn("mt-2 break-words font-mono text-xl font-semibold tracking-tight tabular-nums", index === 0 && hasReading && "text-[clamp(2rem,9vw,2.75rem)] leading-none text-[var(--mobile-accent-text)]", !hasReading && "text-sm text-muted-foreground")}>
-                    {hasReading ? `${percent.toFixed(1)}%` : "Unavailable"}
-                  </dd>
-                  {hasReading && <dd aria-hidden="true" className="mt-2.5 h-1 overflow-hidden rounded-full bg-[var(--mobile-divider)]">
-                    <div className="h-full rounded-full bg-[var(--mobile-accent-text)]" style={{ width: `${Math.min(100, Math.max(0, percent))}%` }} />
-                  </dd>}
-                  {detail && <dd className="mt-2 break-words text-xs text-muted-foreground">{detail}</dd>}
-                </div>
-              );
-            })}
-          </dl>
-        ) : (
-          <div className="rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-4">
-            <p className="text-sm text-muted-foreground">{metricsLoading ? "Loading server measurements…" : "Server measurements are unavailable. Check the connection and try again."}</p>
-            {metricsError && <button type="button" onClick={() => void refetchMetrics()} className="mt-3 min-h-11 cursor-pointer rounded-lg bg-primary px-4 font-medium text-primary-foreground focus-visible:outline-2 focus-visible:outline-primary">Retry</button>}
-          </div>
-        )}
-        {cpuStats.average !== null && (
-          <section aria-label="CPU history" className="mt-3 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-3">
-            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold">CPU history</h3>
-              <p className="font-mono text-xs text-muted-foreground">{formatPercent(cpuStats.average)} average</p>
+        <div className={cn("grid items-start gap-3", systemMetrics && cpuStats.average !== null && "@xl/mobile-monitor:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]")}>
+          {systemMetrics ? (
+            <dl className="grid grid-cols-2 gap-2">
+              {[
+                { label: "CPU load", percent: systemMetrics.cpu.normalizedPercent, detail: null },
+                { label: "Memory", percent: systemMetrics.memory.usedPercent, detail: `${formatBytesCompact(systemMetrics.memory.usedBytes)} of ${formatBytesCompact(systemMetrics.memory.totalBytes)}` },
+                { label: "Disk", percent: systemMetrics.storage?.usedPercent, detail: systemMetrics.storage ? `${formatBytesCompact(systemMetrics.storage.usedBytes)} of ${formatBytesCompact(systemMetrics.storage.totalBytes)}` : null },
+              ].map(({ label, percent, detail }, index) => {
+                const hasReading = typeof percent === "number" && Number.isFinite(percent);
+                return (
+                  <div key={label} className={cn("min-w-0 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-3", index === 0 && "col-span-2 bg-[linear-gradient(115deg,var(--mobile-panel),color-mix(in_srgb,var(--primary)_13%,var(--mobile-panel)))] p-3.5")}>
+                    <dt className="text-sm font-medium">{label}</dt>
+                    <dd className={cn("mt-2 break-words font-mono text-xl font-semibold tracking-tight tabular-nums", index === 0 && hasReading && "text-[clamp(2rem,9vw,2.75rem)] leading-none text-[var(--mobile-accent-text)]", !hasReading && "text-sm text-muted-foreground")}>
+                      {hasReading ? `${percent.toFixed(1)}%` : "Unavailable"}
+                    </dd>
+                    {hasReading && <dd aria-hidden="true" className="mt-2.5 h-1 overflow-hidden rounded-full bg-[var(--mobile-divider)]">
+                      <div className="h-full rounded-full bg-[var(--mobile-accent-text)]" style={{ width: `${Math.min(100, Math.max(0, percent))}%` }} />
+                    </dd>}
+                    {detail && <dd className="mt-2 break-words text-xs text-muted-foreground">{detail}</dd>}
+                  </div>
+                );
+              })}
+            </dl>
+          ) : (
+            <div className="rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-4">
+              <p className="text-sm text-muted-foreground">{metricsLoading ? "Loading server measurements…" : "Server measurements are unavailable. Check the connection and try again."}</p>
+              {metricsError && <button type="button" onClick={() => void refetchMetrics()} className="mt-3 min-h-11 cursor-pointer rounded-lg bg-primary px-4 font-medium text-primary-foreground focus-visible:outline-2 focus-visible:outline-primary">Retry</button>}
             </div>
-            <MetricHistoryChart {...chartProps} series={cpuSeries} max={100} formatValue={formatPercent} />
-          </section>
-        )}
+          )}
+          {cpuStats.average !== null && (
+            <section aria-label="CPU history" className="min-w-0 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-3">
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-sm font-semibold">CPU history</h3>
+                <p className="font-mono text-xs text-muted-foreground">{formatPercent(cpuStats.average)} average</p>
+              </div>
+              <MetricHistoryChart {...chartProps} series={cpuSeries} max={100} formatValue={formatPercent} />
+            </section>
+          )}
+        </div>
         <details className="mt-3 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)]">
           <summary className="min-h-11 cursor-pointer rounded-xl px-4 py-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-primary">System details</summary>
           <div className="divide-y divide-[var(--mobile-divider)] px-4">

@@ -24,7 +24,7 @@ function isAppRunning(app: AppItem) {
 export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoading, onAppContextMenu, onBrowseStore, onOpenApp }: Props) {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [size, setSize] = useState({ columns: 4, rows: 3, showWidget: false });
-  const [page, setPage] = useState(0);
+  const [pageAnchor, setPageAnchor] = useState(0);
   const areaRef = useRef<HTMLDivElement>(null);
   const pagerRef = useRef<HTMLDivElement>(null);
   const swipe = useRef<{ x: number; y: number } | null>(null);
@@ -43,10 +43,10 @@ export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoadin
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
       if (!width || !height) return;
-      const columns = Math.max(2, Math.min(width >= 500 ? 5 : 4, Math.floor(width / 70)));
-      const minRowHeight = Number.parseFloat(getComputedStyle(element).getPropertyValue("--mobile-grid-min-row")) || 96;
-      const rows = Math.max(1, Math.min(5, Math.floor(height / minRowHeight)));
-      const showWidget = columns >= 4 && rows >= 4 && height > width;
+      const columns = width >= 432 ? Math.min(7, Math.floor(width / 86)) : Math.max(2, Math.min(4, Math.floor(width / 66)));
+      const minRowHeight = Number.parseFloat(getComputedStyle(element).getPropertyValue("--mobile-grid-min-row")) || 108;
+      const rows = Math.max(1, Math.min(height >= 656 ? 6 : 5, Math.floor(height / minRowHeight)));
+      const showWidget = width >= 320 && columns >= 4 && rows >= 4 && height > width;
       setSize((previous) => previous.columns === columns && previous.rows === rows && previous.showWidget === showWidget
         ? previous
         : { columns, rows, showWidget });
@@ -59,17 +59,23 @@ export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoadin
   const showWidget = size.showWidget && !isAppsLoading && !isAppsError && apps.length > 0;
   const firstCapacity = capacity - (showWidget ? 2 : 0);
   const pageCount = 1 + Math.ceil(Math.max(0, apps.length - firstCapacity) / capacity);
-  const currentPage = Math.min(page, pageCount - 1);
+  const currentPage = pageAnchor < firstCapacity
+    ? 0
+    : Math.min(pageCount - 1, 1 + Math.floor((pageAnchor - firstCapacity) / capacity));
   const pageStart = currentPage === 0 ? 0 : firstCapacity + (currentPage - 1) * capacity;
   const pageSize = currentPage === 0 ? firstCapacity : capacity;
   const runningCount = apps.filter(isAppRunning).length;
+
+  function goToPage(next: number) {
+    setPageAnchor(next === 0 ? 0 : firstCapacity + (next - 1) * capacity);
+  }
 
   useEffect(() => {
     pagerRef.current?.querySelector('[aria-current="page"]')?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
   }, [currentPage, pageCount, view]);
   function chooseView(next: "grid" | "list") {
     setView(next);
-    setPage(0);
+    setPageAnchor(0);
     try { localStorage.setItem(VIEW_KEY, next); } catch { /* Keep the choice for this session. */ }
   }
   function startSwipe(event: PointerEvent<HTMLDivElement>) {
@@ -82,12 +88,12 @@ export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoadin
     const dx = event.clientX - start.x;
     const dy = event.clientY - start.y;
     if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
-      setPage(Math.max(0, Math.min(pageCount - 1, currentPage + (dx < 0 ? 1 : -1))));
+      goToPage(Math.max(0, Math.min(pageCount - 1, currentPage + (dx < 0 ? 1 : -1))));
     }
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-xl min-h-0 flex-1 flex-col">
+    <div className="mx-auto flex w-full max-w-[var(--mobile-home-width)] min-h-0 flex-1 flex-col">
       {isAppsLoading && apps.length === 0 ? (
         <p role="status" className="mobile-wallpaper-label py-4 text-sm">Loading apps…</p>
       ) : isAppsError && apps.length === 0 ? (
@@ -108,8 +114,8 @@ export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoadin
           <div ref={areaRef} className="min-h-0 flex-1 overflow-hidden [touch-action:pan-y_pinch-zoom]" onPointerDown={startSwipe} onPointerUp={endSwipe} onPointerCancel={() => { swipe.current = null; }}>
             <ul aria-label="Apps" className="grid h-full content-start" style={{ gridTemplateColumns: `repeat(${size.columns}, minmax(0, 1fr))`, gridAutoRows: `minmax(0, min(${100 / size.rows}%, 7.75rem))` }}>
               {showWidget && currentPage === 0 && (
-                <li className="col-span-2 flex px-1.5 pt-2">
-                  <section aria-label="App activity" className="mobile-glass flex h-[5.5rem] w-full min-w-0 items-center justify-between gap-2 rounded-[1.2rem] px-3">
+                <li className="col-span-2 flex px-1.5 pt-[var(--mobile-app-inset)]">
+                  <section aria-label="App activity" className="mobile-glass flex h-[min(5.5rem,calc(100%-0.5rem))] w-full min-w-0 items-center justify-between gap-2 rounded-[1.2rem] px-3">
                     <div className="min-w-0">
                       <p className="text-xs font-medium text-foreground/80">Apps running</p>
                       <p className="mt-1 flex items-baseline gap-1.5 tabular-nums">
@@ -133,11 +139,11 @@ export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoadin
         </>
       )}
       {!isAppsLoading && !isAppsError && apps.length > 0 && (
-        <div className="relative flex h-12 shrink-0 items-center justify-center px-[6rem]" aria-label="Launcher controls">
+        <div className="relative flex h-[var(--mobile-launcher-controls)] shrink-0 items-center justify-center px-[6rem]" aria-label="Launcher controls">
           {view === "grid" && pageCount > 1 && (
             <div ref={pagerRef} className="flex max-w-full snap-x items-center overflow-x-auto overscroll-x-contain rounded-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="App pages">
               {Array.from({ length: pageCount }, (_, index) => (
-                <button key={index} type="button" aria-label={`App page ${index + 1}`} aria-current={index === currentPage ? "page" : undefined} onClick={() => setPage(index)} className="flex size-11 shrink-0 snap-center items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-white">
+                <button key={index} type="button" aria-label={`App page ${index + 1}`} aria-current={index === currentPage ? "page" : undefined} onClick={() => goToPage(index)} className="flex size-11 shrink-0 snap-center items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-white">
                   <span aria-hidden="true" className={`size-1.5 rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.5)] ${index === currentPage ? "bg-white" : "bg-white/45"}`} />
                 </button>
               ))}
@@ -222,11 +228,11 @@ function MobileApp({ app, active, list = false, onOpenApp, onAppContextMenu }: {
           }
           onOpenApp(app);
         }}
-        className={`cursor-pointer select-none [-webkit-touch-callout:none] focus-visible:outline-2 focus-visible:outline-primary ${list ? "flex min-h-16 min-w-0 flex-1 items-center gap-3 rounded-xl py-2 text-left active:bg-foreground/5" : "flex h-full w-full min-w-0 flex-col items-center gap-1.5 rounded-2xl px-0.5 pt-2 active:opacity-75"}`}
+        className={`cursor-pointer select-none [-webkit-touch-callout:none] focus-visible:outline-2 focus-visible:outline-primary ${list ? "flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-xl py-1.5 text-left active:bg-foreground/5" : "flex h-full w-full min-w-0 flex-col items-center gap-[var(--mobile-app-gap)] rounded-2xl px-0.5 pt-[var(--mobile-app-inset)] active:opacity-75"}`}
       >
         {icon}
         <span className={list ? "min-w-0 flex-1" : "w-full min-w-0 text-center"}>
-          <span className={list ? "block [overflow-wrap:anywhere] text-sm font-medium text-foreground" : `mobile-wallpaper-label text-[0.72rem] font-medium leading-tight ${app.name.includes(" ") ? "line-clamp-2 text-balance [overflow-wrap:anywhere]" : "block truncate"}`}>{app.name}</span>
+          <span className={list ? "block [overflow-wrap:anywhere] text-sm font-medium text-foreground" : `mobile-wallpaper-label text-[length:var(--mobile-app-label)] font-medium leading-tight ${app.name.includes(" ") ? "line-clamp-2 text-balance [overflow-wrap:anywhere]" : "block truncate"}`}>{app.name}</span>
           {list && <span className="block text-xs text-muted-foreground">{visual.title}{app.updateAvailable && app.status === "running" ? " · Update available" : ""}</span>}
         </span>
       </button>

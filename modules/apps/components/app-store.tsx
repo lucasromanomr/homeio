@@ -183,7 +183,7 @@ function CatalogSidebar({
   onSelectSource: (sourceId: string) => void;
 }) {
   return (
-    <aside className={cn("mx-4 max-[360px]:mx-3 mb-2 flex min-w-0 shrink-0 flex-row gap-2 border-0 bg-transparent px-0 py-0 shadow-none backdrop-blur-none md:m-2 md:w-48 md:flex-col md:gap-0 md:overflow-y-auto md:border md:bg-card/78 md:px-2 md:py-3 md:shadow-sm md:backdrop-blur-xl handheld:!mx-4 max-[360px]:handheld:!mx-3 handheld:!mb-2 handheld:!w-auto handheld:!flex-row handheld:!gap-2 handheld:!overflow-visible handheld:!border-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-0 handheld:!shadow-none handheld:!backdrop-blur-none", STORE_PANEL_SHELL)}>
+    <aside className={cn("mx-4 max-[360px]:mx-3 mb-2 flex min-w-0 shrink-0 flex-row gap-2 border-0 bg-transparent px-0 py-0 shadow-none backdrop-blur-none md:m-2 md:w-48 md:flex-col md:gap-0 md:overflow-y-auto md:border md:bg-card/78 md:px-2 md:py-3 md:shadow-sm md:backdrop-blur-xl handheld:!mx-[var(--mobile-gutter)] handheld:!mb-2 handheld:!w-auto handheld:!flex-row handheld:!gap-2 handheld:!overflow-visible handheld:!border-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-0 handheld:!shadow-none handheld:!backdrop-blur-none", STORE_PANEL_SHELL)}>
       <label className="relative flex min-w-0 flex-1 flex-col gap-1.5 md:mb-3 md:flex-none md:px-3 handheld:!mb-0 handheld:!flex-1 handheld:!px-0">
         <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted-foreground md:font-sans md:text-[10px] handheld:!font-mono md:font-semibold md:uppercase md:tracking-[0.16em] md:text-muted-foreground/50">
           Source
@@ -887,9 +887,9 @@ export function AppStore({
 
   // ── Catalog view ─────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-full min-h-0 min-w-0 flex-col overflow-y-auto md:overflow-visible handheld:!overflow-y-auto">
+    <div className="flex h-full min-h-0 min-w-0 flex-col overflow-y-auto md:overflow-visible handheld:@container/mobile-store handheld:!overflow-y-auto handheld:overscroll-contain">
       {/* Header */}
-      <div className={cn("relative z-10 mx-4 max-[360px]:mx-3 mb-2 mt-3 flex shrink-0 flex-wrap items-center gap-2 border-0 bg-transparent px-0 py-0 shadow-none backdrop-blur-none md:m-2 md:flex-nowrap md:gap-3 md:border md:bg-card/78 md:px-4 md:py-2.5 md:shadow-sm md:backdrop-blur-xl handheld:!mx-4 max-[360px]:handheld:!mx-3 handheld:!mb-2 handheld:!mt-3 handheld:!flex-wrap handheld:!border-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-0 handheld:!shadow-none handheld:!backdrop-blur-none", STORE_PANEL_SHELL)}>
+      <div className={cn("relative z-10 mx-4 max-[360px]:mx-3 mb-2 mt-3 flex shrink-0 flex-wrap items-center gap-2 border-0 bg-transparent px-0 py-0 shadow-none backdrop-blur-none md:m-2 md:flex-nowrap md:gap-3 md:border md:bg-card/78 md:px-4 md:py-2.5 md:shadow-sm md:backdrop-blur-xl handheld:!mx-[var(--mobile-gutter)] handheld:!mb-2 handheld:!mt-3 handheld:!flex-wrap handheld:@xl/mobile-store:!flex-nowrap handheld:!border-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-0 handheld:!shadow-none handheld:!backdrop-blur-none", STORE_PANEL_SHELL)}>
         {/* Filter tabs */}
         <div className="flex items-center gap-0.5">
           {(["all", "installed"] as const).map((f) => (
@@ -908,7 +908,7 @@ export function AppStore({
           ))}
         </div>
 
-        <div className="flex-1" />
+        <div className="flex-1 handheld:@xl/mobile-store:hidden" />
 
         <AppStoreInstallMenu
           onInstallCustomClick={onOpenCustomInstall}
@@ -916,7 +916,7 @@ export function AppStore({
         />
 
         {/* Search */}
-        <div className="relative order-first w-full md:order-none md:w-52 handheld:!order-first handheld:!w-full">
+        <div className="relative order-first w-full md:order-none md:w-52 handheld:!order-first handheld:!w-full handheld:@xl/mobile-store:!order-none handheld:@xl/mobile-store:!w-auto handheld:@xl/mobile-store:min-w-0 handheld:@xl/mobile-store:flex-1">
           <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/60" />
           <input
             type="text"
@@ -960,7 +960,7 @@ export function AppStore({
           onSelectSource={setSelectedSourceId}
         />
 
-        <div className={cn("mx-4 max-[360px]:mx-3 min-h-0 min-w-0 flex-1 border-0 bg-transparent p-0 shadow-none backdrop-blur-none md:m-2 md:mt-2 md:overflow-y-auto md:border md:bg-card/78 md:p-4 md:shadow-sm md:backdrop-blur-xl handheld:!mx-4 max-[360px]:handheld:!mx-3 handheld:!mt-0 handheld:!overflow-visible handheld:!border-0 handheld:!bg-transparent handheld:!p-0 handheld:!shadow-none handheld:!backdrop-blur-none", STORE_PANEL_SHELL)}>
+        <div className={cn("mx-4 max-[360px]:mx-3 min-h-0 min-w-0 flex-1 border-0 bg-transparent p-0 shadow-none backdrop-blur-none md:m-2 md:mt-2 md:overflow-y-auto md:border md:bg-card/78 md:p-4 md:shadow-sm md:backdrop-blur-xl handheld:!mx-[var(--mobile-gutter)] handheld:!mt-0 handheld:!overflow-visible handheld:!border-0 handheld:!bg-transparent handheld:!p-0 handheld:!shadow-none handheld:!backdrop-blur-none", STORE_PANEL_SHELL)}>
           {actionError && (
             <div className="mb-3 rounded-lg border border-status-red/30 bg-status-red/10 px-3 py-2 text-xs text-status-red">
               {actionError}
@@ -1007,7 +1007,7 @@ export function AppStore({
                     <h2 className="text-sm font-semibold text-foreground">
                       {selectedCategory ?? (filter === "installed" ? "Installed Apps" : "Catalog")}
                     </h2>
-                    <p className="font-mono text-xs text-muted-foreground md:font-sans handheld:!font-mono">{apps.length} apps{sourceFilter ? ` in ${sources.find((source) => source.id === sourceFilter)?.name ?? "Custom"}` : ""}</p>
+                    <p className="min-w-0 [overflow-wrap:anywhere] font-mono text-xs text-muted-foreground md:font-sans handheld:!font-mono handheld:text-right">{apps.length} apps{sourceFilter ? ` in ${sources.find((source) => source.id === sourceFilter)?.name ?? "Custom"}` : ""}</p>
                   </div>
                 </div>
 
@@ -1016,7 +1016,7 @@ export function AppStore({
                     {appGroups.length > 1 && (
                       <h3 className="text-xs font-semibold text-muted-foreground">{group.name}</h3>
                     )}
-                    <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-2 handheld:grid-cols-1">
+                    <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-2 handheld:grid-cols-1 handheld:@xl/mobile-store:grid-cols-2 handheld:@xl/mobile-store:gap-x-4">
                       {group.apps.slice(0, visibleCatalogCount).map((app) => (
                         <CatalogRow
                           key={app.id}
