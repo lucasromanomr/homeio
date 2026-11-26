@@ -10,6 +10,7 @@ import type {
 } from "@/modules/files/components/manager/file-manager-state";
 
 type UseFileManagerKeyboardArgs = {
+  enabled: boolean;
   clipboardState: ClipboardState | null;
   createEntryDialogOpen: boolean;
   currentPath: string[];
@@ -36,6 +37,7 @@ type UseFileManagerKeyboardArgs = {
 };
 
 export function useFileManagerKeyboard({
+  enabled,
   clipboardState,
   createEntryDialogOpen,
   currentPath,
@@ -77,6 +79,8 @@ export function useFileManagerKeyboard({
   });
 
   useEffect(() => {
+    if (!enabled) return;
+
     function onKeyDown(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;
       const tag = target?.tagName;
@@ -195,6 +199,7 @@ export function useFileManagerKeyboard({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [
+    enabled,
     clipboardState,
     createEntryDialogOpen,
     currentPath,

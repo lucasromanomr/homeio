@@ -210,7 +210,7 @@ export function Window({
     >
       {mobile ? (
         <header className="flex min-h-14 shrink-0 items-center gap-3 border-b border-glass-border px-3">
-          <button type="button" onClick={onClose} aria-label="Go back" className="min-h-11 rounded-lg px-2 text-sm text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">‹ Back</button>
+          <button type="button" onClick={onClose} aria-label="Go back" className="min-h-11 rounded-lg px-2 text-sm text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">â€¹ Back</button>
           {icon}
           <h1 className="min-w-0 truncate text-base font-semibold">{title}</h1>
         </header>
