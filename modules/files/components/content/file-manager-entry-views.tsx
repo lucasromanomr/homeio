@@ -118,29 +118,32 @@ export function FileGrid({
 }) {
   const [limit, sentinelRef] = useVirtualLimit(entries.length);
   const visible = entries.slice(0, limit);
+  const [selecting, setSelecting] = useState(false);
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="mb-2 flex justify-end md:hidden handheld:flex"><button type="button" aria-pressed={selecting} onClick={() => setSelecting((value) => !value)} className="min-h-11 px-3 text-sm text-primary">{selecting ? "Done selecting" : "Select"}</button></div>
+      <div className="grid grid-cols-1 gap-0 md:grid-cols-4 md:gap-3 lg:grid-cols-5 handheld:grid-cols-1 handheld:gap-0">
         {visible.map((entry) => {
           const isImage = entry.type === "file" && IMAGE_EXTS.has((entry.ext ?? "").toLowerCase());
           const isSelected = selectedFiles.has(entry.name);
           return (
-            <div key={entry.name} className="min-w-0">
+            <div key={entry.name} className="flex min-w-0 items-center border-b border-[var(--mobile-divider)] md:block md:border-0 handheld:flex handheld:border-b">
             <button
               aria-label={entry.name}
+              aria-pressed={selecting ? isSelected : undefined}
               title={titleFromPath ? entry.path : entry.name}
-              onClick={(event) => onEntryClick(event, entry)}
+              onClick={(event) => { if (window.matchMedia?.("(width < 48rem), (pointer: coarse) and (hover: none)").matches) { if (selecting) onToggleSelection(entry); else onOpenEntry(entry); } else onEntryClick(event, entry); }}
               onDoubleClick={() => onOpenEntry(entry)}
               onContextMenu={(event) => onEntryContextMenu(event, entry)}
               className={cn(
-                "flex w-full cursor-pointer flex-col items-center gap-3 rounded-xl border p-4 transition-all",
+                "flex min-h-14 min-w-0 flex-1 cursor-pointer flex-row items-center gap-3 rounded-xl border p-2 text-left transition-colors md:w-full md:flex-col md:p-4 handheld:flex-row handheld:p-2",
                 isSelected
                   ? "border-primary/30 bg-primary/15"
                   : "border-transparent hover:bg-background/50",
               )}
             >
-              <div className="relative">
+              <div className="relative scale-75 md:scale-100 handheld:scale-75">
                 {pendingEntryPath === entry.path ? (
                   <div className="flex size-14 items-center justify-center">
                     <Loader2 className="size-7 animate-spin text-primary" />
@@ -154,8 +157,8 @@ export function FileGrid({
                   <Star className="absolute -right-1 -top-1 size-3.5 fill-amber-400 text-amber-400" />
                 )}
               </div>
-              <div className="flex w-full flex-col items-center gap-0.5">
-                <span className="line-clamp-2 break-all text-center text-[13px] font-medium leading-tight text-foreground">
+              <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 md:w-full md:items-center handheld:items-start">
+                <span className="line-clamp-2 break-all text-sm font-medium leading-tight text-foreground md:text-center handheld:text-left">
                   {entry.name}
                 </span>
                 {entry.size && (
@@ -163,11 +166,7 @@ export function FileGrid({
                 )}
               </div>
             </button>
-            <div className="flex flex-wrap justify-center gap-1 md:hidden">
-              <button type="button" onClick={() => onToggleSelection(entry)} aria-pressed={isSelected} className="rounded-lg px-2 py-2 text-xs text-primary">{isSelected ? "Deselect" : "Select"}</button>
-              <button type="button" onClick={() => onOpenEntry(entry)} className="rounded-lg px-2 py-2 text-xs text-primary">Open</button>
-              <button type="button" onClick={(event) => onEntryContextMenu(event, entry)} aria-label={`Actions for ${entry.name}`} className="rounded-lg px-2 py-2 text-xs text-primary">Actions</button>
-            </div>
+            {selecting ? <span aria-hidden="true" className="px-4 text-primary md:hidden handheld:flex">{isSelected ? "✓" : "○"}</span> : <button type="button" onClick={(event) => onEntryContextMenu(event, entry)} aria-label={`Actions for ${entry.name}`} className="min-h-11 min-w-11 rounded-lg text-xl text-muted-foreground hover:bg-foreground/10 md:hidden handheld:inline-flex handheld:items-center handheld:justify-center">⋯</button>}
             </div>
           );
         })}
@@ -204,10 +203,12 @@ export function FileList({
 }) {
   const [limit, sentinelRef] = useVirtualLimit(entries.length);
   const visible = entries.slice(0, limit);
+  const [selecting, setSelecting] = useState(false);
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-3 border-b border-glass-border/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50">
+      <div className="flex justify-end md:hidden handheld:flex"><button type="button" aria-pressed={selecting} onClick={() => setSelecting((value) => !value)} className="min-h-11 px-3 text-sm text-primary">{selecting ? "Done selecting" : "Select"}</button></div>
+      <div className="hidden items-center gap-3 border-b md:flex border-glass-border/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50">
         <span className="min-w-0 flex-1">Name</span>
         {isTrashView && <span className="hidden w-48 text-right lg:block">Original Location</span>}
         {isGlobalSearchActive && <span className="hidden w-48 text-right lg:block">Location</span>}
@@ -221,7 +222,8 @@ export function FileList({
         <div key={entry.name} className="flex items-center">
         <button
           aria-label={entry.name}
-          onClick={(event) => onEntryClick(event, entry)}
+          aria-pressed={selecting ? selectedFiles.has(entry.name) : undefined}
+          onClick={(event) => { if (window.matchMedia?.("(width < 48rem), (pointer: coarse) and (hover: none)").matches) { if (selecting) onToggleSelection(entry); else onOpenEntry(entry); } else onEntryClick(event, entry); }}
           onDoubleClick={() => onOpenEntry(entry)}
           onContextMenu={(event) => onEntryContextMenu(event, entry)}
           className={cn(
@@ -276,9 +278,7 @@ export function FileList({
               : entry.modified}
           </span>
         </button>
-        <button type="button" onClick={() => onToggleSelection(entry)} aria-label={`Select ${entry.name}`} aria-pressed={selectedFiles.has(entry.name)} className="px-2 py-3 text-xs text-primary md:hidden">{selectedFiles.has(entry.name) ? "Selected" : "Select"}</button>
-        <button type="button" onClick={() => onOpenEntry(entry)} aria-label={`Open ${entry.name}`} className="px-2 py-3 text-xs text-primary md:hidden">Open</button>
-        <button type="button" onClick={(event) => onEntryContextMenu(event, entry)} aria-label={`Actions for ${entry.name}`} className="px-2 py-3 text-xs text-primary md:hidden">Actions</button>
+        {selecting ? <span aria-hidden="true" className="px-4 text-primary md:hidden handheld:flex">{selectedFiles.has(entry.name) ? "✓" : "○"}</span> : <button type="button" onClick={(event) => onEntryContextMenu(event, entry)} aria-label={`Actions for ${entry.name}`} className="min-h-11 min-w-11 rounded-lg text-xl text-muted-foreground hover:bg-foreground/10 md:hidden handheld:inline-flex handheld:items-center handheld:justify-center">⋯</button>}
         </div>
       ))}
 

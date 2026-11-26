@@ -5,6 +5,10 @@ import {
   Bell,
   FolderOpen,
   HardDrive,
+  Home,
+  LayoutGrid,
+  Lock,
+  LogOut,
   Package,
   Search,
   Settings,
@@ -46,6 +50,7 @@ import { NotificationsPanel } from "@/modules/system/components/notifications-pa
 import { StatusBar } from "@/modules/system/components/status-bar";
 import { SystemWidgets } from "@/modules/system/components/system-widgets";
 import { UpdateReminder } from "@/modules/system/components/update-reminder";
+import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
@@ -106,6 +111,8 @@ function DesktopShellInner() {
   const [closingWindows, setClosingWindows] = useState<string[]>([]);
   const [minimizedWindows, setMinimizedWindows] = useState<string[]>([]);
   const [focusedWindow, setFocusedWindow] = useState<string | null>(null);
+  const [mobilePage, setMobilePage] = useState<"home" | "more">("home");
+  const mobileParents = useRef<Record<string, string | null>>({});
   const [isLocked, setIsLocked] = useState(false);
   const [isLockStateHydrated, setIsLockStateHydrated] = useState(false);
   const [isLogoutPending, setIsLogoutPending] = useState(false);
@@ -242,6 +249,9 @@ function DesktopShellInner() {
   );
 
   const openWindow = useCallback((id: string) => {
+    if (isMobile && id !== focusedWindow) {
+      mobileParents.current[id] = focusedWindow ?? (mobilePage === "more" ? "__more" : null);
+    }
     if (closeTimersRef.current[id]) {
       window.clearTimeout(closeTimersRef.current[id]);
       delete closeTimersRef.current[id];
@@ -254,7 +264,7 @@ function DesktopShellInner() {
       return [...prev, id];
     });
     setFocusedWindow(id);
-  }, [isMobile]);
+  }, [focusedWindow, isMobile, mobilePage]);
 
   const minimizeWindow = useCallback(
     (id: string) => {
@@ -273,7 +283,17 @@ function DesktopShellInner() {
         delete closeTimersRef.current[id];
       }
 
-      if (isMobile || !appearance.animationsEnabled) {
+      if (isMobile) {
+        const parent = mobileParents.current[id];
+        delete mobileParents.current[id];
+        setOpenWindows((prev) => prev.filter((windowId) => windowId !== id));
+        setClosingWindows((prev) => prev.filter((windowId) => windowId !== id));
+        setMinimizedWindows((prev) => prev.filter((windowId) => windowId !== id));
+        setMobilePage(parent === "__more" ? "more" : "home");
+        setFocusedWindow(parent && parent !== "__more" && openWindows.includes(parent) ? parent : null);
+        return;
+      }
+      if (!appearance.animationsEnabled) {
         finalizeCloseWindow(id);
         return;
       }
@@ -284,7 +304,7 @@ function DesktopShellInner() {
         finalizeCloseWindow(id);
       }, WINDOW_CLOSE_ANIMATION_MS);
     },
-    [appearance.animationsEnabled, finalizeCloseWindow, isMobile],
+    [appearance.animationsEnabled, finalizeCloseWindow, isMobile, openWindows],
   );
 
   // The first real wallpaper is assigned outright. Cross-fading into it would
@@ -465,6 +485,17 @@ function DesktopShellInner() {
     }
 
     openWindow(id);
+  }
+
+  function selectMobileTab(id: "home" | "files" | "app-store" | "monitor" | "more") {
+    if (id === "home" || id === "more") {
+      setFocusedWindow(null);
+      setMobilePage(id);
+      return;
+    }
+    openWindow(id);
+    mobileParents.current[id] = null;
+    setMobilePage("home");
   }
 
   function getWindowZ(id: string) {
@@ -657,7 +688,7 @@ function DesktopShellInner() {
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden">
       {/* Wallpaper Background */}
-      <div className="absolute inset-0">
+      {!isMobile && <div className="absolute inset-0">
         <div
           className={`absolute inset-0 bg-cover bg-center bg-no-repeat ${
             appearance.animationsEnabled ? "transition-opacity ease-out" : ""
@@ -689,10 +720,10 @@ function DesktopShellInner() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_130%_100%_at_50%_0%,transparent_28%,rgba(0,0,0,0.42)_100%)]" />
         {/* Bottom ambient shadow (dock area) */}
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/30 to-transparent" />
-      </div>
+      </div>}
 
       {/* Desktop Content */}
-      <div className="relative z-10 flex h-full flex-col">
+      <div className={`relative z-10 flex h-full flex-col ${isMobile ? "bg-[var(--mobile-canvas)] text-foreground" : ""}`}>
         {/* Demo mode floating badge — overlays the top of the widget column */}
         {currentUser?.isDemoMode && (
           <div className="fixed top-14 right-5 z-50 hidden xl:flex items-center gap-2 rounded-full border border-primary/35 bg-primary/10 px-3 py-1.5 backdrop-blur-md shadow-lg shadow-black/20">
@@ -728,51 +759,45 @@ function DesktopShellInner() {
           onOpenSettings={() => openWindow("settings")}
         />}
 
-        {/* Main Desktop Area */}
+        {/* Launcher and desktop area */}
         {(!isMobile || !focusedWindow) && <div className={isMobile
-          ? "flex min-h-0 flex-1 flex-col overflow-y-auto pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
+          ? "flex min-h-0 flex-1 flex-col overflow-hidden pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[calc(var(--mobile-nav-height)+env(safe-area-inset-bottom)+1px)] pl-[env(safe-area-inset-left)]"
           : "m-12 flex min-h-0 flex-1 overflow-hidden"}>
-          {isMobile && (
-            <div className="shrink-0 px-5 pt-4 text-white">
-              <h1 className="text-2xl font-semibold">Homeio</h1>
-              {currentUser?.isDemoMode && <p className="text-sm text-white/70">Demo · read-only</p>}
-              <nav aria-label="Tools" className="mt-4 grid grid-cols-3 gap-2 min-[375px]:grid-cols-4">
+          {isMobile && <header className="flex min-h-16 shrink-0 items-center gap-3 border-b border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4">
+            <NextImage src="/icon-192.png" alt="" width={36} height={36} className="size-9 rounded-lg" />
+            <h1 className="min-w-0 flex-1 text-lg font-semibold tracking-tight">{mobilePage === "more" ? "More" : "Homeio"}</h1>
+            {currentUser?.isDemoMode && <span className="text-xs text-foreground/70">Demo</span>}
+            <button type="button" aria-label="Search" onClick={() => { setIsSettingsSearchOpen(true); setSettingsSearchQuery(""); }} className="grid size-11 place-items-center rounded-lg hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"><Search className="size-5" /></button>
+            <button type="button" aria-label="Notifications" onClick={() => openWindow("notifications")} className="grid size-11 place-items-center rounded-lg hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"><Bell className="size-5" /></button>
+          </header>}
+          {isMobile && mobilePage === "more" ? (
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
+              <div className="overflow-hidden rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)]">
                 {([
-                  ["files", "Files", FolderOpen],
-                  ["app-store", "App Store", ShoppingBag],
-                  ["monitor", "Monitor", Activity],
                   ["settings", "Settings", Settings],
-                  ["notifications", "Notifications", Bell],
                   ["disk-manager", "Disks", HardDrive],
                   ["terminal", "Terminal", TerminalSquare],
                 ] as const).map(([id, label, Icon]) => (
-                  <button key={id} type="button" onClick={() => handleDockClick(id)} className="flex min-h-16 flex-col items-center justify-center gap-1 rounded-xl bg-black/35 p-2 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                    <Icon className="size-5" aria-hidden="true" />{label}
-                  </button>
+                  <button key={id} type="button" onClick={() => handleDockClick(id)} className="flex min-h-14 w-full items-center gap-3 border-b border-[var(--mobile-divider)] px-4 text-left text-sm font-medium last:border-0 hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-orange-400"><Icon className="size-5" aria-hidden="true" />{label}</button>
                 ))}
-                <button type="button" onClick={() => { setIsSettingsSearchOpen(true); setSettingsSearchQuery(""); }} className="min-h-16 rounded-xl bg-black/35 p-2 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Search</button>
-                <button type="button" onClick={() => setLockState(true)} className="min-h-16 rounded-xl bg-black/35 p-2 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Lock</button>
-                <button type="button" disabled={isLogoutPending} onClick={handleLogout} className="min-h-16 rounded-xl bg-black/35 p-2 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:opacity-50">{isLogoutPending ? "Signing out…" : "Sign out"}</button>
-              </nav>
-              <h2 className="mt-5 text-lg font-semibold">Apps</h2>
+              </div>
+              <div className="mt-4 overflow-hidden rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)]">
+                <button type="button" onClick={() => setLockState(true)} className="flex min-h-14 w-full items-center gap-3 border-b border-[var(--mobile-divider)] px-4 text-left text-sm font-medium hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-orange-400"><Lock className="size-5" aria-hidden="true" />Lock</button>
+                <button type="button" disabled={isLogoutPending} onClick={handleLogout} className="flex min-h-14 w-full items-center gap-3 px-4 text-left text-sm font-medium hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-orange-400 disabled:opacity-50"><LogOut className="size-5" aria-hidden="true" />{isLogoutPending ? "Signing out…" : "Sign out"}</button>
+              </div>
             </div>
-          )}
-          {/* App Grid (scrollable center) */}
-          <AppGrid
-            className={isMobile ? "flex-none" : undefined}
+          ) : <AppGrid
+            mobile={isMobile}
+            onBrowseStore={() => selectMobileTab("app-store")}
             iconSize={appIconSize}
             animationsEnabled={appearance.animationsEnabled}
             onViewLogs={(target) => setLogsTarget(target)}
-            onOpenTerminal={({ containerName }) =>
-              openContainerTerminal(containerName)
-            }
+            onOpenTerminal={({ containerName }) => openContainerTerminal(containerName)}
             onOpenSettings={(target) => {
               setAppSettingsTarget(target);
               openWindow("app-settings");
             }}
-          />
-
-          {/* System Widgets (right sidebar) */}
+          />}
           {!isMobile && <SystemWidgets />}
         </div>}
 
@@ -1010,6 +1035,19 @@ function DesktopShellInner() {
             <DiskManager />
           </Window>
         )}
+
+        {isMobile && <nav aria-label="Primary navigation" className="absolute inset-x-0 bottom-0 z-[120] grid grid-cols-5 border-t border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-[env(safe-area-inset-left)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)]">
+          {([
+            ["home", "Home", Home], ["files", "Files", FolderOpen],
+            ["app-store", "Store", ShoppingBag], ["monitor", "Monitor", Activity],
+            ["more", "More", LayoutGrid],
+          ] as const).map(([id, label, Icon]) => {
+            const active = focusedWindow === id || (!focusedWindow && mobilePage === id) ||
+              (id === "app-store" && focusedWindow === "custom-install") ||
+              (id === "more" && ["settings", "disk-manager", "terminal"].includes(focusedWindow ?? ""));
+            return <button key={id} type="button" aria-current={active ? "page" : undefined} onClick={() => selectMobileTab(id)} className={`flex min-h-[var(--mobile-nav-height)] min-w-0 flex-col items-center justify-center gap-1 text-[11px] font-medium focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-orange-400 ${active ? "text-[var(--mobile-accent-text)]" : "text-foreground/70 hover:bg-foreground/10"}`}><Icon className="size-5" aria-hidden="true" />{label}</button>;
+          })}
+        </nav>}
 
         {/* Command Palette Badge — floats above the dock */}
         {!isMobile && <div className="fixed bottom-[5.75rem] left-1/2 z-40 -translate-x-1/2">

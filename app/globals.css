@@ -2,8 +2,18 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant handheld {
+  @media (width < 48rem), (pointer: coarse) and (hover: none) {
+    @slot;
+  }
+}
 
 :root {
+  --mobile-canvas: #eef2f7;
+  --mobile-panel: #ffffff;
+  --mobile-divider: #d2dce8;
+  --mobile-accent-text: #a34112;
+  --mobile-nav-height: 4rem;
   --background: oklch(0.96 0.006 250);
   --foreground: oklch(0.2 0.02 250);
   --card: oklch(0.99 0.004 250 / 0.8);
@@ -69,6 +79,10 @@
 }
 
 .dark {
+  --mobile-canvas: #141d2b;
+  --mobile-panel: #202d3f;
+  --mobile-divider: #394961;
+  --mobile-accent-text: #ff9a61;
   --background: oklch(0.13 0.015 250);
   --foreground: oklch(0.97 0.005 250);
   --card: oklch(0.18 0.012 250 / 0.8);

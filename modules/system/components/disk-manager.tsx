@@ -68,7 +68,7 @@ function DiskCard({ disk, selected, onClick }: { disk: DiskDevice; selected: boo
     <button
       onClick={onClick}
       className={cn(
-        "flex w-44 shrink-0 flex-col gap-1 rounded-xl md:w-full border px-3 py-2.5 text-left transition-colors",
+        "flex w-44 shrink-0 flex-col gap-1 rounded-xl md:w-full handheld:w-44 border px-3 py-2.5 text-left transition-colors",
         selected
           ? "border-primary/40 bg-primary/10 text-foreground"
           : "border-glass-border bg-background/40 text-muted-foreground hover:bg-background/60 hover:text-foreground",
@@ -146,7 +146,7 @@ function ConfirmBanner({
   };
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-status-red/30 bg-status-red/10 px-4 py-2.5">
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-status-red/30 bg-status-red/10 px-4 py-2.5">
       <WarningRegular className="size-4 shrink-0 text-status-red" />
       <p className="flex-1 text-[12px] text-foreground">{messages[state.type]}</p>
       <div className="flex items-center gap-1.5">
@@ -361,7 +361,7 @@ function PartitionRow({
   const isMounted = Boolean(partition.mountpoint);
 
   return (
-    <div className="grid min-w-[600px] grid-cols-[1.4fr_0.9fr_0.8fr_1.2fr_auto] items-center gap-3 px-4 py-2.5 text-xs transition-colors hover:bg-background/30">
+    <div className="grid min-w-[600px] grid-cols-[1.4fr_0.9fr_0.8fr_1.2fr_auto] handheld:min-w-0 handheld:grid-cols-2 items-center gap-3 px-4 py-2.5 text-xs transition-colors hover:bg-background/30">
       <div className="flex items-center gap-2 min-w-0">
         <div className={cn("size-2 shrink-0 rounded-sm", fsColor(partition.fstype))} />
         <span className="font-mono font-medium text-foreground truncate">{partition.device}</span>
@@ -371,35 +371,39 @@ function PartitionRow({
       <span className={cn("font-mono truncate", isMounted ? "text-status-green" : "text-muted-foreground/40")}>
         {partition.mountpoint ?? "—"}
       </span>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 handheld:col-span-2">
         <button
           onClick={onFormat}
+          aria-label={`Format ${partition.device}`}
           title="Format"
-          className="rounded-md p-1 text-muted-foreground/50 transition-colors hover:bg-background/60 hover:text-status-amber"
+          className="rounded-md p-1 handheld:min-h-11 handheld:min-w-11 text-muted-foreground/50 transition-colors hover:bg-background/60 hover:text-status-amber"
         >
           <ArrowSyncRegular className="size-3.5" />
         </button>
         {isMounted ? (
           <button
             onClick={onUnmount}
+            aria-label={`Unmount ${partition.device}`}
             title="Unmount"
-            className="rounded-md p-1 text-muted-foreground/50 transition-colors hover:bg-background/60 hover:text-foreground"
+            className="rounded-md p-1 handheld:min-h-11 handheld:min-w-11 text-muted-foreground/50 transition-colors hover:bg-background/60 hover:text-foreground"
           >
             <ArrowUploadRegular className="size-3.5" />
           </button>
         ) : (
           <button
             onClick={onMount}
+            aria-label={`Mount ${partition.device}`}
             title="Mount"
-            className="rounded-md p-1 text-muted-foreground/50 transition-colors hover:bg-background/60 hover:text-primary"
+            className="rounded-md p-1 handheld:min-h-11 handheld:min-w-11 text-muted-foreground/50 transition-colors hover:bg-background/60 hover:text-primary"
           >
             <ArrowDownloadRegular className="size-3.5" />
           </button>
         )}
         <button
           onClick={onDelete}
+          aria-label={`Delete ${partition.device}`}
           title="Delete partition"
-          className="rounded-md p-1 text-muted-foreground/50 transition-colors hover:bg-background/60 hover:text-status-red"
+          className="rounded-md p-1 handheld:min-h-11 handheld:min-w-11 text-muted-foreground/50 transition-colors hover:bg-background/60 hover:text-status-red"
         >
           <DeleteRegular className="size-3.5" />
         </button>
@@ -500,7 +504,7 @@ function DiskDetail({ disk }: { disk: DiskDevice }) {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-3">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-y-auto p-3">
       {/* Disk header */}
       <div className={cn(PANEL_INSET, "flex items-center gap-3 px-4 py-3")}>
         <div className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-glass-border bg-background/55">
@@ -526,7 +530,7 @@ function DiskDetail({ disk }: { disk: DiskDevice }) {
 
       {/* Partition table */}
       <div className={cn(PANEL_INSET, "overflow-x-auto")}>
-        <div className="grid min-w-[600px] grid-cols-[1.4fr_0.9fr_0.8fr_1.2fr_auto] gap-3 border-b border-glass-border/50 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50">
+        <div className="grid min-w-[600px] grid-cols-[1.4fr_0.9fr_0.8fr_1.2fr_auto] gap-3 handheld:hidden border-b border-glass-border/50 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50">
           <span>Partition</span>
           <span>Filesystem</span>
           <span>Size</span>
@@ -592,7 +596,7 @@ function DiskDetail({ disk }: { disk: DiskDevice }) {
       )}
 
       {/* Disk-level actions */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <button
           onClick={() => setActiveForm({ type: "create-partition" })}
           disabled={anyPending}
@@ -633,7 +637,7 @@ export function DiskManager() {
         <button
           onClick={() => refetch()}
           disabled={isRefetching}
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 handheld:min-h-11 text-[12px] text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground disabled:opacity-50"
         >
           <ArrowSyncRegular className={cn("size-3.5", isRefetching && "animate-spin")} />
           Refresh
@@ -648,9 +652,9 @@ export function DiskManager() {
       ) : null}
 
       {/* Body */}
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden md:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden md:flex-row handheld:flex-col">
         {/* Disk list sidebar */}
-        <div className="flex max-h-32 shrink-0 gap-1.5 overflow-x-auto border-b border-glass-border/60 p-2 md:max-h-none md:w-52 md:flex-col md:overflow-y-auto md:border-b-0 md:border-r">
+        <div className="flex max-h-32 shrink-0 gap-1.5 overflow-x-auto border-b border-glass-border/60 p-2 md:max-h-none md:w-52 md:flex-col md:overflow-y-auto md:border-b-0 md:border-r handheld:max-h-32 handheld:w-full handheld:flex-row handheld:overflow-x-auto handheld:border-b handheld:border-r-0">
           {isLoading ? (
             <p className="px-3 py-4 text-center text-xs text-muted-foreground/60">Detecting disks…</p>
           ) : disks.length === 0 ? (

@@ -11,6 +11,8 @@ export type { AppActionTarget } from "@/modules/apps/components/app-grid-present
 
 type AppGridProps = {
   className?: string;
+  mobile?: boolean;
+  onBrowseStore?: () => void;
   iconSize?: "small" | "medium" | "large";
   animationsEnabled?: boolean;
   onOpenDashboard?: (target: AppActionTarget) => void;
@@ -22,6 +24,8 @@ type AppGridProps = {
 
 export function AppGrid({
   className,
+  mobile = false,
+  onBrowseStore,
   iconSize = "medium",
   animationsEnabled = true,
   onOpenDashboard,
@@ -40,7 +44,7 @@ export function AppGrid({
 
   return (
     <section
-      className={cn("flex-1 overflow-y-auto px-6 pt-4 pb-6", className)}
+      className={cn("min-h-0 flex-1 overflow-y-auto", mobile ? "px-4 pb-4" : "px-6 pt-4 pb-6", className)}
       onClick={controller.closeContextMenu}
     >
       {controller.actionError ? (
@@ -56,6 +60,8 @@ export function AppGrid({
         </div>
       ) : null}
       <AppGridContent
+        mobile={mobile}
+        onBrowseStore={onBrowseStore}
         activeAppId={controller.activeAppId}
         activeOperationsCount={controller.activeOperationsCount}
         animationsEnabled={animationsEnabled}

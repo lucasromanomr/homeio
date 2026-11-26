@@ -193,7 +193,7 @@ export function Window({
       aria-hidden={hidden || undefined}
       inert={hidden || undefined}
       className={mobile
-        ? "absolute inset-0 z-[110] flex min-h-0 flex-col overflow-hidden bg-card pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
+        ? "absolute inset-x-0 top-0 bottom-[calc(var(--mobile-nav-height)+env(safe-area-inset-bottom)+1px)] z-[110] flex min-h-0 flex-col overflow-hidden bg-[var(--mobile-canvas)] pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]"
         : `absolute flex flex-col overflow-hidden border border-glass-border ${
             isMaximized
               ? "rounded-[calc(var(--radius)+0.5rem)] shadow-[0_18px_42px_rgba(0,0,0,0.28)]"
@@ -209,8 +209,8 @@ export function Window({
       onMouseDown={mobile ? undefined : () => onFocus?.()}
     >
       {mobile ? (
-        <header className="flex min-h-14 shrink-0 items-center gap-3 border-b border-glass-border px-3">
-          <button type="button" onClick={onClose} aria-label="Go back" className="min-h-11 rounded-lg px-2 text-sm text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">‹ Back</button>
+        <header className="flex min-h-14 shrink-0 items-center gap-3 border-b border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-3">
+          <button type="button" onClick={onClose} aria-label="Go back" className="min-h-11 rounded-lg px-2 text-sm font-medium text-[var(--mobile-accent-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400">‹ Back</button>
           {icon}
           <h1 className="min-w-0 truncate text-base font-semibold">{title}</h1>
         </header>

@@ -51,7 +51,7 @@ type ToolbarProps = {
   onUploadInputChange: (files: File[]) => void;
 };
 
-const iconBtn = "inline-flex size-7 items-center justify-center rounded-lg transition-colors";
+const iconBtn = "inline-flex size-11 items-center justify-center rounded-lg transition-colors md:size-7 handheld:size-11";
 const iconBtnIdle = "text-muted-foreground hover:bg-background/50 hover:text-foreground";
 
 export function FileManagerToolbar({
@@ -85,7 +85,7 @@ export function FileManagerToolbar({
   onUploadInputChange,
 }: ToolbarProps) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-2 md:flex-nowrap md:overflow-x-auto border-b border-glass-border/60 px-3 py-2", FILES_PANEL_SHELL)}>
+    <div className={cn("flex flex-wrap items-center gap-2 md:flex-nowrap md:overflow-x-auto border-b border-glass-border/60 px-3 py-2 handheld:!flex-wrap handheld:!overflow-x-visible", FILES_PANEL_SHELL)}>
 
       {/* Back / up */}
       <button
@@ -101,17 +101,20 @@ export function FileManagerToolbar({
       <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto" aria-label="File path">
         <button
           onClick={() => onNavigateToPath([])}
-          className="inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-background/50 hover:text-foreground"
+          className="inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-background/50 hover:text-foreground handheld:min-h-11"
         >
           <HardDrive className="size-4" />
-          <span className="hidden 2xl:inline">{rootLabel}</span>
+          <span className="md:hidden 2xl:inline handheld:!hidden">{rootLabel}</span>
+          <span className="hidden handheld:!inline">
+            {rootLabel.includes("/") || rootLabel.includes("\\") ? "Storage" : rootLabel}
+          </span>
         </button>
         {currentPath.map((segment, index) => (
           <div key={segment + index} className="flex min-w-0 items-center gap-0.5">
             <ChevronRight className="size-3.5 shrink-0 text-muted-foreground/50" />
             <button
               onClick={() => onNavigateToPath(currentPath.slice(0, index + 1))}
-              className="max-w-24 truncate rounded-md px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-background/50 hover:text-foreground sm:max-w-28 md:max-w-32"
+              className="max-w-24 truncate rounded-md px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-background/50 hover:text-foreground sm:max-w-28 md:max-w-32 handheld:min-h-11"
             >
               {currentPathForDisplay[index] ?? segment}
             </button>
@@ -149,8 +152,8 @@ export function FileManagerToolbar({
       )}
 
       {/* Search */}
-      <div className="flex shrink-0 items-center gap-1">
-        <div className="relative w-28 sm:w-36">
+      <div className="order-first flex w-full items-center gap-1 md:order-none md:w-auto md:shrink-0 handheld:!order-first handheld:!w-full">
+        <div className="relative flex-1 md:w-36 md:flex-none handheld:flex-1">
           {globalSearchIsFetching ? (
             <Loader2 className="absolute left-2 top-1/2 size-3 -translate-y-1/2 animate-spin text-primary" />
           ) : (
@@ -163,7 +166,7 @@ export function FileManagerToolbar({
             onChange={(e) => onSearchQueryChange(e.target.value)}
             placeholder={globalSearch ? "Search everywhere…" : "Search…"}
             className={cn(
-              "h-7 w-full rounded-lg border pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none transition-all",
+              "h-11 w-full rounded-lg border pl-7 pr-2 text-sm md:h-7 md:text-xs handheld:h-11 handheld:text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-all",
               globalSearch
                 ? "border-primary/40 bg-background/60 focus:border-primary/60"
                 : "border-glass-border bg-background/55 focus:border-primary/40",
@@ -183,8 +186,17 @@ export function FileManagerToolbar({
         </button>
       </div>
 
+      <details className="relative md:hidden handheld:block">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-lg border border-[var(--mobile-divider)] px-3 text-sm">Options</summary>
+        <div className="absolute right-0 z-50 mt-1 flex w-48 flex-col rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-1 shadow-xl">
+          <button type="button" onClick={onCycleSortBy} className="min-h-11 px-3 text-left text-sm">Sort by {sortBy}</button>
+          <button type="button" onClick={onToggleSortDir} className="min-h-11 px-3 text-left text-sm">{sortDir === "asc" ? "Ascending" : "Descending"}</button>
+          <button type="button" onClick={onToggleIncludeHidden} className="min-h-11 px-3 text-left text-sm">{includeHidden ? "Hide hidden files" : "Show hidden files"}</button>
+          {isTrashView && <button type="button" aria-label="Permanently remove trashed items" onClick={onEmptyTrash} disabled={isEmptyingTrash || emptyTrashPending || currentEntriesCount === 0} className="min-h-11 px-3 text-left text-sm text-status-red disabled:opacity-40">Empty Trash</button>}
+        </div>
+      </details>
       {/* Sort + visibility */}
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="hidden shrink-0 items-center gap-1 md:flex handheld:hidden">
         {isTrashView && (
           <button
             onClick={onEmptyTrash}
@@ -222,7 +234,7 @@ export function FileManagerToolbar({
       </div>
 
       {/* View mode toggle */}
-      <div className="flex shrink-0 items-center rounded-lg border border-glass-border/60 bg-background/40 p-0.5">
+      <div className="hidden shrink-0 items-center rounded-lg border border-glass-border/60 bg-background/40 p-0.5 md:flex handheld:hidden">
         <button
           onClick={() => onSetViewMode("grid")}
           aria-label="Grid view"

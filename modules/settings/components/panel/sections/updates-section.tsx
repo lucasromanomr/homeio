@@ -80,7 +80,7 @@ export function UpdatesSection({
       <SectionDivider title="Homeio" />
       <div className={cn(SETTINGS_PANEL_INSET, "overflow-hidden")}>
         {/* Header row */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div className="flex items-center gap-2.5">
             <div className={cn(
               "size-2 rounded-full",
@@ -94,7 +94,7 @@ export function UpdatesSection({
             <button
               onClick={onCheckForUpdates}
               disabled={capabilities.checkForUpdates.disabled || data.isChecking || data.isRecoveryActive || channelMutation.isPending}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-glass-border bg-background/55 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg md:min-h-0 handheld:!min-h-11 border border-glass-border bg-background/55 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
             >
               <RefreshCw className={cn("size-3", data.isChecking && "animate-spin")} />
               {data.isChecking ? "Checking…" : "Check"}
@@ -103,7 +103,7 @@ export function UpdatesSection({
               <button
                 onClick={onApplyUpdate}
                 disabled={capabilities.updateHomeio.disabled || !data.canSelfUpdate || data.isApplying || data.isRecoveryActive || channelMutation.isPending}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary/15 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/25 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-lg md:min-h-0 handheld:!min-h-11 bg-primary/15 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/25 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {data.isApplying || data.isRecoveryActive ? "Updating…" : "Update"}
               </button>
@@ -145,7 +145,7 @@ export function UpdatesSection({
               const next = event.target.value;
               if (next === "stable" || next === "beta") channelMutation.mutate(next);
             }}
-            className="h-8 rounded-lg border border-glass-border bg-background/55 px-3 text-xs text-foreground focus:border-primary/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-11 rounded-lg border md:min-h-0 md:h-8 handheld:!min-h-11 border-glass-border bg-background/55 px-3 text-xs text-foreground focus:border-primary/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           >
             {!channel && <option value="">—</option>}
             <option value="stable">Stable</option>

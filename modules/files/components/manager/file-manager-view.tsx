@@ -13,6 +13,7 @@ import type { FileInfoResponse, FileReadResponse } from "@/lib/shared/contracts/
 import type { ClipboardState, CreateEntryDialogState, FileManagerAction, OpenFileState, PasteConflictState, RenameDialogState, ViewMode } from "@/modules/files/components/manager/file-manager-state";
 
 type FileManagerViewProps = {
+  keyboardEnabled: boolean;
   rootRef: RefObject<HTMLDivElement | null>;
   actions: {
     confirmEmptyTrash: () => Promise<void>;
@@ -118,6 +119,7 @@ type FileManagerViewProps = {
 };
 
 export function FileManagerView({
+  keyboardEnabled,
   rootRef,
   actions,
   canSaveOpenFile,
@@ -203,17 +205,17 @@ export function FileManagerView({
   return (
     <div
       ref={rootRef}
-      className="relative flex h-full min-h-0 min-w-0 flex-col md:flex-row"
+      className="relative flex h-full min-h-0 min-w-0 flex-col md:flex-row handheld:flex-col"
       onClick={() => {
         dispatch({ type: "HIDE_CONTEXT_MENU" });
         dispatch({ type: "HIDE_BACKGROUND_CONTEXT_MENU" });
       }}
     >
-      <div className="flex shrink-0 items-center gap-2 px-2 pt-2 md:hidden">
-        <button type="button" onClick={() => setShowLocations((shown) => !shown)} aria-expanded={showLocations} aria-controls="file-locations" className="rounded-lg border border-glass-border px-3 py-2 text-xs">{showLocations ? "Close locations" : "Locations"}</button>
-        {!activeDriveConnection && !isTrashView && !isStarredView && <button type="button" onClick={onPositionBackgroundContextMenu} className="rounded-lg border border-glass-border px-3 py-2 text-xs">New / Paste</button>}
+      <div className="flex shrink-0 items-center gap-2 px-2 pt-2 md:hidden handheld:flex">
+        <button type="button" onClick={() => setShowLocations((shown) => !shown)} aria-expanded={showLocations} aria-controls="file-locations" className="min-h-11 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-sm">{showLocations ? "Close locations" : "Locations"}</button>
+        {!activeDriveConnection && !isTrashView && !isStarredView && <button type="button" onClick={onPositionBackgroundContextMenu} className="min-h-11 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-sm">New / Paste</button>}
       </div>
-      <div id="file-locations" className={`${showLocations ? "flex" : "hidden"} absolute inset-y-12 left-0 z-50 max-w-[85%] md:static md:flex md:max-w-none`}>
+      <div id="file-locations" className={`${showLocations ? "flex handheld:flex" : "hidden handheld:hidden"} absolute inset-y-12 left-0 z-50 max-w-[85%] md:static md:flex md:max-w-none handheld:absolute handheld:max-w-[85%]`}>
       <FileManagerSidebar
         currentPath={currentPath}
         isSharedView={isSharedView}
@@ -240,7 +242,7 @@ export function FileManagerView({
           />
         </div>
       ) : (
-      <div className={`m-2 flex min-w-0 flex-1 flex-col ${FILES_PANEL_SHELL}`}>
+      <div className={`m-2 flex min-h-0 min-w-0 flex-1 flex-col ${FILES_PANEL_SHELL}`}>
         <FileManagerToolbar
           canNavigateUp={currentPath.length > 0}
           currentEntriesCount={currentEntriesCount}
@@ -274,6 +276,7 @@ export function FileManagerView({
           }}
         />
         <FileManagerFileArea
+          active={keyboardEnabled}
           canSaveOpenFile={canSaveOpenFile}
           directoryErrorMessage={directoryErrorMessage}
           directoryIsError={directoryIsError}
@@ -337,7 +340,7 @@ export function FileManagerView({
             if (next.has(entry.name)) next.delete(entry.name);
             else next.add(entry.name);
             dispatch({ type: "SET_SELECTED_FILES", files: next });
-            dispatch({ type: "SELECT_FILE", name: entry.name });
+            dispatch({ type: "SELECT_FILE", name: next.has(entry.name) ? entry.name : [...next].at(-1) ?? null });
           }}
           onLoadMoreSearch={() => dispatch({ type: "LOAD_MORE_SEARCH" })}
           onOpenEntry={navigateTo}
@@ -362,7 +365,7 @@ export function FileManagerView({
         />
       </div>
       )}
-      <FileManagerDialogLayer
+      {keyboardEnabled && <FileManagerDialogLayer
         clipboardState={clipboardState}
         contextShare={contextShare}
         createEntryDialog={createDialog}
@@ -452,7 +455,7 @@ export function FileManagerView({
           void actions.handleShareFolder(showContextMenu.entry);
         }}
         onToggleContextStar={() => showContextMenu && void actions.handleToggleStar(showContextMenu.entry)}
-      />
+      />}
     </div>
   );
 }

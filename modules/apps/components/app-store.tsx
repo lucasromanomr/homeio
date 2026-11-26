@@ -182,9 +182,9 @@ function CatalogSidebar({
   onSelectSource: (sourceId: string) => void;
 }) {
   return (
-    <aside className={cn("m-2 flex min-w-0 shrink-0 flex-row gap-2 px-2 py-2 md:w-48 md:flex-col md:gap-0 md:overflow-y-auto md:py-3", STORE_PANEL_SHELL)}>
-      <label className="flex min-w-0 flex-1 flex-col gap-1.5 md:mb-3 md:flex-none md:px-3">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50">
+    <aside className={cn("mx-4 mb-2 flex min-w-0 shrink-0 flex-row gap-2 border-0 bg-transparent px-0 py-0 shadow-none backdrop-blur-none md:m-2 md:w-48 md:flex-col md:gap-0 md:overflow-y-auto md:border md:bg-card/78 md:px-2 md:py-3 md:shadow-sm md:backdrop-blur-xl handheld:!mx-4 handheld:!mb-2 handheld:!w-auto handheld:!flex-row handheld:!gap-2 handheld:!overflow-visible handheld:!border-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-0 handheld:!shadow-none handheld:!backdrop-blur-none", STORE_PANEL_SHELL)}>
+      <label className="flex min-w-0 flex-1 flex-col gap-1.5 md:mb-3 md:flex-none md:px-3 handheld:!mb-0 handheld:!flex-1 handheld:!px-0">
+        <span className="text-xs font-medium text-muted-foreground md:text-[10px] md:font-semibold md:uppercase md:tracking-[0.16em] md:text-muted-foreground/50">
           Source
         </span>
         <select
@@ -199,8 +199,8 @@ function CatalogSidebar({
           <option value={CUSTOM_STORE_SOURCE_ID}>Custom</option>
         </select>
       </label>
-      <label className="flex min-w-0 flex-1 flex-col gap-1.5 md:hidden">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50">Category</span>
+      <label className="flex min-w-0 flex-1 flex-col gap-1.5 md:hidden handheld:!flex">
+        <span className="text-xs font-medium text-muted-foreground">Category</span>
         <select
           value={selectedCategory ?? ""}
           onChange={(event) => onSelectCategory(event.target.value || null)}
@@ -214,10 +214,10 @@ function CatalogSidebar({
           ))}
         </select>
       </label>
-      <div className="mb-1 hidden px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50 md:block">
+      <div className="mb-1 hidden px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50 md:block handheld:!hidden">
         Categories
       </div>
-      <div className="hidden flex-col gap-0.5 md:flex">
+      <div className="hidden flex-col gap-0.5 md:flex handheld:!hidden">
         <button
           type="button"
           onClick={() => onSelectCategory(null)}
@@ -326,7 +326,7 @@ function CatalogRow({
       onClick={onClick}
       className={cn(
         STORE_PANEL_INSET,
-        "group flex w-full items-center gap-3 p-3 text-left transition-all hover:border-primary/25 hover:bg-background/60",
+        "group flex min-h-16 w-full items-center gap-3 rounded-none border-x-0 border-t-0 bg-transparent px-0 py-2 text-left transition-colors hover:bg-secondary/30 md:rounded-[calc(var(--radius)+0.125rem)] md:border md:bg-background/42 md:p-3 md:hover:border-primary/25 md:hover:bg-background/60 handheld:!rounded-none handheld:!border-x-0 handheld:!border-t-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-2",
       )}
       style={{ contentVisibility: "auto", containIntrinsicSize: "72px" }}
     >
@@ -356,7 +356,7 @@ function CatalogRow({
             />
           </div>
         ) : (
-          <div className="mt-1.5 flex flex-wrap items-center gap-1">
+          <div className="mt-1.5 hidden flex-wrap items-center gap-1 md:flex handheld:!hidden">
             <SourceBadge sourceName={app.sourceName} sourceKind={app.sourceKind} />
             {app.categories.slice(0, 2).map((cat) => (
               <span key={cat} className={cn(STORE_BADGE_SURFACE, "px-1.5 py-0.5 text-2xs text-muted-foreground/70")}>
@@ -387,8 +387,8 @@ function CatalogRow({
         ) : app.status === "error" ? (
           <span className="text-2xs font-medium text-status-red">Error</span>
         ) : (
-          <span className="text-2xs text-muted-foreground/40 transition-colors group-hover:text-muted-foreground">
-            Get →
+          <span className="text-xs font-semibold text-primary transition-colors group-hover:text-primary/80">
+            View
           </span>
         )}
       </div>
@@ -444,7 +444,7 @@ function AppStoreDetailPanel({
       <div className="shrink-0 border-b border-glass-border/60 px-4 py-2.5">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80 md:min-h-0 md:text-xs md:text-muted-foreground"
         >
           <ChevronLeft className="size-3.5" />
           Back to Store
@@ -885,7 +885,7 @@ export function AppStore({
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col">
       {/* Header */}
-      <div className={cn("relative z-10 m-2 flex shrink-0 flex-wrap items-center gap-2 px-3 py-2 md:flex-nowrap md:gap-3 md:px-4 md:py-2.5", STORE_PANEL_SHELL)}>
+      <div className={cn("relative z-10 mx-4 mb-2 mt-3 flex shrink-0 flex-wrap items-center gap-2 border-0 bg-transparent px-0 py-0 shadow-none backdrop-blur-none md:m-2 md:flex-nowrap md:gap-3 md:border md:bg-card/78 md:px-4 md:py-2.5 md:shadow-sm md:backdrop-blur-xl handheld:!mx-4 handheld:!mb-2 handheld:!mt-3 handheld:!flex-wrap handheld:!border-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-0 handheld:!shadow-none handheld:!backdrop-blur-none", STORE_PANEL_SHELL)}>
         {/* Filter tabs */}
         <div className="flex items-center gap-0.5">
           {(["all", "installed"] as const).map((f) => (
@@ -893,6 +893,7 @@ export function AppStore({
               key={f}
               type="button"
               onClick={() => setFilter(f)}
+              aria-pressed={filter === f}
               className={cn(
                 "min-h-11 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors md:min-h-0",
                 filter === f ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-background/50 hover:text-foreground",
@@ -911,14 +912,15 @@ export function AppStore({
         />
 
         {/* Search */}
-        <div className="relative order-last w-full md:order-none md:w-52">
+        <div className="relative order-first w-full md:order-none md:w-52 handheld:!order-first handheld:!w-full">
           <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/60" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search apps…"
-            className="min-h-11 w-full rounded-lg border border-glass-border bg-background/55 py-1.5 pl-8 pr-3 md:min-h-0 text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40"
+            aria-label="Search apps"
+            className="min-h-11 w-full rounded-lg border border-glass-border bg-background/55 py-1.5 pl-8 pr-3 md:min-h-0 text-base md:text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/50"
           />
         </div>
       </div>
@@ -943,7 +945,7 @@ export function AppStore({
         onRemoveSource={async (sourceId) => { await removeSource.mutateAsync(sourceId); }}
       />
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:flex-row">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:flex-row handheld:!flex-col">
         <CatalogSidebar
           categories={categories}
           selectedCategory={selectedCategory}
@@ -953,7 +955,7 @@ export function AppStore({
           onSelectSource={setSelectedSourceId}
         />
 
-        <div className={cn("m-2 mt-0 min-h-0 min-w-0 flex-1 overflow-y-auto p-3 md:mt-2 md:p-4", STORE_PANEL_SHELL)}>
+        <div className={cn("mx-4 min-h-0 min-w-0 flex-1 overflow-y-auto border-0 bg-transparent p-0 shadow-none backdrop-blur-none md:m-2 md:mt-2 md:border md:bg-card/78 md:p-4 md:shadow-sm md:backdrop-blur-xl handheld:!mx-4 handheld:!mt-0 handheld:!border-0 handheld:!bg-transparent handheld:!p-0 handheld:!shadow-none handheld:!backdrop-blur-none", STORE_PANEL_SHELL)}>
           {actionError && (
             <div className="mb-3 rounded-lg border border-status-red/30 bg-status-red/10 px-3 py-2 text-xs text-status-red">
               {actionError}
@@ -974,10 +976,10 @@ export function AppStore({
               <span className="text-sm">No apps found</span>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-3 md:space-y-6">
               {/* Featured + Recommended strips */}
               {shouldShowStrips && (
-                <>
+                <div className="hidden space-y-6 md:block handheld:!hidden">
                   <FeaturedStrip
                     title="Featured"
                     icon={<Star className="size-4 text-primary" />}
@@ -990,7 +992,7 @@ export function AppStore({
                     apps={recommendedApps}
                     onSelect={setSelectedAppId}
                   />
-                </>
+                </div>
               )}
 
               {/* Catalog list */}
@@ -1000,7 +1002,7 @@ export function AppStore({
                     <h2 className="text-sm font-semibold text-foreground">
                       {selectedCategory ?? (filter === "installed" ? "Installed Apps" : "Catalog")}
                     </h2>
-                    <p className="text-xs text-muted-foreground/70">{apps.length} apps</p>
+                    <p className="text-xs text-muted-foreground">{apps.length} apps{sourceFilter ? ` in ${sources.find((source) => source.id === sourceFilter)?.name ?? "Custom"}` : ""}</p>
                   </div>
                 </div>
 
