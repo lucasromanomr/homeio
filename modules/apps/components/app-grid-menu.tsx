@@ -18,7 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { ArrowClockwise24Regular, ArrowRepeatAll24Regular, Code24Regular, Copy24Regular, DocumentText24Regular, Open24Regular, Play24Regular, Settings24Regular, Stop24Regular, Delete24Regular } from "@fluentui/react-icons";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
@@ -144,11 +144,12 @@ export function AppGridContextMenu({
           aria-describedby={undefined}
           showCloseButton={false}
           data-mobile-app-menu
-          className="mobile-glass flex w-[min(16rem,calc(100vw-max(0.75rem,env(safe-area-inset-left))-max(0.75rem,env(safe-area-inset-right))))] max-w-none max-h-[min(460px,calc(100dvh-max(0.75rem,env(safe-area-inset-top))-max(0.75rem,env(safe-area-inset-bottom))))] translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-[1.35rem] bg-[var(--mobile-glass-background)] p-0 shadow-2xl motion-reduce:animate-none"
+          className="mobile-glass top-[var(--mobile-menu-top)] left-[var(--mobile-menu-left)] flex max-h-[var(--mobile-menu-height)] w-[var(--mobile-menu-width)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-[1.35rem] bg-[var(--mobile-glass-background)] p-0 shadow-2xl motion-reduce:animate-none"
           style={{
-            left: `clamp(max(0.75rem, env(safe-area-inset-left)), ${preferredLeft}px, calc(100vw - max(0.75rem, env(safe-area-inset-right)) - min(16rem, calc(100vw - max(0.75rem, env(safe-area-inset-left)) - max(0.75rem, env(safe-area-inset-right))))))`,
-            top: `clamp(max(0.75rem, env(safe-area-inset-top)), ${preferredTop}px, calc(100dvh - max(0.75rem, env(safe-area-inset-bottom)) - min(460px, calc(100dvh - max(0.75rem, env(safe-area-inset-top)) - max(0.75rem, env(safe-area-inset-bottom))))))`,
-          }}
+            "--mobile-menu-anchor-left": `${preferredLeft}px`,
+            "--mobile-menu-anchor-top": `${preferredTop}px`,
+            "--mobile-menu-height-limit": `${menuHeight}px`,
+          } as CSSProperties}
           onClick={(event) => event.stopPropagation()}
           onCloseAutoFocus={(event) => {
             if (!opener?.isConnected) return;
