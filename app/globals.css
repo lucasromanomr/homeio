@@ -170,6 +170,14 @@
 
   .mobile-glass[data-mobile-app-menu] {
     --mobile-glass-fill: color-mix(in srgb, var(--mobile-panel) 92%, transparent);
+    --mobile-menu-safe-left: max(0.75rem, env(safe-area-inset-left));
+    --mobile-menu-safe-right: max(0.75rem, env(safe-area-inset-right));
+    --mobile-menu-safe-top: max(0.75rem, env(safe-area-inset-top));
+    --mobile-menu-safe-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    --mobile-menu-width: min(16rem, calc(100vw - var(--mobile-menu-safe-left) - var(--mobile-menu-safe-right)));
+    --mobile-menu-height: min(var(--mobile-menu-height-limit), calc(100dvh - var(--mobile-menu-safe-top) - var(--mobile-menu-safe-bottom)));
+    --mobile-menu-left: clamp(var(--mobile-menu-safe-left), var(--mobile-menu-anchor-left), calc(100vw - var(--mobile-menu-safe-right) - var(--mobile-menu-width)));
+    --mobile-menu-top: clamp(var(--mobile-menu-safe-top), var(--mobile-menu-anchor-top), calc(100dvh - var(--mobile-menu-safe-bottom) - var(--mobile-menu-height)));
   }
 
   @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
