@@ -2,6 +2,8 @@
 
 import { Maximize2, Minimize2, Minus, X } from "@/components/icons/platform-icons";
 import { ChevronLeftRegular } from "@fluentui/react-icons";
+import { OverlayActivityContext } from "@/components/ui/overlay-activity";
+import { MobileWindowPageContext, type MobileWindowPage } from "./mobile-window-page";
 import {
   Tooltip,
   TooltipContent,
@@ -48,6 +50,7 @@ export function Window({
   animationsEnabled = true,
 }: WindowProps) {
   const [isMaximized, setIsMaximized] = useState(false);
+  const [mobilePage, setMobilePage] = useState<MobileWindowPage | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ x: -1, y: -1 });
   const [size, setSize] = useState({ w: defaultWidth, h: defaultHeight });
@@ -186,6 +189,7 @@ export function Window({
           };
 
   const hidden = inactive || (isMinimized && !mobile);
+  const back = mobilePage?.onBack ?? onClose;
 
   return (
     <div
@@ -226,14 +230,14 @@ export function Window({
             const touch = event.changedTouches[0];
             const dx = touch.clientX - start.x;
             const dy = touch.clientY - start.y;
-            if (dx >= 80 && dx > Math.abs(dy) * 1.5) onClose();
+            if (dx >= 80 && dx > Math.abs(dy) * 1.5) back();
           }}
           onTouchCancel={() => { backSwipe.current = null; }}
         >
-          <button type="button" onClick={onClose} aria-label="Go back" className="mobile-tool">
+          <button type="button" onClick={back} aria-label="Go back" className="mobile-tool">
             <ChevronLeftRegular className="size-5" aria-hidden="true" />
           </button>
-          <h1 className="min-w-0 flex-1 truncate text-base font-semibold tracking-[-0.025em]">{title}</h1>
+          <h1 className="min-w-0 flex-1 truncate text-base font-semibold tracking-[-0.025em]">{mobilePage?.title ?? title}</h1>
         </header>
       ) : (
       <div
@@ -303,7 +307,11 @@ export function Window({
 
       {/* Window content */}
       <div className={mobile ? "mobile-window-content min-h-0 flex-1 overflow-hidden" : "flex-1 overflow-hidden bg-card/90 backdrop-blur-2xl"}>
-        {children}
+        <OverlayActivityContext.Provider value={!hidden && !isClosing}>
+          <MobileWindowPageContext.Provider value={mobile ? setMobilePage : null}>
+            {children}
+          </MobileWindowPageContext.Provider>
+        </OverlayActivityContext.Provider>
       </div>
 
       {/* Resize handle */}

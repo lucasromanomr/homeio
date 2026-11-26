@@ -3,6 +3,7 @@
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { XIcon } from '@/components/icons/platform-icons'
+import { OverlayActivityContext } from '@/components/ui/overlay-activity'
 
 import { cn } from '@/lib/utils'
 
@@ -50,19 +51,26 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  mobileSheet = false,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
+  mobileSheet?: boolean
 }) {
+  const active = React.useContext(OverlayActivityContext)
+  if (!active) return null
+
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        data-mobile-sheet={mobileSheet || undefined}
         className={cn(
           'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg',
           'handheld:top-[var(--mobile-dialog-center)] handheld:max-h-[var(--mobile-dialog-height)] handheld:max-w-[min(32rem,calc(100%-2*var(--mobile-overlay-gutter)))]',
           className,
+          mobileSheet && 'handheld:portrait:inset-x-0 handheld:portrait:top-auto handheld:portrait:bottom-0 handheld:portrait:w-full handheld:portrait:max-w-none handheld:portrait:max-h-[calc(100dvh-var(--mobile-safe-top)-8px)] handheld:portrait:translate-x-0 handheld:portrait:translate-y-0 handheld:portrait:rounded-t-[1.25rem] handheld:portrait:rounded-b-none handheld:portrait:border-x-0 handheld:portrait:border-b-0 handheld:portrait:bg-[var(--mobile-panel)] handheld:portrait:pb-[calc(var(--mobile-safe-bottom)+0.75rem)]',
         )}
         {...props}
       >

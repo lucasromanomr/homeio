@@ -58,6 +58,7 @@ Open `http://localhost:12026`, create your account, and you're done. Other insta
 
 **Mobile**
 - A touch launcher and full-screen tools on phones, with [home screen installation](./MOBILE-HOME-SCREEN.md)
+- [Mobile UI guide](./MOBILE-UI.md) for tool screens, navigation, and dialogs
 
 **Apps and Docker**
 - App Store: install, update and uninstall Docker Compose apps; compatible with CasaOS store archives, and you can add your own catalog sources

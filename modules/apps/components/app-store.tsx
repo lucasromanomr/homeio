@@ -24,6 +24,7 @@ import { useStoreApp } from "@/modules/apps/hooks/useStoreApp";
 import { useStoreCatalog } from "@/modules/apps/hooks/useStoreCatalog";
 import { useStoreOperation } from "@/modules/apps/hooks/useStoreOperation";
 import { useStoreSourceActions, useStoreSources } from "@/modules/apps/hooks/useStoreSources";
+import { useMobileWindowPage } from "@/modules/shell/components/mobile-window-page";
 import {
   ArrowUpCircle,
   ChevronLeftIcon as ChevronLeft,
@@ -37,7 +38,7 @@ import {
   Trash2,
   Wrench,
 } from "@/components/icons/platform-icons";
-import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   PANEL_SHELL as STORE_PANEL_SHELL,
   PANEL_INSET as STORE_PANEL_INSET,
@@ -333,7 +334,7 @@ function CatalogRow({
       onClick={onClick}
       className={cn(
         STORE_PANEL_INSET,
-        "group flex min-h-16 w-full items-center gap-3 rounded-none border-x-0 border-t-0 bg-transparent px-0 py-2 text-left transition-colors active:bg-foreground/10 hover:bg-secondary/30 md:rounded-[calc(var(--radius)+0.125rem)] md:border md:bg-background/42 md:p-3 md:hover:border-primary/25 md:hover:bg-background/60 handheld:!rounded-none handheld:!border-x-0 handheld:!border-t-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-2",
+        "group flex min-h-16 w-full items-center gap-3 rounded-none border-x-0 border-t-0 bg-transparent px-0 py-2 text-left transition-colors active:bg-foreground/10 hover:bg-secondary/30 md:rounded-[calc(var(--radius)+0.125rem)] md:border md:bg-background/42 md:p-3 md:hover:border-primary/25 md:hover:bg-background/60 handheld:!rounded-none handheld:!border-x-0 handheld:!border-t-0 handheld:!bg-transparent handheld:!px-3 handheld:!py-2",
       )}
       style={{ contentVisibility: "auto", containIntrinsicSize: "72px" }}
     >
@@ -416,6 +417,7 @@ function DetailInfoRow({ label, children }: { label: string; children: ReactNode
 }
 
 function AppStoreDetailPanel({
+  withinMobileWindow,
   app,
   detail,
   isLoading,
@@ -430,6 +432,7 @@ function AppStoreDetailPanel({
   onRemoveCustom,
   removingCustom,
 }: {
+  withinMobileWindow: boolean;
   app: StoreAppSummary | null;
   detail: StoreAppDetail | null | undefined;
   isLoading: boolean;
@@ -449,7 +452,7 @@ function AppStoreDetailPanel({
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col">
       {/* Nav bar */}
-      <div className="shrink-0 border-b border-glass-border/60 px-4 py-2.5 handheld:px-[var(--mobile-gutter)] handheld:py-0">
+      {!withinMobileWindow && <div className="shrink-0 border-b border-glass-border/60 px-4 py-2.5 handheld:px-[var(--mobile-gutter)] handheld:py-0">
         <button
           onClick={onBack}
           className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80 md:min-h-0 md:text-xs md:text-muted-foreground handheld:min-h-[var(--mobile-touch-target)] handheld:text-[var(--mobile-accent-text)]"
@@ -457,7 +460,7 @@ function AppStoreDetailPanel({
           <ChevronLeft className="size-3.5" />
           Back to Store
         </button>
-      </div>
+      </div>}
 
       {!app || isLoading ? (
         <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
@@ -480,7 +483,7 @@ function AppStoreDetailPanel({
 
               {/* Name + badges + progress */}
               <div className="min-w-0 flex-1 pt-0.5">
-                <h2 className="break-words text-base font-semibold text-foreground md:truncate handheld:!whitespace-normal">{detail.name}</h2>
+                {!withinMobileWindow && <h2 className="break-words text-base font-semibold text-foreground md:truncate handheld:!whitespace-normal">{detail.name}</h2>}
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                   <AppStatusDot app={detail} operation={operation} />
                   {operation ? (
@@ -630,11 +633,9 @@ function AppStoreDetailPanel({
 // ── Main store ────────────────────────────────────────────────────────────────
 
 export function AppStore({
-  active = true,
   onOpenCustomInstall,
   launchRequest,
 }: {
-  active?: boolean;
   onOpenCustomInstall: () => void;
   launchRequest?: { nonce: number; search?: string; appId?: string } | null;
 }) {
@@ -698,6 +699,15 @@ export function AppStore({
   const selectedSummary = useMemo(() => apps.find((a) => a.id === selectedAppId) ?? null, [apps, selectedAppId]);
   const detailQuery = useStoreApp(selectedAppId);
   const selectedDetail = detailQuery.data;
+  const backToCatalog = useCallback(() => setSelectedAppId(null), []);
+  const backFromMobilePage = useCallback(() => {
+    if (customInstallTemplate) setCustomInstallTemplate(null);
+    else backToCatalog();
+  }, [backToCatalog, customInstallTemplate]);
+  const detailTitle = customInstallTemplate
+    ? `Install ${customInstallTemplate.name}`
+    : selectedAppId ? (selectedDetail?.name ?? selectedSummary?.name ?? "App details") : null;
+  const withinMobileWindow = useMobileWindowPage(detailTitle, backFromMobilePage);
 
   const selectedOperationId = selectedAppId && operationsByApp[selectedAppId] ? operationsByApp[selectedAppId].operationId : null;
   const selectedOperationQuery = useStoreOperation(selectedOperationId);
@@ -848,7 +858,7 @@ export function AppStore({
 
   const uninstallDialog = (
     <UninstallAppDialog
-      open={active && Boolean(uninstallDialogApp)}
+      open={Boolean(uninstallDialogApp)}
       appName={uninstallDialogApp?.name ?? null}
       isSubmitting={uninstallPending}
       error={uninstallError}
@@ -861,13 +871,15 @@ export function AppStore({
   if (selectedAppId) {
     return (
       <div className="relative h-full">
+        <div className="h-full" inert={customInstallTemplate ? true : undefined}>
         <AppStoreDetailPanel
+          withinMobileWindow={withinMobileWindow}
           app={selectedSummary}
           detail={selectedDetail}
           isLoading={detailQuery.isLoading}
           operation={selectedOperation}
           actionError={actionError}
-          onBack={() => setSelectedAppId(null)}
+          onBack={backToCatalog}
           onInstall={() => void submitDetailAction("install")}
           onUpdate={() => void submitDetailAction("update")}
           onRedeploy={() => void submitDetailAction("redeploy")}
@@ -876,11 +888,13 @@ export function AppStore({
           onRemoveCustom={() => void removeCustomApp()}
           removingCustom={removingCustom}
         />
+        </div>
         {customInstallTemplate && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm">
-            <div className={cn("relative h-[min(85dvh,900px)] w-full overflow-hidden md:h-[50vh] md:w-[min(96vw,980px)]", STORE_PANEL_SHELL)}>
+          <div className={cn("absolute inset-0 z-20 flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm", withinMobileWindow && "p-0")}>
+            <div className={cn("relative h-[min(85dvh,900px)] w-full overflow-hidden md:h-[50vh] md:w-[min(96vw,980px)]", STORE_PANEL_SHELL, withinMobileWindow && "h-full w-full rounded-none border-0 md:h-full md:w-full")}>
               <AppConfiguratorPanel
                 context="catalog_install"
+                withinMobileWindow={withinMobileWindow}
                 template={customInstallTemplate}
                 actions={{ installApp }}
                 onClose={() => setCustomInstallTemplate(null)}
@@ -947,7 +961,7 @@ export function AppStore({
 
       {uninstallDialog}
       <AppStoreSourcesDialog
-        open={active && isSourcesDialogOpen}
+        open={isSourcesDialogOpen}
         onOpenChange={setIsSourcesDialogOpen}
         sources={storeSourcesQuery.data ?? catalog?.sources ?? []}
         isLoading={storeSourcesQuery.isLoading}
@@ -1033,7 +1047,7 @@ export function AppStore({
                     {appGroups.length > 1 && (
                       <h3 className="text-xs font-semibold text-muted-foreground">{group.name}</h3>
                     )}
-                    <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-2 handheld:grid-cols-1 handheld:@xl/mobile-store:grid-cols-2 handheld:@xl/mobile-store:gap-x-4">
+                    <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-2 handheld:mobile-list-group handheld:grid-cols-1 handheld:gap-0 handheld:@xl/mobile-store:grid-cols-2">
                       {group.apps.slice(0, visibleCatalogCount).map((app) => (
                         <CatalogRow
                           key={app.id}

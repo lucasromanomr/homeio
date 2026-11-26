@@ -155,7 +155,7 @@ export function NetworkStorageDialog({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent
+        <DialogContent mobileSheet
           showCloseButton={false}
           className="max-w-[min(96vw,60rem)] gap-0 overflow-hidden rounded-[calc(var(--radius)+0.75rem)] border-glass-border bg-popover/96 p-0 shadow-2xl shadow-black/45 backdrop-blur-2xl"
         >

@@ -7,7 +7,8 @@ import { FileManagerDialogLayer } from "@/modules/files/components/manager/file-
 import { validateEntryName } from "@/modules/files/components/manager/file-manager-derived";
 import { GoogleDrivePanel } from "@/modules/files/components/panels/google-drive-panel";
 import { buildAssetUrl, toFilePath } from "@/modules/files/hooks/useFiles";
-import { useState, type MouseEvent, type RefObject, type SetStateAction } from "react";
+import { useMobileWindowPage } from "@/modules/shell/components/mobile-window-page";
+import { useCallback, useState, type MouseEvent, type RefObject, type SetStateAction } from "react";
 import type { FileEntry } from "@/modules/files/components/file-manager-presenters";
 import type { FileInfoResponse, FileReadResponse } from "@/lib/shared/contracts/files";
 import type { ClipboardState, CreateEntryDialogState, FileManagerAction, OpenFileState, PasteConflictState, RenameDialogState, ViewMode } from "@/modules/files/components/manager/file-manager-state";
@@ -203,6 +204,9 @@ export function FileManagerView({
 }: FileManagerViewProps) {
   const [showLocations, setShowLocations] = useState(false);
   const [selectingFiles, setSelectingFiles] = useState(false);
+  const goUp = useCallback(() => dispatch({ type: "NAVIGATE_UP" }), [dispatch]);
+  const folderTitle = activeDriveConnection ? null : (currentPathForDisplay.at(-1) ?? currentPath.at(-1) ?? null);
+  const usesWindowBack = useMobileWindowPage(folderTitle, goUp);
   return (
     <div
       ref={rootRef}
@@ -251,6 +255,7 @@ export function FileManagerView({
       <div className={`mx-4 mb-2 mt-2 flex min-h-0 min-w-0 flex-1 flex-col max-[360px]:mx-3 md:m-2 handheld:@container/mobile-files handheld:mx-[var(--mobile-gutter)] handheld:mt-0 ${FILES_PANEL_SHELL}`}>
         <FileManagerToolbar
           canNavigateUp={currentPath.length > 0}
+          hasWindowBack={usesWindowBack}
           currentEntriesCount={currentEntriesCount}
           currentPath={currentPath}
           currentPathForDisplay={currentPathForDisplay}
@@ -271,7 +276,7 @@ export function FileManagerView({
           onCycleSortBy={() => dispatch({ type: "SET_SORT_BY", by: sortBy === "name" ? "modified" : sortBy === "modified" ? "size" : "name" })}
           onEmptyTrash={actions.handleEmptyTrash}
           onNavigateToPath={navigateToPath}
-          onNavigateUp={() => dispatch({ type: "NAVIGATE_UP" })}
+          onNavigateUp={goUp}
           onSearchQueryChange={(query) => dispatch({ type: "SET_SEARCH_QUERY", query })}
           onSetViewMode={(mode) => dispatch({ type: "SET_VIEW_MODE", mode })}
           onToggleGlobalSearch={() => dispatch({ type: "TOGGLE_GLOBAL_SEARCH" })}
@@ -372,7 +377,8 @@ export function FileManagerView({
         />
       </div>
       )}
-      {keyboardEnabled && <FileManagerDialogLayer
+      <FileManagerDialogLayer
+        active={keyboardEnabled}
         clipboardState={clipboardState}
         contextShare={contextShare}
         createEntryDialog={createDialog}
@@ -462,7 +468,7 @@ export function FileManagerView({
           void actions.handleShareFolder(showContextMenu.entry);
         }}
         onToggleContextStar={() => showContextMenu && void actions.handleToggleStar(showContextMenu.entry)}
-      />}
+      />
     </div>
   );
 }
