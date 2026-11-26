@@ -200,31 +200,32 @@ export function AppLogsDialog({ target, onClose }: AppLogsDialogProps) {
     >
       <DialogContent
         showCloseButton={false}
-        className="flex flex-col gap-0 p-0 w-[92vw] sm:w-[92vw] sm:max-w-5xl h-[82vh] bg-popover/96 border-glass-border backdrop-blur-2xl overflow-hidden shadow-2xl shadow-black/45"
+        className="flex flex-col gap-0 p-0 w-[92vw] sm:w-[92vw] sm:max-w-5xl h-[82vh] bg-popover/96 border-glass-border backdrop-blur-2xl overflow-hidden shadow-2xl shadow-black/45 handheld:top-[calc(env(safe-area-inset-top)+0.5rem)] handheld:h-[min(82dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-1rem))] handheld:w-[calc(100%-var(--mobile-overlay-gutter)*2)] handheld:max-w-xl handheld:translate-y-0 handheld:rounded-2xl handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-panel)]"
       >
         <VisuallyHidden>
           <DialogTitle>{target?.appName ?? "App"} — Logs</DialogTitle>
         </VisuallyHidden>
         {/* Header */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-glass-border/60 shrink-0">
-          <ScrollText className="size-4 text-muted-foreground shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-glass-border/60 shrink-0 handheld:flex-wrap handheld:gap-2 handheld:border-[var(--mobile-divider)] handheld:px-[var(--mobile-gutter)] handheld:py-2">
+          <ScrollText className="size-4 text-muted-foreground shrink-0 handheld:hidden" />
           <div className="flex-1 min-w-0">
-            <span className="text-sm font-semibold text-foreground truncate">
+            <span className="block text-sm font-semibold text-foreground truncate">
               {target?.appName ?? "App"} — Logs
             </span>
           </div>
 
           {/* Search */}
           <div
-            className={cn(PANEL_INSET, "relative flex items-center px-2.5 h-7")}
+            className={cn(PANEL_INSET, "relative flex items-center px-2.5 h-7 handheld:order-last handheld:h-11 handheld:basis-full handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-canvas)]")}
           >
             <Search className="size-3 text-muted-foreground pointer-events-none shrink-0" />
             <input
               type="text"
               placeholder="Filter logs…"
+              aria-label="Filter logs"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-transparent pl-2 pr-1 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none w-40"
+              className="bg-transparent pl-2 pr-1 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none w-40 handheld:min-w-0 handheld:flex-1 handheld:text-base"
             />
           </div>
 
@@ -232,13 +233,14 @@ export function AppLogsDialog({ target, onClose }: AppLogsDialogProps) {
           {!autoScroll && (
             <button
               onClick={resumeScroll}
+              aria-label="Resume auto-scroll"
               className={cn(
                 BADGE_SURFACE,
-                "flex items-center gap-1.5 px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer",
+                "flex items-center gap-1.5 px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer handheld:grid handheld:size-11 handheld:place-items-center",
               )}
             >
               <ArrowDown className="size-3" />
-              Resume
+              <span className="handheld:sr-only">Resume</span>
             </button>
           )}
 
@@ -247,7 +249,8 @@ export function AppLogsDialog({ target, onClose }: AppLogsDialogProps) {
             onClick={downloadLogs}
             disabled={lines.length === 0}
             title="Download logs"
-            className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Download logs"
+            className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed handheld:grid handheld:size-11 handheld:place-items-center"
           >
             <Download className="size-3.5" />
           </button>
@@ -256,7 +259,7 @@ export function AppLogsDialog({ target, onClose }: AppLogsDialogProps) {
           <div
             className={cn(
               BADGE_SURFACE,
-              "flex items-center gap-1.5 px-2.5 py-1 text-xs text-muted-foreground",
+              "flex items-center gap-1.5 px-2.5 py-1 text-xs text-muted-foreground handheld:shrink-0 handheld:px-1.5",
             )}
           >
             <span
@@ -277,7 +280,7 @@ export function AppLogsDialog({ target, onClose }: AppLogsDialogProps) {
           {/* Close */}
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors cursor-pointer"
+            className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors cursor-pointer handheld:grid handheld:size-11 handheld:place-items-center"
             aria-label="Close"
           >
             <X className="size-4" />
@@ -306,7 +309,7 @@ export function AppLogsDialog({ target, onClose }: AppLogsDialogProps) {
         <div
           ref={logContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto px-4 py-3 bg-black/60"
+          className="min-h-0 flex-1 overflow-y-auto px-4 py-3 bg-black/60 handheld:overscroll-contain handheld:bg-[var(--mobile-canvas)] handheld:px-[var(--mobile-gutter)]"
         >
           {filteredLines.length === 0 && !streamError ? (
             <p className="text-xs text-muted-foreground/50 mt-4 text-center">

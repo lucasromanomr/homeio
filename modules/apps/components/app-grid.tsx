@@ -44,7 +44,7 @@ export function AppGrid({
 
   return (
     <section
-      className={cn("min-h-0 flex-1", mobile ? "flex flex-col overflow-hidden px-4" : "overflow-y-auto px-6 pt-4 pb-6", className)}
+      className={cn("min-h-0 flex-1", mobile ? "flex flex-col overflow-hidden px-[var(--mobile-gutter)]" : "overflow-y-auto px-6 pt-4 pb-6", className)}
       onClick={controller.closeContextMenu}
     >
       {controller.actionError ? (

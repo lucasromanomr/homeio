@@ -11,10 +11,11 @@ import {
   ShoppingBag,
   TerminalSquare,
 } from "@/components/icons/platform-icons";
-import { APP_ICONS } from "@/components/icons/icon-assets";
+import { APP_ICONS, DEVICE_ICONS } from "@/components/icons/icon-assets";
 import { OsIcon } from "@/components/icons/OsIcon";
 import {
   AlertRegular,
+  ChevronRightRegular,
   FolderRegular,
   GridRegular,
   HardDriveRegular,
@@ -792,7 +793,7 @@ function DesktopShellInner() {
 
         {/* Launcher and desktop area */}
         {(!isMobile || !focusedWindow) && <div className={isMobile
-          ? "relative isolate flex min-h-0 flex-1 flex-col overflow-hidden pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[calc(var(--mobile-nav-height)+max(0.75rem,env(safe-area-inset-bottom))+0.75rem)] pl-[env(safe-area-inset-left)]"
+          ? "relative isolate flex min-h-0 flex-1 flex-col overflow-hidden pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[var(--mobile-dock-clearance)] pl-[env(safe-area-inset-left)]"
           : "m-12 flex min-h-0 flex-1 overflow-hidden"}>
           {isMobile && mobilePage === "home" && (displayWallpaper || appearance.wallpaper) && (
             <div
@@ -801,32 +802,33 @@ function DesktopShellInner() {
               style={{ backgroundImage: `url('${displayWallpaper ?? appearance.wallpaper}')` }}
             />
           )}
-          {isMobile && <header className="mx-4 flex min-h-14 shrink-0 items-center gap-2">
+          {isMobile && <header className="mx-auto flex min-h-[var(--mobile-header-height)] w-full max-w-[calc(36rem+var(--mobile-gutter)*2)] shrink-0 items-center gap-2 px-[var(--mobile-gutter)]">
             <NextImage src="/icon-192.png" alt="" width={28} height={28} className="size-7 rounded-lg shadow-md" />
             <h1 className={`min-w-0 flex-1 truncate text-base font-semibold tracking-[-0.035em] ${mobilePage === "home" ? "mobile-wallpaper-label" : ""}`}>{mobilePage === "more" ? "More" : "Homeio"}</h1>
             {currentUser?.isDemoMode && <span className={`text-xs ${mobilePage === "home" ? "mobile-wallpaper-label" : "text-muted-foreground"}`}>Demo</span>}
-            <div className="mobile-glass flex shrink-0 items-center divide-x divide-[var(--mobile-glass-rim)] rounded-full">
+            <div className="mobile-glass flex shrink-0 items-center rounded-full">
               <button type="button" aria-label="Search" onClick={() => { setIsSettingsSearchOpen(true); setSettingsSearchQuery(""); }} className="grid size-11 cursor-pointer touch-manipulation place-items-center rounded-l-full active:bg-primary/15 focus-visible:outline-2 focus-visible:outline-primary"><SearchRegular className="size-[1.15rem]" aria-hidden="true" /></button>
               <button type="button" aria-label="Notifications" onClick={() => openWindow("notifications")} className="grid size-11 cursor-pointer touch-manipulation place-items-center rounded-r-full active:bg-primary/15 focus-visible:outline-2 focus-visible:outline-primary"><AlertRegular className="size-[1.15rem]" aria-hidden="true" /></button>
             </div>
           </header>}
           {isMobile && mobilePage === "more" ? (
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))] gap-2">
+            <div className="mx-auto min-h-0 w-full max-w-[calc(36rem+var(--mobile-gutter)*2)] flex-1 overflow-y-auto overscroll-contain px-[var(--mobile-gutter)] py-3">
+              <div className="overflow-hidden rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)]">
                 {([
                   ["settings", "Settings", SettingsRegular],
                   ["disk-manager", "Disks", HardDriveRegular],
                   ["terminal", "Terminal", WindowConsoleRegular],
                 ] as const).map(([id, label, Icon]) => (
-                  <button key={id} type="button" onClick={() => handleDockClick(id)} className="mobile-glass flex min-h-24 min-w-0 cursor-pointer flex-col items-start justify-between gap-2 rounded-2xl p-3 text-left text-sm font-semibold break-words active:bg-primary/10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary">
-                    <span className="grid size-8 place-items-center rounded-lg bg-primary/12 text-[var(--mobile-accent-text)]"><Icon className="size-5" aria-hidden="true" /></span>
-                    {label}
+                  <button key={id} type="button" onClick={() => handleDockClick(id)} className="flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-[var(--mobile-divider)] px-3 text-left text-sm font-semibold last:border-b-0 active:bg-primary/10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary">
+                    <span className="mobile-window-icon grid size-8 shrink-0 place-items-center rounded-lg" aria-hidden="true"><OsIcon src={id === "disk-manager" ? DEVICE_ICONS.drive : APP_ICONS[id]} className="size-6 object-contain" fallback={<Icon className="size-5 text-[var(--mobile-accent-text)]" />} /></span>
+                    <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{label}</span>
+                    <ChevronRightRegular aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
                   </button>
                 ))}
               </div>
-              <div className="mt-4 overflow-hidden rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)]">
-                <button type="button" onClick={() => setLockState(true)} className="flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-[var(--mobile-divider)] px-4 text-left text-sm font-medium active:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary"><LockClosedRegular className="size-5" aria-hidden="true" />Lock</button>
-                <button type="button" disabled={isLogoutPending} onClick={handleLogout} className="flex min-h-14 w-full cursor-pointer items-center gap-3 px-4 text-left text-sm font-medium active:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary disabled:opacity-50"><SignOutRegular className="size-5" aria-hidden="true" />{isLogoutPending ? "Signing out…" : "Sign out"}</button>
+              <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)]">
+                <button type="button" onClick={() => setLockState(true)} className="flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-[var(--mobile-divider)] px-3 text-left text-sm font-medium active:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary"><span className="grid size-8 shrink-0 place-items-center text-muted-foreground"><LockClosedRegular className="size-5" aria-hidden="true" /></span>Lock</button>
+                <button type="button" disabled={isLogoutPending} onClick={handleLogout} className="flex min-h-14 w-full cursor-pointer items-center gap-3 px-3 text-left text-sm font-medium active:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary disabled:opacity-50"><span className="grid size-8 shrink-0 place-items-center text-muted-foreground"><SignOutRegular className="size-5" aria-hidden="true" /></span>{isLogoutPending ? "Signing out…" : "Sign out"}</button>
               </div>
             </div>
           ) : <AppGrid
@@ -986,6 +988,7 @@ function DesktopShellInner() {
           >
             <AppConfiguratorPanel
               context="custom_install"
+              withinMobileWindow={isMobile}
               onClose={() => closeWindow("custom-install")}
             />
           </Window>
@@ -1023,6 +1026,7 @@ function DesktopShellInner() {
             ) : (
               <AppConfiguratorPanel
                 context="installed_edit"
+                withinMobileWindow={isMobile}
                 target={appSettingsTarget}
                 actions={{ saveAppSettings: shellStoreActions.saveAppSettings }}
                 onClose={() => {
@@ -1079,7 +1083,7 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {isMobile && <nav aria-label="Primary navigation" className="mobile-glass mobile-dock absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-[max(1rem,env(safe-area-inset-left))] right-[max(1rem,env(safe-area-inset-right))] z-[120] mx-auto grid max-w-sm grid-cols-5 gap-0.5 p-1">
+        {isMobile && <nav aria-label="Primary navigation" className="mobile-glass mobile-dock absolute bottom-[var(--mobile-dock-bottom)] left-[max(var(--mobile-gutter),env(safe-area-inset-left))] right-[max(var(--mobile-gutter),env(safe-area-inset-right))] z-[120] mx-auto grid max-w-sm grid-cols-5 gap-0.5 p-1">
           {([
             ["home", "Home", HomeRegular], ["files", "Files", FolderRegular],
             ["app-store", "Store", ShoppingBagRegular], ["monitor", "Monitor", PulseRegular],

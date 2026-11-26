@@ -16,7 +16,6 @@ type Props = {
 };
 
 const VIEW_KEY = "homeio.mobile-launcher.view.v1";
-const GRID_ROW_HEIGHT = 106;
 
 function isAppRunning(app: AppItem) {
   return app.condition ? app.condition.condition === "running" : app.status === "running";
@@ -45,7 +44,8 @@ export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoadin
       const { width, height } = entry.contentRect;
       if (!width || !height) return;
       const columns = Math.max(2, Math.min(width >= 500 ? 5 : 4, Math.floor(width / 70)));
-      const rows = Math.max(1, Math.min(5, Math.floor(height / GRID_ROW_HEIGHT)));
+      const minRowHeight = Number.parseFloat(getComputedStyle(element).getPropertyValue("--mobile-grid-min-row")) || 96;
+      const rows = Math.max(1, Math.min(5, Math.floor(height / minRowHeight)));
       const showWidget = columns >= 4 && rows >= 4 && height > width;
       setSize((previous) => previous.columns === columns && previous.rows === rows && previous.showWidget === showWidget
         ? previous
@@ -87,7 +87,7 @@ export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoadin
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="mx-auto flex w-full max-w-xl min-h-0 flex-1 flex-col">
       {isAppsLoading && apps.length === 0 ? (
         <p role="status" className="mobile-wallpaper-label py-4 text-sm">Loading apps…</p>
       ) : isAppsError && apps.length === 0 ? (
@@ -98,18 +98,18 @@ export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoadin
           {onBrowseStore && <button type="button" onClick={onBrowseStore} className="mt-3 min-h-11 rounded-lg bg-primary px-4 font-medium text-primary-foreground focus-visible:ring-2 focus-visible:ring-primary">Browse Store</button>}
         </div>
       ) : view === "list" ? (
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <ul className="divide-y divide-[var(--mobile-divider)] overflow-hidden rounded-[var(--system-radius-panel)] border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-3">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-[var(--system-radius-panel)] border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <ul className="divide-y divide-[var(--mobile-divider)] px-3">
             {apps.map((app) => <MobileApp key={app.id} app={app} list active={activeAppId === app.id} onOpenApp={onOpenApp} onAppContextMenu={onAppContextMenu} />)}
           </ul>
         </div>
       ) : (
         <>
           <div ref={areaRef} className="min-h-0 flex-1 overflow-hidden [touch-action:pan-y_pinch-zoom]" onPointerDown={startSwipe} onPointerUp={endSwipe} onPointerCancel={() => { swipe.current = null; }}>
-            <ul aria-label="Apps" className="grid h-full content-start" style={{ gridTemplateColumns: `repeat(${size.columns}, minmax(0, 1fr))`, gridAutoRows: `${GRID_ROW_HEIGHT}px` }}>
+            <ul aria-label="Apps" className="grid h-full content-start" style={{ gridTemplateColumns: `repeat(${size.columns}, minmax(0, 1fr))`, gridAutoRows: `minmax(0, min(${100 / size.rows}%, 7.75rem))` }}>
               {showWidget && currentPage === 0 && (
-                <li className="col-span-2 px-1.5 pb-3 pt-1">
-                  <section aria-label="App activity" className="mobile-glass flex h-full min-w-0 items-center justify-between gap-2 rounded-[1.35rem] px-3">
+                <li className="col-span-2 flex px-1.5 pt-2">
+                  <section aria-label="App activity" className="mobile-glass flex h-[5.5rem] w-full min-w-0 items-center justify-between gap-2 rounded-[1.2rem] px-3">
                     <div className="min-w-0">
                       <p className="text-xs font-medium text-foreground/80">Apps running</p>
                       <p className="mt-1 flex items-baseline gap-1.5 tabular-nums">
@@ -133,11 +133,11 @@ export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoadin
         </>
       )}
       {!isAppsLoading && !isAppsError && apps.length > 0 && (
-        <div className="relative flex h-12 shrink-0 items-center justify-center px-[5.75rem]" aria-label="Launcher controls">
+        <div className="relative flex h-12 shrink-0 items-center justify-center px-[6rem]" aria-label="Launcher controls">
           {view === "grid" && pageCount > 1 && (
-            <div ref={pagerRef} className="flex max-w-full items-center overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="App pages">
+            <div ref={pagerRef} className="flex max-w-full snap-x items-center overflow-x-auto overscroll-x-contain rounded-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="App pages">
               {Array.from({ length: pageCount }, (_, index) => (
-                <button key={index} type="button" aria-label={`App page ${index + 1}`} aria-current={index === currentPage ? "page" : undefined} onClick={() => setPage(index)} className="flex size-11 shrink-0 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-white">
+                <button key={index} type="button" aria-label={`App page ${index + 1}`} aria-current={index === currentPage ? "page" : undefined} onClick={() => setPage(index)} className="flex size-11 shrink-0 snap-center items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-white">
                   <span aria-hidden="true" className={`size-1.5 rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.5)] ${index === currentPage ? "bg-white" : "bg-white/45"}`} />
                 </button>
               ))}
@@ -187,10 +187,10 @@ function MobileApp({ app, active, list = false, onOpenApp, onAppContextMenu }: {
       suppressClick.current = true;
     }
   }
-  const icon = <span className={`relative flex ${list ? "size-11 rounded-xl" : "size-[3.75rem] rounded-[1.05rem] shadow-[0_5px_12px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.55)]"} shrink-0 items-center justify-center border ${visual.ringClass} ${app.logoUrl && !imageFailed ? "bg-white/90" : `${app.bgColor} ${app.color}`}`}>
+  const icon = <span className={`relative flex ${list ? "size-11 rounded-xl" : "size-[var(--mobile-app-tile)] rounded-[28%] shadow-[0_4px_12px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.55)]"} shrink-0 items-center justify-center border ${visual.ringClass} ${app.logoUrl && !imageFailed ? "bg-white/90" : `${app.bgColor} ${app.color}`}`}>
     {app.logoUrl && !imageFailed ? (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={app.logoUrl} alt="" width={64} height={64} className={`size-full rounded-[inherit] object-contain p-1 ${visual.imageClass}`} onError={() => setImageFailed(true)} />) : <app.icon className={`size-7 ${visual.imageClass}`} aria-hidden="true" />}
+      <img src={app.logoUrl} alt="" width={64} height={64} className={`size-full rounded-[inherit] object-contain ${list ? "p-0.5" : "p-[2px]"} ${visual.imageClass}`} onError={() => setImageFailed(true)} />) : <app.icon className={`size-7 ${visual.imageClass}`} aria-hidden="true" />}
     {running ? <span data-running-indicator className="absolute -bottom-0.5 -right-0.5 size-2 rounded-full border border-black/30 bg-emerald-400 shadow-[0_0_5px_rgba(52,211,153,0.7)]" aria-hidden="true" /> : null}
   </span>;
   return (
@@ -222,11 +222,11 @@ function MobileApp({ app, active, list = false, onOpenApp, onAppContextMenu }: {
           }
           onOpenApp(app);
         }}
-        className={`cursor-pointer select-none [-webkit-touch-callout:none] focus-visible:outline-2 focus-visible:outline-primary ${list ? "flex min-h-16 min-w-0 flex-1 items-center gap-3 rounded-xl py-2 text-left active:bg-foreground/5" : "flex h-full w-full min-w-0 flex-col items-center gap-1 rounded-2xl px-1 pt-1 active:opacity-75"}`}
+        className={`cursor-pointer select-none [-webkit-touch-callout:none] focus-visible:outline-2 focus-visible:outline-primary ${list ? "flex min-h-16 min-w-0 flex-1 items-center gap-3 rounded-xl py-2 text-left active:bg-foreground/5" : "flex h-full w-full min-w-0 flex-col items-center gap-1.5 rounded-2xl px-0.5 pt-2 active:opacity-75"}`}
       >
         {icon}
         <span className={list ? "min-w-0 flex-1" : "w-full min-w-0 text-center"}>
-          <span className={list ? "block break-words text-sm font-medium text-foreground" : `mobile-wallpaper-label text-[0.7rem] font-medium leading-tight ${app.name.includes(" ") ? "line-clamp-2 text-balance [overflow-wrap:anywhere]" : "block truncate"}`}>{app.name}</span>
+          <span className={list ? "block [overflow-wrap:anywhere] text-sm font-medium text-foreground" : `mobile-wallpaper-label text-[0.72rem] font-medium leading-tight ${app.name.includes(" ") ? "line-clamp-2 text-balance [overflow-wrap:anywhere]" : "block truncate"}`}>{app.name}</span>
           {list && <span className="block text-xs text-muted-foreground">{visual.title}{app.updateAvailable && app.status === "running" ? " · Update available" : ""}</span>}
         </span>
       </button>

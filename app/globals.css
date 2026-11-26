@@ -17,6 +17,12 @@
   --mobile-glass-fill: color-mix(in srgb, var(--mobile-panel) 73%, transparent);
   --mobile-glass-rim: rgb(255 255 255 / 0.44);
   --mobile-nav-height: 3.5rem;
+  --mobile-gutter: 1rem;
+  --mobile-header-height: 3.75rem;
+  --mobile-dock-bottom: max(0.625rem, env(safe-area-inset-bottom));
+  --mobile-dock-clearance: calc(var(--mobile-nav-height) + var(--mobile-dock-bottom) + 1.125rem);
+  --mobile-grid-min-row: 96px;
+  --mobile-app-tile: 3.75rem;
   --mobile-overlay-gutter: max(1rem, env(safe-area-inset-left), env(safe-area-inset-right));
   --background: oklch(0.96 0.006 250);
   --foreground: oklch(0.2 0.02 250);
@@ -156,6 +162,19 @@
   }
 }
 
+@media (width <= 22.5rem) {
+  :root { --mobile-gutter: 0.75rem; }
+}
+
+@media (height <= 32rem) {
+  :root {
+    --mobile-nav-height: 2.75rem;
+    --mobile-header-height: 3.25rem;
+    --mobile-grid-min-row: 80px;
+    --mobile-app-tile: 3rem;
+  }
+}
+
 @layer components {
   .mobile-glass {
     --mobile-glass-background: var(--mobile-panel);
@@ -215,7 +234,7 @@
   }
 
   .mobile-window-header {
-    background: linear-gradient(160deg, color-mix(in srgb, var(--primary) 5%, var(--mobile-panel)), var(--mobile-panel) 62%);
+    background: var(--mobile-panel);
     box-shadow: inset 0 1px rgb(255 255 255 / 0.12);
   }
 
@@ -288,13 +307,12 @@
   }
 
   .mobile-dock-button[aria-current="page"] {
-    background: color-mix(in srgb, var(--primary) 12%, transparent);
-    box-shadow: inset 0 1px rgb(255 255 255 / 0.13);
+    background: color-mix(in srgb, var(--primary) 9%, transparent);
   }
 
   .mobile-dock-button[aria-current="page"]::after {
     position: absolute;
-    inset: auto auto 0.17rem;
+    inset: auto auto 0.15rem;
     width: 0.25rem;
     height: 0.25rem;
     border-radius: 999px;

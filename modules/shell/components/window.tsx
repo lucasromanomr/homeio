@@ -195,7 +195,7 @@ export function Window({
       aria-hidden={hidden || undefined}
       inert={hidden || undefined}
       className={mobile
-        ? "mobile-window-opening absolute inset-x-0 top-0 bottom-[calc(var(--mobile-nav-height)+max(0.75rem,env(safe-area-inset-bottom))+0.75rem)] z-[110] flex min-h-0 flex-col overflow-hidden bg-[var(--mobile-canvas)] pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]"
+        ? "mobile-window-opening absolute inset-x-0 top-0 bottom-[var(--mobile-dock-clearance)] z-[110] flex min-h-0 flex-col overflow-hidden bg-[var(--mobile-canvas)] pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]"
         : `absolute flex flex-col overflow-hidden border border-glass-border ${
             isMaximized
               ? "rounded-[calc(var(--radius)+0.5rem)] shadow-[0_18px_42px_rgba(0,0,0,0.28)]"
@@ -212,7 +212,7 @@ export function Window({
     >
       {mobile ? (
         <header
-          className="mobile-window-header flex min-h-16 shrink-0 items-center gap-3 border-b border-[var(--mobile-divider)] px-4"
+          className="mobile-window-header flex min-h-[var(--mobile-header-height)] shrink-0 items-center gap-2.5 border-b border-[var(--mobile-divider)] px-[var(--mobile-gutter)]"
           onTouchStart={(event) => {
             const touch = event.touches[0];
             backSwipe.current = event.touches.length === 1 && touch.clientX >= 24 && !(event.target as Element).closest("button")
@@ -233,8 +233,8 @@ export function Window({
           <button type="button" onClick={onClose} aria-label="Go back" className="mobile-tool">
             <ChevronLeftRegular className="size-5" aria-hidden="true" />
           </button>
-          <h1 className="min-w-0 flex-1 truncate text-xl font-semibold tracking-[-0.045em]">{title}</h1>
-          {icon && <span className="mobile-window-icon grid size-9 shrink-0 place-items-center rounded-xl" aria-hidden="true">{icon}</span>}
+          <h1 className="min-w-0 flex-1 truncate text-lg font-semibold tracking-[-0.035em]">{title}</h1>
+          {icon && <span className="mobile-window-icon grid size-8 shrink-0 place-items-center rounded-lg" aria-hidden="true">{icon}</span>}
         </header>
       ) : (
       <div

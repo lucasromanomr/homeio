@@ -630,14 +630,14 @@ export function DiskManager() {
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex shrink-0 items-center justify-between border-b border-glass-border/60 px-4 py-2.5">
+      <div className="flex shrink-0 items-center justify-between border-b border-glass-border/60 px-4 py-2.5 handheld:border-[var(--mobile-divider)] handheld:px-[var(--mobile-gutter)] handheld:py-2">
         <span className="text-[13px] font-medium text-foreground">
           {isLoading ? "Loading…" : `${disks.length} disk${disks.length !== 1 ? "s" : ""} detected`}
         </span>
         <button
           onClick={() => refetch()}
           disabled={isRefetching}
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 handheld:min-h-11 text-[12px] text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 handheld:min-h-11 handheld:border handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-panel)] text-[12px] text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground disabled:opacity-50"
         >
           <ArrowSyncRegular className={cn("size-3.5", isRefetching && "animate-spin")} />
           Refresh
@@ -645,7 +645,7 @@ export function DiskManager() {
       </div>
 
       {data?.readOnly ? (
-        <p className="shrink-0 border-b border-glass-border/60 px-4 py-2 text-[11px] text-muted-foreground">
+        <p className="shrink-0 border-b border-glass-border/60 px-4 py-2 text-[11px] text-muted-foreground handheld:px-[var(--mobile-gutter)] handheld:text-xs">
           Homeio runs in Docker, so disks are shown read-only: formatting, partitioning, mounting and
           wiping need the script install on the host.
         </p>
@@ -654,7 +654,7 @@ export function DiskManager() {
       {/* Body */}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden md:flex-row handheld:flex-col">
         {/* Disk list sidebar */}
-        <div className="flex max-h-32 shrink-0 gap-1.5 overflow-x-auto border-b border-glass-border/60 p-2 md:max-h-none md:w-52 md:flex-col md:overflow-y-auto md:border-b-0 md:border-r handheld:max-h-32 handheld:w-full handheld:flex-row handheld:overflow-x-auto handheld:border-b handheld:border-r-0">
+        <div className={cn("flex max-h-32 shrink-0 gap-1.5 overflow-x-auto border-b border-glass-border/60 p-2 md:max-h-none md:w-52 md:flex-col md:overflow-y-auto md:border-b-0 md:border-r handheld:max-h-32 handheld:w-full handheld:flex-row handheld:overflow-x-auto handheld:border-b handheld:border-r-0 handheld:px-[var(--mobile-gutter)]", !active && "handheld:hidden")}>
           {isLoading ? (
             <p className="px-3 py-4 text-center text-xs text-muted-foreground/60">Detecting disks…</p>
           ) : disks.length === 0 ? (
@@ -676,14 +676,15 @@ export function DiskManager() {
         {/* Detail panel */}
         {active ? (
           // disabled on a fieldset disables every button inside it.
-          <fieldset disabled={data?.readOnly} className="m-0 flex min-w-0 flex-1 border-0 p-0">
+          <fieldset disabled={data?.readOnly} className="m-0 flex min-h-0 min-w-0 flex-1 border-0 p-0">
             <DiskDetail key={active.name} disk={active} />
           </fieldset>
         ) : (
-          <div className="flex flex-1 items-center justify-center">
+          <div className="flex flex-1 items-center justify-center handheld:overflow-y-auto handheld:px-[var(--mobile-gutter)]">
             <div className="flex flex-col items-center gap-2 text-center">
               <HardDriveRegular className="size-10 text-muted-foreground/20" />
-              <p className="text-sm text-muted-foreground/60">Select a disk</p>
+              <p className="text-sm text-muted-foreground/60 handheld:hidden">Select a disk</p>
+              <p className="hidden text-sm text-muted-foreground handheld:block">{isLoading ? "Detecting disks…" : data?.unavailableReason ?? "No disks found"}</p>
             </div>
           </div>
         )}

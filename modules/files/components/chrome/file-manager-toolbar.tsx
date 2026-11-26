@@ -85,7 +85,7 @@ export function FileManagerToolbar({
   onUploadInputChange,
 }: ToolbarProps) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-2 md:flex-nowrap md:overflow-x-auto border-b border-glass-border/60 px-3 py-2 handheld:!flex-wrap handheld:!overflow-x-visible", FILES_PANEL_SHELL)}>
+    <div className={cn("flex flex-wrap items-center gap-2 md:flex-nowrap md:overflow-x-auto border-b border-glass-border/60 px-2 py-2 md:px-3 handheld:!px-2 handheld:!flex-wrap handheld:!overflow-x-visible", FILES_PANEL_SHELL)}>
 
       {/* Back / up */}
       <button
