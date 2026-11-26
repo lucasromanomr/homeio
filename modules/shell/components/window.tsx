@@ -3,7 +3,7 @@
 import { Maximize2, Minimize2, Minus, X } from "@/components/icons/platform-icons";
 import { ChevronLeftRegular } from "@fluentui/react-icons";
 import { OverlayActivityContext } from "@/components/ui/overlay-activity";
-import { MobileWindowPageContext, type MobileWindowPage } from "./mobile-window-page";
+import { MobileWindowPageContext, type MobileWindowPage } from "@/components/ui/mobile-window-page";
 import {
   Tooltip,
   TooltipContent,

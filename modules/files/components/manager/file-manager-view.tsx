@@ -7,7 +7,7 @@ import { FileManagerDialogLayer } from "@/modules/files/components/manager/file-
 import { validateEntryName } from "@/modules/files/components/manager/file-manager-derived";
 import { GoogleDrivePanel } from "@/modules/files/components/panels/google-drive-panel";
 import { buildAssetUrl, toFilePath } from "@/modules/files/hooks/useFiles";
-import { useMobileWindowPage } from "@/modules/shell/components/mobile-window-page";
+import { useMobileWindowPage } from "@/components/ui/mobile-window-page";
 import { useCallback, useState, type MouseEvent, type RefObject, type SetStateAction } from "react";
 import type { FileEntry } from "@/modules/files/components/file-manager-presenters";
 import type { FileInfoResponse, FileReadResponse } from "@/lib/shared/contracts/files";

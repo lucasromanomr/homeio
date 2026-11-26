@@ -24,7 +24,7 @@ import { useStoreApp } from "@/modules/apps/hooks/useStoreApp";
 import { useStoreCatalog } from "@/modules/apps/hooks/useStoreCatalog";
 import { useStoreOperation } from "@/modules/apps/hooks/useStoreOperation";
 import { useStoreSourceActions, useStoreSources } from "@/modules/apps/hooks/useStoreSources";
-import { useMobileWindowPage } from "@/modules/shell/components/mobile-window-page";
+import { useMobileWindowPage } from "@/components/ui/mobile-window-page";
 import {
   ArrowUpCircle,
   ChevronLeftIcon as ChevronLeft,
