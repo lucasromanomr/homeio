@@ -88,6 +88,8 @@ export function AppGrid({
           app={controller.menuApp}
           hasDashboardUrl={controller.menuHasDashboardUrl}
           isBusy={controller.isMenuAppBusy}
+          anchor={controller.contextMenu.anchor}
+          opener={controller.contextMenu.opener}
           x={controller.contextMenu.x}
           y={controller.contextMenu.y}
           onClose={mobile ? controller.closeContextMenu : undefined}
