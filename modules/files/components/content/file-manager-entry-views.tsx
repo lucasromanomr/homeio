@@ -101,6 +101,7 @@ export function FileGrid({
   entries,
   pendingEntryPath,
   selectedFiles,
+  selecting,
   titleFromPath,
   onEntryClick,
   onEntryContextMenu,
@@ -110,6 +111,7 @@ export function FileGrid({
   entries: FileEntry[];
   pendingEntryPath: string | null;
   selectedFiles: Set<string>;
+  selecting: boolean;
   titleFromPath: boolean;
   onEntryClick: (event: MouseEvent, entry: FileEntry) => void;
   onEntryContextMenu: (event: MouseEvent, entry: FileEntry) => void;
@@ -118,11 +120,9 @@ export function FileGrid({
 }) {
   const [limit, sentinelRef] = useVirtualLimit(entries.length);
   const visible = entries.slice(0, limit);
-  const [selecting, setSelecting] = useState(false);
 
   return (
     <>
-      <div className="flex justify-end md:hidden handheld:flex"><button type="button" aria-pressed={selecting} onClick={() => setSelecting((value) => !value)} className="min-h-11 rounded-lg px-3 text-sm font-medium text-primary transition-colors active:bg-foreground/10">{selecting ? "Done selecting" : "Select"}</button></div>
       <div className="grid grid-cols-1 gap-0 md:grid-cols-4 md:gap-3 lg:grid-cols-5 handheld:grid-cols-1 handheld:gap-0 handheld:min-[36rem]:grid-cols-2 handheld:min-[36rem]:gap-x-3">
         {visible.map((entry) => {
           const isImage = entry.type === "file" && IMAGE_EXTS.has((entry.ext ?? "").toLowerCase());
@@ -187,6 +187,7 @@ export function FileList({
   isTrashView,
   pendingEntryPath,
   selectedFiles,
+  selecting,
   onEntryClick,
   onEntryContextMenu,
   onToggleSelection,
@@ -197,6 +198,7 @@ export function FileList({
   isTrashView: boolean;
   pendingEntryPath: string | null;
   selectedFiles: Set<string>;
+  selecting: boolean;
   onEntryClick: (event: MouseEvent, entry: FileEntry) => void;
   onEntryContextMenu: (event: MouseEvent, entry: FileEntry) => void;
   onToggleSelection: (entry: FileEntry) => void;
@@ -204,11 +206,9 @@ export function FileList({
 }) {
   const [limit, sentinelRef] = useVirtualLimit(entries.length);
   const visible = entries.slice(0, limit);
-  const [selecting, setSelecting] = useState(false);
 
   return (
     <div className="flex flex-col">
-      <div className="flex justify-end md:hidden handheld:flex"><button type="button" aria-pressed={selecting} onClick={() => setSelecting((value) => !value)} className="min-h-11 rounded-lg px-3 text-sm font-medium text-primary transition-colors active:bg-foreground/10">{selecting ? "Done selecting" : "Select"}</button></div>
       <div className="hidden items-center gap-3 border-b md:flex border-glass-border/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50">
         <span className="min-w-0 flex-1">Name</span>
         {isTrashView && <span className="hidden w-48 text-right lg:block">Original Location</span>}

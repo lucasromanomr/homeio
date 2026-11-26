@@ -45,6 +45,7 @@ type FileManagerFileAreaProps = {
   pendingEntryPath: string | null;
   searchQuery: string;
   selectedFiles: Set<string>;
+  selectingFiles: boolean;
   sortedEntries: FileEntry[];
   totalEntriesCount: number;
   viewMode: "grid" | "list";
@@ -102,13 +103,14 @@ export function FileManagerFileArea({
   pendingEntryPath,
   searchQuery,
   selectedFiles,
+  selectingFiles,
   sortedEntries,
   totalEntriesCount,
   viewMode,
 }: FileManagerFileAreaProps) {
   return (
     <div
-      className="relative min-h-0 flex-1 overflow-y-auto p-3"
+      className="relative min-h-0 flex-1 overflow-y-auto p-3 handheld:overscroll-contain handheld:min-[36rem]:py-0"
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
@@ -137,6 +139,7 @@ export function FileManagerFileArea({
         pendingEntryPath,
         searchQuery,
         selectedFiles,
+        selectingFiles,
         sortedEntries,
         totalEntriesCount,
         viewMode,
@@ -184,6 +187,7 @@ function renderBrowserState({
   pendingEntryPath,
   searchQuery,
   selectedFiles,
+  selectingFiles,
   sortedEntries,
   totalEntriesCount,
   viewMode,
@@ -275,6 +279,7 @@ function renderBrowserState({
         entries={sortedEntries}
         pendingEntryPath={pendingEntryPath}
         selectedFiles={selectedFiles}
+        selecting={selectingFiles}
         titleFromPath={isGlobalSearchActive}
         onEntryClick={onEntryClick}
         onEntryContextMenu={onEntryContextMenu}
@@ -288,6 +293,7 @@ function renderBrowserState({
         isTrashView={isTrashView}
         pendingEntryPath={pendingEntryPath}
         selectedFiles={selectedFiles}
+        selecting={selectingFiles}
         onEntryClick={onEntryClick}
         onEntryContextMenu={onEntryContextMenu}
         onToggleSelection={onToggleSelection}
