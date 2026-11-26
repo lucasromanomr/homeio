@@ -191,7 +191,7 @@ function CatalogSidebar({
         <select
           value={selectedSourceId}
           onChange={(event) => onSelectSource(event.target.value)}
-          className="min-h-11 w-full rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-3 py-1.5 text-xs text-foreground focus-visible:outline-primary md:min-h-0 md:border-glass-border md:bg-background/55 md:px-2 handheld:!min-h-11 handheld:appearance-none handheld:!border-[var(--mobile-divider)] handheld:!bg-[var(--mobile-panel)] handheld:!pr-8 handheld:!pl-3"
+          className="min-h-11 w-full rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-3 py-1.5 text-xs text-foreground focus-visible:outline-primary md:min-h-0 md:border-glass-border md:bg-background/55 md:px-2 handheld:!min-h-11 handheld:!text-base handheld:appearance-none handheld:!border-[var(--mobile-divider)] handheld:!bg-[var(--mobile-panel)] handheld:!pr-8 handheld:!pl-3"
         >
           <option value="">All Sources</option>
           {sources.map((source) => (
@@ -206,7 +206,7 @@ function CatalogSidebar({
         <select
           value={selectedCategory ?? ""}
           onChange={(event) => onSelectCategory(event.target.value || null)}
-          className="min-h-11 w-full appearance-none rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] pr-8 pl-3 text-xs text-foreground focus-visible:outline-primary"
+          className="min-h-11 w-full appearance-none rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] pr-8 pl-3 text-base text-foreground focus-visible:outline-primary"
         >
           <option value="">All Apps</option>
           {categories.map((cat) => (
@@ -924,7 +924,8 @@ export function AppStore({
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search apps…"
             aria-label="Search apps"
-            className="min-h-11 w-full rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] md:border-glass-border md:bg-background/55 handheld:!border-[var(--mobile-divider)] handheld:!bg-[var(--mobile-panel)] pl-8 pr-3 md:min-h-0 text-base md:text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/50"
+            enterKeyHint="search"
+            className="min-h-11 w-full rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] md:border-glass-border md:bg-background/55 handheld:!border-[var(--mobile-divider)] handheld:!bg-[var(--mobile-panel)] pl-8 pr-3 md:min-h-0 text-base md:text-xs handheld:!min-h-11 handheld:!text-base text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/50"
           />
         </div>
       </div>
