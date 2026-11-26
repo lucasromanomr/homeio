@@ -18,7 +18,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useRef, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { ArrowClockwise24Regular, ArrowRepeatAll24Regular, Code24Regular, Copy24Regular, DocumentText24Regular, Open24Regular, Play24Regular, Settings24Regular, Stop24Regular, Delete24Regular } from "@fluentui/react-icons";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 type AppGridAction =
@@ -35,6 +36,8 @@ type AppGridAction =
 
 export function AppGridContextMenu({
   app,
+  anchor,
+  opener,
   hasDashboardUrl,
   isBusy,
   x,
@@ -43,6 +46,8 @@ export function AppGridContextMenu({
   onClose,
 }: {
   app: AppItem;
+  anchor?: DOMRect | null;
+  opener?: HTMLElement | null;
   hasDashboardUrl: boolean;
   isBusy: boolean;
   x: number;
@@ -50,11 +55,13 @@ export function AppGridContextMenu({
   onAction: (action: AppGridAction) => void;
   onClose?: () => void;
 }) {
-  const openerRef = useRef<HTMLElement | null>(null);
+  const mobile = Boolean(onClose);
+  const mobileIcon = (Icon: typeof Open24Regular, desktopIcon: ReactNode) =>
+    mobile ? <Icon className="size-5 shrink-0" aria-hidden="true" /> : desktopIcon;
   const actions = (
     <>
       <AppGridContextMenuItem
-        icon={<ExternalLink className="size-3.5" />}
+        icon={mobileIcon(Open24Regular, <ExternalLink className="size-3.5" />)}
         label="Open Dashboard"
         disabled={!hasDashboardUrl}
         title={!hasDashboardUrl ? "No web port configured for this app." : undefined}
@@ -62,49 +69,49 @@ export function AppGridContextMenu({
       />
       {app.status === "running" || app.status === "partial" ? (
         <AppGridContextMenuItem
-          icon={<Square className="size-3.5" />}
+          icon={mobileIcon(Stop24Regular, <Square className="size-3.5" />)}
           label="Stop Container"
           disabled={isBusy}
           onClick={() => onAction("stop")}
         />
       ) : (
         <AppGridContextMenuItem
-          icon={<Play className="size-3.5" />}
+          icon={mobileIcon(Play24Regular, <Play className="size-3.5" />)}
           label="Start Container"
           disabled={isBusy}
           onClick={() => onAction("start")}
         />
       )}
       <AppGridContextMenuItem
-        icon={<RotateCcw className="size-3.5" />}
+        icon={mobileIcon(ArrowRepeatAll24Regular, <RotateCcw className="size-3.5" />)}
         label="Restart Container"
         disabled={isBusy}
         onClick={() => onAction("restart")}
       />
       <AppGridContextMenuItem
-        icon={<ScrollText className="size-3.5" />}
+        icon={mobileIcon(DocumentText24Regular, <ScrollText className="size-3.5" />)}
         label="View Logs"
         onClick={() => onAction("logs")}
       />
       <AppGridContextMenuItem
-        icon={<TerminalSquare className="size-3.5" />}
+        icon={mobileIcon(Code24Regular, <TerminalSquare className="size-3.5" />)}
         label="Open in Terminal"
         onClick={() => onAction("terminal")}
       />
       <div className="mx-2 my-1 h-px bg-border" />
       <AppGridContextMenuItem
-        icon={<Settings2 className="size-3.5" />}
+        icon={mobileIcon(Settings24Regular, <Settings2 className="size-3.5" />)}
         label="App Settings"
         onClick={() => onAction("settings")}
       />
       <AppGridContextMenuItem
-        icon={<RefreshCw className="size-3.5" />}
+        icon={mobileIcon(ArrowClockwise24Regular, <RefreshCw className="size-3.5" />)}
         label="Check Updates"
         disabled={isBusy}
         onClick={() => onAction("update")}
       />
       <AppGridContextMenuItem
-        icon={<Copy className="size-3.5" />}
+        icon={mobileIcon(Copy24Regular, <Copy className="size-3.5" />)}
         label="Copy URL"
         disabled={!hasDashboardUrl}
         title={!hasDashboardUrl ? "No web port configured for this app." : undefined}
@@ -112,7 +119,7 @@ export function AppGridContextMenu({
       />
       <div className="mx-2 my-1 h-px bg-border" />
       <AppGridContextMenuItem
-        icon={<Trash2 className="size-3.5 text-status-red" />}
+        icon={mobileIcon(Delete24Regular, <Trash2 className="size-3.5 text-status-red" />)}
         label="Remove App"
         danger
         disabled={isBusy}
@@ -122,28 +129,38 @@ export function AppGridContextMenu({
   );
 
   if (onClose) {
+    // Prefer the space below the launcher; use the space above when it fits.
+    // The CSS clamp and max-height keep the menu within safe areas on short screens.
+    const menuHeight = 460;
+    const preferredTop = anchor
+      ? (window.innerHeight - anchor.bottom >= menuHeight + 20
+          ? anchor.bottom + 8
+          : anchor.top >= menuHeight + 20 ? anchor.top - menuHeight - 8 : anchor.bottom + 8)
+      : y;
+    const preferredLeft = anchor ? anchor.left : x;
     return (
       <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
         <DialogContent
           aria-describedby={undefined}
           showCloseButton={false}
-          className="top-auto bottom-[max(0.75rem,env(safe-area-inset-bottom))] flex max-h-[calc(100dvh-max(0.75rem,env(safe-area-inset-top))-max(0.75rem,env(safe-area-inset-bottom)))] max-w-[min(28rem,calc(100%-var(--mobile-overlay-gutter)-var(--mobile-overlay-gutter)))] translate-y-0 flex-col gap-0 overflow-hidden rounded-[1.75rem] border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-0 motion-reduce:animate-none"
-          onClick={(event) => event.stopPropagation()}
-          onOpenAutoFocus={() => {
-            const activeElement = document.activeElement;
-            openerRef.current = activeElement instanceof HTMLElement && activeElement !== document.body ? activeElement : null;
+          data-mobile-app-menu
+          className="mobile-glass flex w-[min(16rem,calc(100vw-max(0.75rem,env(safe-area-inset-left))-max(0.75rem,env(safe-area-inset-right))))] max-w-none max-h-[min(460px,calc(100dvh-max(0.75rem,env(safe-area-inset-top))-max(0.75rem,env(safe-area-inset-bottom))))] translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-[1.35rem] bg-[var(--mobile-glass-background)] p-0 shadow-2xl motion-reduce:animate-none"
+          style={{
+            left: `clamp(max(0.75rem, env(safe-area-inset-left)), ${preferredLeft}px, calc(100vw - max(0.75rem, env(safe-area-inset-right)) - min(16rem, calc(100vw - max(0.75rem, env(safe-area-inset-left)) - max(0.75rem, env(safe-area-inset-right))))))`,
+            top: `clamp(max(0.75rem, env(safe-area-inset-top)), ${preferredTop}px, calc(100dvh - max(0.75rem, env(safe-area-inset-bottom)) - min(460px, calc(100dvh - max(0.75rem, env(safe-area-inset-top)) - max(0.75rem, env(safe-area-inset-bottom))))))`,
           }}
+          onClick={(event) => event.stopPropagation()}
           onCloseAutoFocus={(event) => {
-            if (!openerRef.current?.isConnected) return;
+            if (!opener?.isConnected) return;
             event.preventDefault();
-            openerRef.current.focus({ preventScroll: true });
+            opener.focus({ preventScroll: true });
           }}
         >
-          <div className="flex shrink-0 items-center gap-2 border-b border-[var(--mobile-divider)] px-4 py-1.5">
-            <DialogTitle className="min-w-0 flex-1 break-words text-base">{app.name}</DialogTitle>
+          <div className="flex shrink-0 items-center gap-2 border-b border-[var(--mobile-divider)] px-4">
+            <DialogTitle className="min-w-0 flex-1 truncate text-sm font-semibold">{app.name}</DialogTitle>
             <DialogClose className="min-h-11 rounded-full px-3 text-sm font-semibold text-[var(--mobile-accent-text)] hover:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-primary">Done</DialogClose>
           </div>
-          <div className="min-h-0 overflow-y-auto overscroll-contain py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&_button]:min-h-11 [&_button]:px-4 [&_button]:text-sm">
+          <div className="min-h-0 overflow-y-auto overscroll-contain py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&_button]:min-h-11 [&_button]:px-4 [&_button]:text-sm [&_button]:active:bg-foreground/10">
             {actions}
           </div>
         </DialogContent>

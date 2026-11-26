@@ -70,6 +70,8 @@ export function useAppGridController({
     x: number;
     y: number;
     appId: string;
+    anchor: DOMRect | null;
+    opener: HTMLElement | null;
   } | null>(null);
 
   const installedCatalogApps = useMemo(
@@ -173,7 +175,12 @@ export function useAppGridController({
     setActiveAppId(app.id);
     const x = Math.max(8, Math.min(event.clientX, window.innerWidth - 200));
     const y = Math.max(8, Math.min(event.clientY, window.innerHeight - 440));
-    setContextMenu({ x, y, appId: app.id });
+    // React clears currentTarget after dispatch; long presses invoke this from a timer.
+    const target = event.currentTarget instanceof HTMLElement
+      ? event.currentTarget
+      : event.target instanceof Element ? event.target.closest("button") : null;
+    const opener = target instanceof HTMLElement ? target : null;
+    setContextMenu({ x, y, appId: app.id, anchor: opener?.getBoundingClientRect() ?? null, opener });
   }
 
   async function openDashboardForApp(app: AppItem) {

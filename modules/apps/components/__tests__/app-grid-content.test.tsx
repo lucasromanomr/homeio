@@ -32,12 +32,23 @@ describe("AppGridContent", () => {
 
   it("counts listed apps and only reports a running state with a known status", () => {
     const apps: AppItem[] = [app, { ...app, id: "stopped", status: "stopped" }, { ...app, id: "external", status: "unmanaged" }];
-    render(<AppGridContent mobile activeAppId={null} activeOperationsCount={0} animationsEnabled={false}
-      apps={apps} iconSize="medium" isAppsError={false} isAppsLoading={false}
-      onAppContextMenu={vi.fn()} onOpenApp={vi.fn()} primaryOperation={null} />);
-    const activity = screen.getByRole("region", { name: "App activity" });
-    expect(within(activity).getByText("of 3")).toBeTruthy();
-    expect(within(activity).getByText("1")).toBeTruthy();
+    vi.stubGlobal("ResizeObserver", class {
+      constructor(private callback: ResizeObserverCallback) {}
+      observe() {
+        this.callback([{ contentRect: { width: 358, height: 562 } } as ResizeObserverEntry], this as unknown as ResizeObserver);
+      }
+      disconnect() {}
+    });
+    try {
+      render(<AppGridContent mobile activeAppId={null} activeOperationsCount={0} animationsEnabled={false}
+        apps={apps} iconSize="medium" isAppsError={false} isAppsLoading={false}
+        onAppContextMenu={vi.fn()} onOpenApp={vi.fn()} primaryOperation={null} />);
+      const activity = screen.getByRole("region", { name: "App activity" });
+      expect(within(activity).getByText("of 3")).toBeTruthy();
+      expect(within(activity).getByText("1")).toBeTruthy();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
 
@@ -45,7 +56,7 @@ describe("AppGridContent", () => {
     const apps = Array.from({ length: 14 }, (_, index) => ({ ...app, id: `${index}`, name: `App ${index}` }));
     const props = { mobile: true, activeAppId: null, activeOperationsCount: 0, animationsEnabled: false, apps, iconSize: "medium" as const, isAppsError: false, isAppsLoading: false, onAppContextMenu: vi.fn(), onOpenApp: vi.fn(), primaryOperation: null };
     const { unmount } = render(<AppGridContent {...props} />);
-    expect(screen.getByText("1 / 2")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "App page 1" }).getAttribute("aria-current")).toBe("page");
     const OriginalPointerEvent = window.PointerEvent;
     class TestPointerEvent extends MouseEvent { pointerType: string; constructor(type: string, init: PointerEventInit = {}) { super(type, init); this.pointerType = init.pointerType ?? ""; } }
     window.PointerEvent = TestPointerEvent as typeof PointerEvent;
@@ -55,7 +66,7 @@ describe("AppGridContent", () => {
     fireEvent.pointerUp(gridButton, { pointerType: "touch", clientX: 100, clientY: 20 });
     window.PointerEvent = OriginalPointerEvent;
     expect(screen.getByText("App 12")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Previous app page" }));
+    fireEvent.click(screen.getByRole("button", { name: "App page 1" }));
     expect(screen.getByText("App 0")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "List" }));
     expect(screen.getByText("App 0")).toBeTruthy();

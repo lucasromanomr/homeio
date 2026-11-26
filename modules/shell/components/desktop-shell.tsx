@@ -11,6 +11,8 @@ import {
   ShoppingBag,
   TerminalSquare,
 } from "@/components/icons/platform-icons";
+import { APP_ICONS } from "@/components/icons/icon-assets";
+import { OsIcon } from "@/components/icons/OsIcon";
 import {
   AlertRegular,
   FolderRegular,
@@ -792,20 +794,20 @@ function DesktopShellInner() {
         {(!isMobile || !focusedWindow) && <div className={isMobile
           ? "relative isolate flex min-h-0 flex-1 flex-col overflow-hidden pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[calc(var(--mobile-nav-height)+max(0.75rem,env(safe-area-inset-bottom))+0.75rem)] pl-[env(safe-area-inset-left)]"
           : "m-12 flex min-h-0 flex-1 overflow-hidden"}>
-          {isMobile && mobilePage === "home" && displayWallpaper && (
+          {isMobile && mobilePage === "home" && (displayWallpaper || appearance.wallpaper) && (
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center"
-              style={{ backgroundImage: `linear-gradient(180deg, color-mix(in srgb, var(--mobile-canvas) 87%, transparent), var(--mobile-canvas) 78%), url('${displayWallpaper}')` }}
+              className="mobile-wallpaper pointer-events-none absolute inset-0 -z-10"
+              style={{ backgroundImage: `url('${displayWallpaper ?? appearance.wallpaper}')` }}
             />
           )}
-          {isMobile && <header className="mx-4 flex min-h-16 shrink-0 items-center gap-2.5">
-            <NextImage src="/icon-192.png" alt="" width={32} height={32} className="size-8 rounded-[0.6rem] shadow-sm" />
-            <h1 className="min-w-0 flex-1 truncate text-[1.5rem] leading-tight font-bold tracking-[-0.06em]">{mobilePage === "more" ? "More" : "Homeio"}</h1>
-            {currentUser?.isDemoMode && <span className="text-xs text-foreground/70">Demo</span>}
-            <div className="flex shrink-0 items-center gap-2">
-              <button type="button" aria-label="Search" className="mobile-tool" onClick={() => { setIsSettingsSearchOpen(true); setSettingsSearchQuery(""); }}><SearchRegular className="size-5" aria-hidden="true" /></button>
-              <button type="button" aria-label="Notifications" className="mobile-tool" onClick={() => openWindow("notifications")}><AlertRegular className="size-5" aria-hidden="true" /></button>
+          {isMobile && <header className="mx-4 flex min-h-14 shrink-0 items-center gap-2">
+            <NextImage src="/icon-192.png" alt="" width={28} height={28} className="size-7 rounded-lg shadow-md" />
+            <h1 className={`min-w-0 flex-1 truncate text-base font-semibold tracking-[-0.035em] ${mobilePage === "home" ? "mobile-wallpaper-label" : ""}`}>{mobilePage === "more" ? "More" : "Homeio"}</h1>
+            {currentUser?.isDemoMode && <span className={`text-xs ${mobilePage === "home" ? "mobile-wallpaper-label" : "text-muted-foreground"}`}>Demo</span>}
+            <div className="mobile-glass flex shrink-0 items-center divide-x divide-[var(--mobile-glass-rim)] rounded-full">
+              <button type="button" aria-label="Search" onClick={() => { setIsSettingsSearchOpen(true); setSettingsSearchQuery(""); }} className="grid size-11 cursor-pointer touch-manipulation place-items-center rounded-l-full active:bg-primary/15 focus-visible:outline-2 focus-visible:outline-primary"><SearchRegular className="size-[1.15rem]" aria-hidden="true" /></button>
+              <button type="button" aria-label="Notifications" onClick={() => openWindow("notifications")} className="grid size-11 cursor-pointer touch-manipulation place-items-center rounded-r-full active:bg-primary/15 focus-visible:outline-2 focus-visible:outline-primary"><AlertRegular className="size-[1.15rem]" aria-hidden="true" /></button>
             </div>
           </header>}
           {isMobile && mobilePage === "more" ? (
@@ -816,7 +818,7 @@ function DesktopShellInner() {
                   ["disk-manager", "Disks", HardDriveRegular],
                   ["terminal", "Terminal", WindowConsoleRegular],
                 ] as const).map(([id, label, Icon]) => (
-                  <button key={id} type="button" onClick={() => handleDockClick(id)} className="flex min-h-24 min-w-0 cursor-pointer flex-col items-start justify-between gap-2 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-3 text-left text-sm font-semibold break-words active:bg-primary/10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary">
+                  <button key={id} type="button" onClick={() => handleDockClick(id)} className="mobile-glass flex min-h-24 min-w-0 cursor-pointer flex-col items-start justify-between gap-2 rounded-2xl p-3 text-left text-sm font-semibold break-words active:bg-primary/10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary">
                     <span className="grid size-8 place-items-center rounded-lg bg-primary/12 text-[var(--mobile-accent-text)]"><Icon className="size-5" aria-hidden="true" /></span>
                     {label}
                   </button>
@@ -1077,7 +1079,7 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {isMobile && <nav aria-label="Primary navigation" className="mobile-dock absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-[max(1rem,env(safe-area-inset-left))] right-[max(1rem,env(safe-area-inset-right))] z-[120] mx-auto grid max-w-sm grid-cols-5 gap-1 p-1 backdrop-blur-xl">
+        {isMobile && <nav aria-label="Primary navigation" className="mobile-glass mobile-dock absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-[max(1rem,env(safe-area-inset-left))] right-[max(1rem,env(safe-area-inset-right))] z-[120] mx-auto grid max-w-sm grid-cols-5 gap-0.5 p-1">
           {([
             ["home", "Home", HomeRegular], ["files", "Files", FolderRegular],
             ["app-store", "Store", ShoppingBagRegular], ["monitor", "Monitor", PulseRegular],
@@ -1086,9 +1088,12 @@ function DesktopShellInner() {
             const active = focusedWindow === id || (!focusedWindow && mobilePage === id) ||
               (id === "app-store" && focusedWindow === "custom-install") ||
               (id === "more" && ["settings", "disk-manager", "terminal"].includes(focusedWindow ?? ""));
+            const iconSrc = id === "home" ? "/icon-192.png" : APP_ICONS[id];
             return (
               <button key={id} type="button" aria-label={label} aria-current={active ? "page" : undefined} onClick={() => selectMobileTab(id)} className="mobile-dock-button">
-                <Icon className="size-[1.4rem]" aria-hidden="true" />
+                <span className="mobile-dock-icon grid size-10 place-items-center" aria-hidden="true">
+                  {iconSrc ? <OsIcon src={iconSrc} className="size-8 object-contain drop-shadow-sm" fallback={<Icon className="size-6" />} /> : <Icon className="size-6" />}
+                </span>
               </button>
             );
           })}
