@@ -132,7 +132,7 @@ function DesktopShellInner() {
   const [isSettingsSearchOpen, setIsSettingsSearchOpen] = useState(false);
   const [settingsSearchQuery, setSettingsSearchQuery] = useState("");
   const [settingsSectionRequest, setSettingsSectionRequest] = useState<
-    string | null
+    { id: string } | null
   >(null);
   const [appStoreLaunchRequest, setAppStoreLaunchRequest] = useState<{
     nonce: number;
@@ -429,7 +429,7 @@ function DesktopShellInner() {
 
   const openSettingsSection = useCallback(
     (sectionId: string) => {
-      setSettingsSectionRequest(sectionId);
+      setSettingsSectionRequest({ id: sectionId });
       setIsSettingsSearchOpen(false);
       setSettingsSearchQuery("");
       const section = SETTINGS_SEARCH_SECTIONS.find(
@@ -814,7 +814,7 @@ function DesktopShellInner() {
           {isMobile && mobilePage === "more" ? (
             <div className="@container/mobile-more mx-auto min-h-0 w-full max-w-[calc(var(--mobile-home-width)+var(--mobile-gutter)*2)] flex-1 overflow-y-auto overscroll-contain px-[var(--mobile-gutter)] py-3">
               <div className="grid items-start gap-4 @lg/mobile-more:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-                <div className="overflow-hidden rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)]">
+                <div className="mobile-list-group">
                   {([
                     ["settings", "Settings", SettingsRegular],
                     ["disk-manager", "Disks", HardDriveRegular],
@@ -827,7 +827,7 @@ function DesktopShellInner() {
                     </button>
                   ))}
                 </div>
-                <div className="overflow-hidden rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)]">
+                <div className="mobile-list-group">
                   <button type="button" onClick={() => setLockState(true)} className="flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-[var(--mobile-divider)] px-3 text-left text-sm font-medium active:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary"><span className="grid size-8 shrink-0 place-items-center text-muted-foreground"><LockClosedRegular className="size-5" aria-hidden="true" /></span>Lock</button>
                   <button type="button" disabled={isLogoutPending} onClick={handleLogout} className="flex min-h-14 w-full cursor-pointer items-center gap-3 px-3 text-left text-sm font-medium active:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary disabled:opacity-50"><span className="grid size-8 shrink-0 place-items-center text-muted-foreground"><SignOutRegular className="size-5" aria-hidden="true" /></span>{isLogoutPending ? "Signing out…" : "Sign out"}</button>
                 </div>
@@ -899,7 +899,7 @@ function DesktopShellInner() {
               accentOptions={accentColors}
               onAppearanceChange={updateAppearance}
               wallpaperAccentColor={wallpaperAccentColor}
-              selectedSection={settingsSectionRequest}
+              sectionRequest={settingsSectionRequest}
               onOpenDiskManager={() => openWindow("disk-manager")}
             />
           </Window>
@@ -965,7 +965,6 @@ function DesktopShellInner() {
             animationsEnabled={appearance.animationsEnabled}
           >
             <AppStore
-              active={!isMobile || focusedWindow === "app-store"}
               onOpenCustomInstall={() => openWindow("custom-install")}
               launchRequest={appStoreLaunchRequest}
             />

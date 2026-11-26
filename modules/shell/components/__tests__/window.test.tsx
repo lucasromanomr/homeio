@@ -2,9 +2,52 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { useCallback, useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { useMobileWindowPage } from "@/modules/shell/components/mobile-window-page";
 import { Window } from "@/modules/shell/components/window";
 
 describe("Window", () => {
+  it("returns from a child page without closing the mobile window", () => {
+    const onClose = vi.fn();
+    function Store() {
+      const [detail, setDetail] = useState(true);
+      const back = useCallback(() => setDetail(false), []);
+      useMobileWindowPage(detail ? "App details" : null, back);
+      return <div>{detail ? "Details" : "Catalog"}</div>;
+    }
+
+    render(<Window mobile title="Store" onClose={onClose}><Store /></Window>);
+    expect(screen.getByRole("heading", { name: "App details" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Go back" }));
+    expect(screen.getByRole("heading", { name: "Store" })).toBeTruthy();
+    expect(screen.getByText("Catalog")).toBeTruthy();
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Go back" }));
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it("hides a portaled dialog with its window and restores the draft", () => {
+    function SourceForm() {
+      const [draft, setDraft] = useState("");
+      return <Dialog open>
+        <DialogContent mobileSheet>
+          <DialogTitle>Add source</DialogTitle>
+          <DialogDescription>Source details</DialogDescription>
+          <input aria-label="Source name" value={draft} onChange={(event) => setDraft(event.target.value)} />
+        </DialogContent>
+      </Dialog>;
+    }
+    const window = (inactive: boolean) => <Window mobile inactive={inactive} title="Store" onClose={() => {}}><SourceForm /></Window>;
+    const { rerender } = render(window(false));
+    fireEvent.change(screen.getByRole("textbox", { name: "Source name" }), { target: { value: "Example" } });
+
+    rerender(window(true));
+    expect(screen.queryByRole("dialog", { name: "Add source" })).toBeNull();
+    rerender(window(false));
+    expect((screen.getByRole("textbox", { name: "Source name" }) as HTMLInputElement).value).toBe("Example");
+  });
+
   it("only navigates back for a deliberate swipe on the mobile header", () => {
     const onClose = vi.fn();
     render(<Window mobile title="Files" onClose={onClose}><div>file list</div></Window>);

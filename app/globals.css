@@ -13,6 +13,13 @@
   }
 }
 
+@utility mobile-list-group {
+  overflow: hidden;
+  border: 1px solid var(--mobile-divider);
+  border-radius: 1rem;
+  background: var(--mobile-panel);
+}
+
 :root {
   --mobile-canvas: #f4efe8;
   --mobile-panel: #fffaf3;

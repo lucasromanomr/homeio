@@ -60,7 +60,7 @@ export function AddNetworkShareDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent showCloseButton={false} className="max-w-[34rem] gap-0 border-glass-border bg-popover/96 p-0 shadow-2xl shadow-black/45 backdrop-blur-2xl">
+      <DialogContent mobileSheet showCloseButton={false} className="max-w-[34rem] gap-0 border-glass-border bg-popover/96 p-0 shadow-2xl shadow-black/45 backdrop-blur-2xl">
         <DialogHeader className="sr-only">
           <DialogTitle>Add Network Share</DialogTitle>
           <DialogDescription>Connect to an SMB share</DialogDescription>

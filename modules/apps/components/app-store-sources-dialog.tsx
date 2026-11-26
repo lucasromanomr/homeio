@@ -90,7 +90,7 @@ export function AppStoreSourcesDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto overscroll-contain border-glass-border bg-card/95 backdrop-blur-xl handheld:@container/store-sources handheld:max-w-[min(42rem,calc(100%-2*var(--mobile-overlay-gutter)))] handheld:gap-3 handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-panel)] handheld:p-4 handheld:[backdrop-filter:none]">
+      <DialogContent mobileSheet className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto overscroll-contain border-glass-border bg-card/95 backdrop-blur-xl handheld:@container/store-sources handheld:max-w-[min(42rem,calc(100%-2*var(--mobile-overlay-gutter)))] handheld:gap-3 handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-panel)] handheld:p-4 handheld:[backdrop-filter:none]">
         <DialogHeader className="handheld:pr-10 handheld:text-left">
           <DialogTitle>Store Sources</DialogTitle>
           <DialogDescription>

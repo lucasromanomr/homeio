@@ -22,6 +22,7 @@ import { type RefObject, useId, useState } from "react";
 
 type ToolbarProps = {
   canNavigateUp: boolean;
+  hasWindowBack: boolean;
   currentEntriesCount: number;
   currentPath: string[];
   currentPathForDisplay: string[];
@@ -56,6 +57,7 @@ const iconBtnIdle = "text-muted-foreground hover:bg-background/50 hover:text-for
 
 export function FileManagerToolbar({
   canNavigateUp,
+  hasWindowBack,
   currentEntriesCount,
   currentPath,
   currentPathForDisplay,
@@ -95,7 +97,7 @@ export function FileManagerToolbar({
         onClick={onNavigateUp}
         disabled={!canNavigateUp}
         aria-label="Go up one level"
-        className={cn(iconBtn, iconBtnIdle, "disabled:cursor-not-allowed disabled:opacity-30")}
+        className={cn(iconBtn, iconBtnIdle, "disabled:cursor-not-allowed disabled:opacity-30", (!canNavigateUp || hasWindowBack) && "handheld:hidden")}
       >
         <ArrowUp className="size-3.5" />
       </button>

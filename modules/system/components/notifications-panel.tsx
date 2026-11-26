@@ -83,7 +83,7 @@ export function NotificationsPanel() {
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-glass-border/40 handheld:mx-[var(--mobile-gutter)] handheld:my-3 handheld:overflow-hidden handheld:rounded-2xl handheld:border handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-panel)]">
+          <ul className="divide-y divide-glass-border/40 handheld:mobile-list-group handheld:mx-[var(--mobile-gutter)] handheld:my-3">
             {visible.map((n) => (
               <li
                 key={n.id}
