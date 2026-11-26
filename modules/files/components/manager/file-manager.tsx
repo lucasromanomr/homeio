@@ -65,7 +65,7 @@ import {
 } from "@/modules/files/components/manager/file-manager-state";
 import { FileManagerView } from "@/modules/files/components/manager/file-manager-view";
 
-export function FileManager() {
+export function FileManager({ keyboardEnabled = true }: { keyboardEnabled?: boolean } = {}) {
   const rootRef = useRef<HTMLDivElement>(null);
   const statusNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
@@ -311,6 +311,7 @@ export function FileManager() {
   }
 
   useFileManagerKeyboard({
+    enabled: keyboardEnabled,
     clipboardState: state.clipboardState,
     createEntryDialogOpen: Boolean(state.createEntryDialog),
     currentPath: state.currentPath,

@@ -58,7 +58,7 @@ import { Terminal, type TerminalAttachRequest } from "./terminal";
 import { UpdateRecoveryScreen } from "./update-recovery-screen";
 import { Window } from "./window";
 
-const MOBILE_QUERY = "(width < 48rem), (pointer: coarse) and (max-width: 64rem) and (max-height: 32rem)";
+const MOBILE_QUERY = "(width < 48rem), (pointer: coarse) and (hover: none)";
 const subscribeMobile = (callback: () => void) => {
   const media = window.matchMedia(MOBILE_QUERY);
   media.addEventListener("change", callback);
@@ -794,7 +794,13 @@ function DesktopShellInner() {
             isMinimized={minimizedWindows.includes("files")}
             animationsEnabled={appearance.animationsEnabled}
           >
-            <FileManager />
+            <FileManager
+              keyboardEnabled={
+                !minimizedWindows.includes("files") &&
+                !closingWindows.includes("files") &&
+                (!isMobile || focusedWindow === "files")
+              }
+            />
           </Window>
         )}
 
