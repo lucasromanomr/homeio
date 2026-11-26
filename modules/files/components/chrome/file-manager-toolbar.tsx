@@ -18,7 +18,7 @@ import {
 } from "@/components/icons/platform-icons";
 import { cn } from "@/lib/utils";
 import { FILES_PANEL_SHELL } from "@/modules/files/components/file-manager-surface";
-import type { RefObject } from "react";
+import { type RefObject, useId, useState } from "react";
 
 type ToolbarProps = {
   canNavigateUp: boolean;
@@ -51,7 +51,7 @@ type ToolbarProps = {
   onUploadInputChange: (files: File[]) => void;
 };
 
-const iconBtn = "inline-flex size-11 items-center justify-center rounded-lg transition-colors active:bg-foreground/10 md:size-7 handheld:size-11";
+const iconBtn = "inline-flex size-11 items-center justify-center rounded-lg transition-colors active:bg-foreground/10 md:size-7 handheld:size-[var(--mobile-touch-target)]";
 const iconBtnIdle = "text-muted-foreground hover:bg-background/50 hover:text-foreground";
 
 export function FileManagerToolbar({
@@ -84,6 +84,9 @@ export function FileManagerToolbar({
   onToggleSortDir,
   onUploadInputChange,
 }: ToolbarProps) {
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const searchId = useId();
+
   return (
     <div className={cn("flex flex-wrap items-center gap-2 md:flex-nowrap md:overflow-x-auto border-b border-glass-border/60 px-2 py-2 md:px-3 handheld:!px-2 handheld:!flex-wrap handheld:!overflow-x-visible handheld:@lg/mobile-files:!flex-nowrap", FILES_PANEL_SHELL)}>
 
@@ -151,8 +154,19 @@ export function FileManagerToolbar({
         </div>
       )}
 
+      <button
+        type="button"
+        aria-label={searchExpanded ? "Hide file search" : "Show file search"}
+        aria-controls={searchId}
+        aria-expanded={searchExpanded}
+        onClick={() => setSearchExpanded((expanded) => !expanded)}
+        className={cn(iconBtn, "hidden shrink-0 handheld:inline-flex", searchQuery || searchExpanded ? "bg-primary/15 text-[var(--mobile-accent-text)]" : iconBtnIdle)}
+      >
+        <Search className="size-4" aria-hidden="true" />
+      </button>
+
       {/* Search */}
-      <div className="order-first flex w-full items-center gap-1 md:order-none md:w-auto md:shrink-0 handheld:!order-first handheld:!w-full handheld:@lg/mobile-files:!order-none handheld:@lg/mobile-files:!w-[42%] handheld:@lg/mobile-files:max-w-72">
+      <div id={searchId} className={cn("order-first flex w-full items-center gap-1 md:order-none md:w-auto md:shrink-0 handheld:!order-first handheld:!w-full handheld:@lg/mobile-files:!order-none handheld:@lg/mobile-files:!w-[42%] handheld:@lg/mobile-files:max-w-72", !searchExpanded && "handheld:!hidden")}>
         <div className="relative min-w-0 flex-1 md:w-36 md:flex-none handheld:flex-1">
           {globalSearchIsFetching ? (
             <Loader2 className="absolute left-2 top-1/2 size-3 -translate-y-1/2 animate-spin text-primary" />
@@ -167,7 +181,7 @@ export function FileManagerToolbar({
             onChange={(e) => onSearchQueryChange(e.target.value)}
             placeholder={globalSearch ? "Search everywhere…" : "Search…"}
             className={cn(
-              "h-11 w-full rounded-lg border pl-7 pr-2 text-sm md:h-7 md:text-xs handheld:!h-11 handheld:!text-base text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors",
+              "h-11 w-full rounded-lg border pl-7 pr-2 text-sm md:h-7 md:text-xs handheld:!h-[var(--mobile-touch-target)] handheld:!text-[length:max(16px,1rem)] text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors",
               globalSearch
                 ? "border-primary/40 bg-background/60 focus:border-primary/60"
                 : "border-glass-border bg-background/55 focus:border-primary/40",

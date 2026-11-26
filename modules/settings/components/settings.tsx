@@ -189,7 +189,7 @@ export function SettingsPanel({
 
       <main className={cn("min-h-0 min-w-0 flex-1 overflow-y-auto md:block", mobileNavigation.open && "hidden handheld:!hidden")}>
         <div className="min-w-0 max-w-2xl p-4 md:p-5 handheld:mx-auto handheld:!px-[var(--mobile-gutter)] handheld:!py-4">
-          <button type="button" onClick={() => setMobileNavigation({ requested: selectedSection, open: true })} className="-ml-2 mb-1 inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-primary transition-colors hover:text-primary/80 active:bg-foreground/10 focus-visible:outline-primary md:hidden handheld:!inline-flex">
+          <button type="button" onClick={() => setMobileNavigation({ requested: selectedSection, open: true })} className="-ml-2 inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-primary transition-colors hover:text-primary/80 active:bg-foreground/10 focus-visible:outline-primary md:hidden handheld:!inline-flex handheld:min-h-[var(--mobile-touch-target)]">
             <ChevronLeftIcon className="size-4" aria-hidden="true" /> All settings
           </button>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3 md:mb-4 handheld:!mb-3">

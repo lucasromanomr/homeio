@@ -22,10 +22,14 @@
   --mobile-glass-fill: color-mix(in srgb, var(--mobile-panel) 73%, transparent);
   --mobile-glass-rim: rgb(255 255 255 / 0.44);
   --mobile-nav-height: 3.5rem;
+  --mobile-safe-top: env(safe-area-inset-top, 0px);
+  --mobile-safe-right: env(safe-area-inset-right, 0px);
+  --mobile-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --mobile-safe-left: env(safe-area-inset-left, 0px);
+  --mobile-touch-target: max(44px, 2.75rem);
   --mobile-gutter: clamp(0.75rem, 4vw, 1.25rem);
   --mobile-header-height: 3.75rem;
-  --mobile-dock-bottom: max(0.625rem, env(safe-area-inset-bottom));
-  --mobile-dock-clearance: calc(var(--mobile-nav-height) + var(--mobile-dock-bottom) + 1.125rem);
+  --mobile-dock-bottom: max(0.625rem, var(--mobile-safe-bottom));
   --mobile-home-width: 44rem;
   --mobile-launcher-controls: 3rem;
   --mobile-grid-min-row: 108px;
@@ -33,7 +37,9 @@
   --mobile-app-inset: 0.5rem;
   --mobile-app-gap: 0.375rem;
   --mobile-app-label: 0.72rem;
-  --mobile-overlay-gutter: max(var(--mobile-gutter), env(safe-area-inset-left), env(safe-area-inset-right));
+  --mobile-overlay-gutter: max(var(--mobile-gutter), var(--mobile-safe-left), var(--mobile-safe-right));
+  --mobile-dialog-center: calc(50% + (var(--mobile-safe-top) - var(--mobile-safe-bottom)) / 2);
+  --mobile-dialog-height: calc(100dvh - var(--mobile-safe-top) - var(--mobile-safe-bottom) - 16px);
   --background: oklch(0.96 0.006 250);
   --foreground: oklch(0.2 0.02 250);
   --card: oklch(0.99 0.004 250 / 0.8);
@@ -210,6 +216,55 @@
 }
 
 @layer components {
+  @media (width < 48rem), (pointer: coarse) and (hover: none) {
+    :where([data-slot="dialog-content"], [data-slot="alert-dialog-content"]) {
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+  }
+
+  .mobile-workspace {
+    --mobile-dock-clearance: calc(max(var(--mobile-nav-height), var(--mobile-touch-target)) + var(--mobile-dock-bottom) + 18px);
+  }
+
+  .mobile-workspace[data-tool-open] {
+    --mobile-nav-height: var(--mobile-touch-target);
+  }
+
+  .mobile-window {
+    inset-inline-start: 0;
+    inset-block-start: 0;
+    inset-inline-end: var(--mobile-window-end, 0px);
+    inset-block-end: var(--mobile-window-bottom, var(--mobile-dock-clearance));
+    padding-block-end: var(--mobile-window-bottom-padding, 0px);
+  }
+
+  .mobile-window-content {
+    padding-inline: var(--mobile-safe-left) var(--mobile-window-end-padding, var(--mobile-safe-right));
+  }
+
+  @media (orientation: landscape) and (height <= 32rem) and (width >= 500px) {
+    .mobile-workspace[data-tool-open] {
+      --mobile-window-end: calc(var(--mobile-safe-right) + var(--mobile-touch-target) + 26px);
+      --mobile-window-end-padding: 0px;
+      --mobile-window-bottom: 0px;
+      --mobile-window-bottom-padding: var(--mobile-safe-bottom);
+    }
+
+    .mobile-workspace[data-tool-open] .mobile-dock {
+      inset: max(8px, var(--mobile-safe-top)) calc(var(--mobile-safe-right) + 8px) max(8px, var(--mobile-safe-bottom)) auto;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      height: max-content;
+      max-height: calc(100% - max(8px, var(--mobile-safe-top)) - max(8px, var(--mobile-safe-bottom)));
+      width: calc(var(--mobile-touch-target) + 10px);
+      margin: auto 0;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+  }
+
   .mobile-glass {
     --mobile-glass-background: var(--mobile-panel);
     border: 1px solid var(--mobile-glass-rim);
@@ -268,8 +323,21 @@
   }
 
   .mobile-window-header {
+    min-height: calc(var(--mobile-safe-top) + max(48px, var(--mobile-touch-target) + 4px));
+    padding-block-start: var(--mobile-safe-top);
+    padding-inline: calc(var(--mobile-safe-left) + var(--mobile-gutter) - 8px) calc(var(--mobile-window-end-padding, var(--mobile-safe-right)) + var(--mobile-gutter));
     background: var(--mobile-panel);
     box-shadow: inset 0 1px rgb(255 255 255 / 0.12);
+  }
+
+  .mobile-window-header .mobile-tool {
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .mobile-window-header .mobile-tool:active {
+    background: color-mix(in srgb, var(--primary) 14%, transparent);
   }
 
   .mobile-window-icon {
@@ -285,8 +353,8 @@
   }
 
   @keyframes mobile-window-opening {
-    from { opacity: 0.80; transform: translateY(6px); }
-    to { opacity: 1; transform: none; }
+    from { opacity: 0.88; }
+    to { opacity: 1; }
   }
 
   .mobile-tool,
@@ -298,8 +366,8 @@
   .mobile-tool {
     display: grid;
     place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
+    width: var(--mobile-touch-target);
+    height: var(--mobile-touch-target);
     flex-shrink: 0;
     border: 1px solid var(--mobile-divider);
     border-radius: 0.85rem;
@@ -321,6 +389,14 @@
   }
 
   .mobile-dock {
+    position: absolute;
+    inset: auto max(var(--mobile-gutter), var(--mobile-safe-right)) var(--mobile-dock-bottom) max(var(--mobile-gutter), var(--mobile-safe-left));
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+    max-width: 24rem;
+    margin-inline: auto;
+    padding: 4px;
     border-radius: 1.75rem;
     box-shadow:
       inset 0 1px 1px rgb(255 255 255 / 0.22),
@@ -332,7 +408,7 @@
     display: grid;
     position: relative;
     min-width: 0;
-    min-height: var(--mobile-nav-height);
+    min-height: max(var(--mobile-nav-height), var(--mobile-touch-target));
     place-items: center;
     border-radius: 1.35rem;
     color: var(--foreground);

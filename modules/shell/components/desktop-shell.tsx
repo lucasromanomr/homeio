@@ -718,7 +718,7 @@ function DesktopShellInner() {
   }
 
   return (
-    <div className={isMobile ? "fixed inset-0 h-[100dvh] w-full overflow-hidden overscroll-none" : "relative h-[100dvh] w-full overflow-hidden"}>
+    <div className={isMobile ? "relative h-[100dvh] w-full overflow-hidden overscroll-none" : "relative h-[100dvh] w-full overflow-hidden"}>
       {/* Wallpaper Background */}
       {!isMobile && <div className="absolute inset-0">
         <div
@@ -755,7 +755,7 @@ function DesktopShellInner() {
       </div>}
 
       {/* Desktop Content */}
-      <div className={`relative z-10 flex h-full flex-col ${isMobile ? "bg-[var(--mobile-canvas)] text-foreground" : ""}`}>
+      <div data-tool-open={isMobile && focusedWindow ? "" : undefined} className={`relative z-10 flex h-full flex-col ${isMobile ? "mobile-workspace bg-[var(--mobile-canvas)] text-foreground" : ""}`}>
         {/* Demo mode floating badge — overlays the top of the widget column */}
         {currentUser?.isDemoMode && (
           <div className="fixed top-14 right-5 z-50 hidden xl:flex items-center gap-2 rounded-full border border-primary/35 bg-primary/10 px-3 py-1.5 backdrop-blur-md shadow-lg shadow-black/20">
@@ -793,7 +793,7 @@ function DesktopShellInner() {
 
         {/* Launcher and desktop area */}
         {(!isMobile || !focusedWindow) && <div className={isMobile
-          ? "relative isolate flex min-h-0 flex-1 flex-col overflow-hidden pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[var(--mobile-dock-clearance)] pl-[env(safe-area-inset-left)]"
+          ? "relative isolate flex min-h-0 flex-1 flex-col overflow-hidden pt-[var(--mobile-safe-top)] pr-[var(--mobile-safe-right)] pb-[var(--mobile-dock-clearance)] pl-[var(--mobile-safe-left)]"
           : "m-12 flex min-h-0 flex-1 overflow-hidden"}>
           {isMobile && mobilePage === "home" && (displayWallpaper || appearance.wallpaper) && (
             <div
@@ -965,6 +965,7 @@ function DesktopShellInner() {
             animationsEnabled={appearance.animationsEnabled}
           >
             <AppStore
+              active={!isMobile || focusedWindow === "app-store"}
               onOpenCustomInstall={() => openWindow("custom-install")}
               launchRequest={appStoreLaunchRequest}
             />
@@ -1085,7 +1086,7 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {isMobile && <nav aria-label="Primary navigation" className="mobile-glass mobile-dock absolute bottom-[var(--mobile-dock-bottom)] left-[max(var(--mobile-gutter),env(safe-area-inset-left))] right-[max(var(--mobile-gutter),env(safe-area-inset-right))] z-[120] mx-auto grid max-w-sm grid-cols-5 gap-0.5 p-1">
+        {isMobile && <nav aria-label="Primary navigation" className="mobile-glass mobile-dock z-[120]">
           {([
             ["home", "Home", HomeRegular], ["files", "Files", FolderRegular],
             ["app-store", "Store", ShoppingBagRegular], ["monitor", "Monitor", PulseRegular],

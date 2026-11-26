@@ -195,7 +195,7 @@ export function Window({
       aria-hidden={hidden || undefined}
       inert={hidden || undefined}
       className={mobile
-        ? "mobile-window-opening absolute inset-x-0 top-0 bottom-[var(--mobile-dock-clearance)] z-[110] flex min-h-0 flex-col overflow-hidden bg-[var(--mobile-canvas)] pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]"
+        ? "mobile-window mobile-window-opening absolute z-[110] flex min-h-0 flex-col overflow-hidden bg-[var(--mobile-canvas)]"
         : `absolute flex flex-col overflow-hidden border border-glass-border ${
             isMaximized
               ? "rounded-[calc(var(--radius)+0.5rem)] shadow-[0_18px_42px_rgba(0,0,0,0.28)]"
@@ -212,7 +212,7 @@ export function Window({
     >
       {mobile ? (
         <header
-          className="mobile-window-header flex min-h-[var(--mobile-header-height)] shrink-0 items-center gap-2.5 border-b border-[var(--mobile-divider)] px-[var(--mobile-gutter)]"
+          className="mobile-window-header flex shrink-0 items-center gap-1 border-b border-[var(--mobile-divider)]"
           onTouchStart={(event) => {
             const touch = event.touches[0];
             backSwipe.current = event.touches.length === 1 && touch.clientX >= 24 && !(event.target as Element).closest("button")
@@ -233,8 +233,7 @@ export function Window({
           <button type="button" onClick={onClose} aria-label="Go back" className="mobile-tool">
             <ChevronLeftRegular className="size-5" aria-hidden="true" />
           </button>
-          <h1 className="min-w-0 flex-1 truncate text-lg font-semibold tracking-[-0.035em]">{title}</h1>
-          {icon && <span className="mobile-window-icon grid size-8 shrink-0 place-items-center rounded-lg" aria-hidden="true">{icon}</span>}
+          <h1 className="min-w-0 flex-1 truncate text-base font-semibold tracking-[-0.025em]">{title}</h1>
         </header>
       ) : (
       <div
@@ -303,7 +302,7 @@ export function Window({
       )}
 
       {/* Window content */}
-      <div className={mobile ? "min-h-0 flex-1 overflow-hidden" : "flex-1 overflow-hidden bg-card/90 backdrop-blur-2xl"}>
+      <div className={mobile ? "mobile-window-content min-h-0 flex-1 overflow-hidden" : "flex-1 overflow-hidden bg-card/90 backdrop-blur-2xl"}>
         {children}
       </div>
 

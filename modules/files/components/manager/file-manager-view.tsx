@@ -212,11 +212,11 @@ export function FileManagerView({
         dispatch({ type: "HIDE_BACKGROUND_CONTEXT_MENU" });
       }}
     >
-      <div className="flex shrink-0 items-center gap-2 px-[var(--mobile-gutter)] pt-3 md:hidden handheld:flex">
-        <button type="button" onClick={() => setShowLocations((shown) => !shown)} aria-expanded={showLocations} aria-controls="file-locations" className="min-h-11 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors active:bg-foreground/10">{showLocations ? "Close locations" : "Locations"}</button>
-        {!activeDriveConnection && !isTrashView && !isStarredView && <button type="button" onClick={onPositionBackgroundContextMenu} className="min-h-11 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors active:bg-foreground/10">New / Paste</button>}
+      <div className="flex shrink-0 items-center gap-1 px-[var(--mobile-gutter)] pt-1 md:hidden handheld:flex">
+        <button type="button" onClick={() => setShowLocations((shown) => !shown)} aria-expanded={showLocations} aria-controls="file-locations" className="min-h-[var(--mobile-touch-target)] rounded-lg px-2.5 text-sm font-medium text-[var(--mobile-accent-text)] focus-visible:outline-2 focus-visible:outline-primary active:bg-primary/15">{showLocations ? "Close locations" : "Locations"}</button>
+        {!activeDriveConnection && !isTrashView && !isStarredView && <button type="button" onClick={onPositionBackgroundContextMenu} className="min-h-[var(--mobile-touch-target)] rounded-lg px-2.5 text-sm font-medium text-[var(--mobile-accent-text)] focus-visible:outline-2 focus-visible:outline-primary active:bg-primary/15">New / Paste</button>}
         {!activeDriveConnection && !showLocations && (sortedEntries.length > 0 || selectingFiles) && (
-          <button type="button" aria-label={selectingFiles ? "Done selecting" : "Select"} aria-pressed={selectingFiles} onClick={() => setSelectingFiles((value) => !value)} className="ml-auto min-h-11 min-w-11 shrink-0 rounded-lg px-2 text-sm font-medium text-[var(--mobile-accent-text)] active:bg-primary/15 focus-visible:outline-2 focus-visible:outline-primary">
+          <button type="button" aria-label={selectingFiles ? "Done selecting" : "Select"} aria-pressed={selectingFiles} onClick={() => setSelectingFiles((value) => !value)} className="ml-auto min-h-[var(--mobile-touch-target)] min-w-[var(--mobile-touch-target)] shrink-0 rounded-lg px-2 text-sm font-medium text-[var(--mobile-accent-text)] active:bg-primary/15 focus-visible:outline-2 focus-visible:outline-primary">
             {selectingFiles ? "Done" : "Select"}
           </button>
         )}
@@ -248,7 +248,7 @@ export function FileManagerView({
           />
         </div>
       ) : (
-      <div className={`mx-4 mb-2 mt-2 flex min-h-0 min-w-0 flex-1 flex-col max-[360px]:mx-3 md:m-2 handheld:@container/mobile-files handheld:mx-[var(--mobile-gutter)] ${FILES_PANEL_SHELL}`}>
+      <div className={`mx-4 mb-2 mt-2 flex min-h-0 min-w-0 flex-1 flex-col max-[360px]:mx-3 md:m-2 handheld:@container/mobile-files handheld:mx-[var(--mobile-gutter)] handheld:mt-0 ${FILES_PANEL_SHELL}`}>
         <FileManagerToolbar
           canNavigateUp={currentPath.length > 0}
           currentEntriesCount={currentEntriesCount}
