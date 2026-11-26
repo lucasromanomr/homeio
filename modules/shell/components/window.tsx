@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 type WindowProps = {
   title: string;
   mobile?: boolean;
+  inactive?: boolean;
   icon?: React.ReactNode;
   children: React.ReactNode;
   onClose: () => void;
@@ -31,6 +32,7 @@ const SIDE_DOCK_CLEARANCE = 80;
 export function Window({
   title,
   mobile = false,
+  inactive = false,
   icon,
   children,
   onClose,
@@ -181,51 +183,38 @@ export function Window({
             height: "auto",
           };
 
-  if (isMinimized && !mobile) return null;
-
-  if (mobile) {
-    return (
-      <section aria-label={title} className="absolute inset-0 z-[110] flex min-h-0 flex-col overflow-hidden bg-card pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]">
-        <header className="flex min-h-14 shrink-0 items-center gap-3 border-b border-glass-border px-3">
-          <button type="button" onClick={onClose} aria-label="Go back" className="min-h-11 rounded-lg px-2 text-sm text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">â€¹ Back</button>
-          {icon}
-          <h1 className="min-w-0 truncate text-base font-semibold">{title}</h1>
-        </header>
-        <div className="min-h-0 flex-1 overflow-auto overscroll-contain">{children}</div>
-      </section>
-    );
-  }
+  const hidden = inactive || (isMinimized && !mobile);
 
   return (
     <div
       ref={windowRef}
-      className={`absolute flex flex-col overflow-hidden border border-glass-border ${
-        isMaximized
-          ? "rounded-[calc(var(--radius)+0.5rem)] shadow-[0_18px_42px_rgba(0,0,0,0.28)]"
-          : "rounded-[calc(var(--radius)+0.375rem)] shadow-2xl shadow-black/50"
-      } ${
-        animationsEnabled
-          ? "transition-[opacity,transform] duration-200 ease-out"
-          : ""
-      } ${
-        !animationsEnabled || (isVisible && !isClosing)
-          ? "opacity-100 scale-100 translate-y-0"
-          : "opacity-0 scale-95 translate-y-2"
-      }`}
-      style={
-        isMaximized
-          ? maximizedStyle
-          : {
-              left: position.x,
-              top: position.y,
-              width: size.w,
-              height: size.h,
-              zIndex,
-            }
-      }
-      onMouseDown={() => onFocus?.()}
+      role={mobile ? "region" : undefined}
+      aria-label={mobile ? title : undefined}
+      aria-hidden={hidden || undefined}
+      inert={hidden || undefined}
+      className={mobile
+        ? "absolute inset-0 z-[110] flex min-h-0 flex-col overflow-hidden bg-card pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
+        : `absolute flex flex-col overflow-hidden border border-glass-border ${
+            isMaximized
+              ? "rounded-[calc(var(--radius)+0.5rem)] shadow-[0_18px_42px_rgba(0,0,0,0.28)]"
+              : "rounded-[calc(var(--radius)+0.375rem)] shadow-2xl shadow-black/50"
+          } ${animationsEnabled ? "transition-[opacity,transform] duration-200 ease-out" : ""} ${
+            !animationsEnabled || (isVisible && !isClosing)
+              ? "opacity-100 scale-100 translate-y-0"
+              : "opacity-0 scale-95 translate-y-2"
+          }`}
+      style={hidden ? { display: "none" } : mobile ? undefined : isMaximized ? maximizedStyle : {
+        left: position.x, top: position.y, width: size.w, height: size.h, zIndex,
+      }}
+      onMouseDown={mobile ? undefined : () => onFocus?.()}
     >
-      {/* Title bar */}
+      {mobile ? (
+        <header className="flex min-h-14 shrink-0 items-center gap-3 border-b border-glass-border px-3">
+          <button type="button" onClick={onClose} aria-label="Go back" className="min-h-11 rounded-lg px-2 text-sm text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">‹ Back</button>
+          {icon}
+          <h1 className="min-w-0 truncate text-base font-semibold">{title}</h1>
+        </header>
+      ) : (
       <div
         className="flex items-center justify-between h-11 px-4 bg-popover/80 backdrop-blur-2xl border-b border-glass-border select-none shrink-0"
         onMouseDown={handleMouseDown}
@@ -289,13 +278,15 @@ export function Window({
         <div className="w-16" />
       </div>
 
+      )}
+
       {/* Window content */}
-      <div className="flex-1 overflow-hidden bg-card/90 backdrop-blur-2xl">
+      <div className={mobile ? "min-h-0 flex-1 overflow-auto overscroll-contain" : "flex-1 overflow-hidden bg-card/90 backdrop-blur-2xl"}>
         {children}
       </div>
 
       {/* Resize handle */}
-      {!isMaximized && (
+      {!mobile && !isMaximized && (
         <div
           className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize"
           onMouseDown={handleResizeMouseDown}

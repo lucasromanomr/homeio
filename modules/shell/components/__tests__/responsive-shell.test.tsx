@@ -1,5 +1,5 @@
 /* @vitest-environment jsdom */
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DesktopShell } from "@/modules/shell/components/desktop-shell";
 
@@ -10,7 +10,7 @@ vi.mock("@/modules/shell/hooks/useRebootRecovery", () => ({ useRebootRecovery: (
 vi.mock("@/modules/shell/hooks/useServerConnection", () => ({ useServerConnection: () => ({ phase: "online" }) }));
 vi.mock("@/modules/apps/hooks/StoreActionsContext", () => ({ StoreActionsProvider: ({ children }: { children: React.ReactNode }) => children, useSharedStoreActions: () => ({}) }));
 vi.mock("@/modules/apps/components/app-grid", () => ({ AppGrid: () => <div>Installed apps</div> }));
-vi.mock("@/modules/settings/components/settings", () => ({ SettingsPanel: ({ onOpenDiskManager }: { onOpenDiskManager: () => void }) => <button onClick={onOpenDiskManager}>Open disks</button> }));
+vi.mock("@/modules/settings/components/settings", () => ({ SettingsPanel: ({ onOpenDiskManager }: { onOpenDiskManager: () => void }) => <><input aria-label="Settings draft" /><button onClick={onOpenDiskManager}>Open disks</button></> }));
 vi.mock("@/modules/system/components/monitor", () => ({ Monitor: () => null }));
 vi.mock("@/modules/system/components/disk-manager", () => ({ DiskManager: () => <div>Disk content</div> }));
 vi.mock("@/modules/system/components/status-bar", () => ({ StatusBar: () => <div>Desktop status</div> }));
@@ -20,9 +20,10 @@ vi.mock("@/modules/apps/components/app-logs-dialog", () => ({ AppLogsDialog: () 
 vi.mock("@/modules/shell/components/dock", () => ({ Dock: ({ onItemClick }: { onItemClick: (id: string) => void }) => <button onClick={() => onItemClick("settings")}>Desktop settings</button> }));
 
 let mobile = true;
+let notifyMediaChange = () => {};
 beforeEach(() => {
   window.localStorage.clear();
-  vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: mobile, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: mobile, addEventListener: (_event: string, listener: () => void) => { notifyMediaChange = listener; }, removeEventListener: vi.fn() })));
 });
 afterEach(() => { vi.unstubAllGlobals(); });
 
@@ -34,11 +35,21 @@ describe("responsive shell", () => {
     expect(screen.queryByText("Desktop widgets")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Settings" }));
     expect(screen.queryByText("Installed apps")).toBeNull();
+    const draft = screen.getByRole("textbox", { name: "Settings draft" }) as HTMLInputElement;
+    fireEvent.change(draft, { target: { value: "unsaved" } });
     fireEvent.click(screen.getByRole("button", { name: "Open disks" }));
     expect(screen.getByText("Disk content")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Open disks" })).toBeNull();
+    expect(draft.closest('[aria-label="Settings"]')?.getAttribute("inert")).not.toBeNull();
+    expect(draft.closest('[aria-label="Settings"]')?.getAttribute("style")).toContain("display: none");
+    act(() => { mobile = false; notifyMediaChange(); });
+    expect(screen.getByRole("textbox", { name: "Settings draft" })).toBe(draft);
+    act(() => { mobile = true; notifyMediaChange(); });
+    expect(screen.queryByRole("button", { name: "Open disks" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Go back" }));
     expect(screen.getByRole("button", { name: "Open disks" })).toBeTruthy();
+    expect(screen.getByRole("textbox", { name: "Settings draft" })).toBe(draft);
+    expect(draft.value).toBe("unsaved");
     fireEvent.click(screen.getByRole("button", { name: "Go back" }));
     expect(screen.getByText("Installed apps")).toBeTruthy();
   });

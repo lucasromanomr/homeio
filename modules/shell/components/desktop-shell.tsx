@@ -467,10 +467,6 @@ function DesktopShellInner() {
     openWindow(id);
   }
 
-  function isWindowVisible(id: string) {
-    return openWindows.includes(id) && (!isMobile || focusedWindow === id);
-  }
-
   function getWindowZ(id: string) {
     return focusedWindow === id ? 110 : 100;
   }
@@ -781,9 +777,10 @@ function DesktopShellInner() {
         </div>}
 
         {/* Windows */}
-        {isWindowVisible("files") && (
+        {openWindows.includes("files") && (
           <Window
             mobile={isMobile}
+            inactive={isMobile && focusedWindow !== "files"}
             title="Files"
             icon={<FolderOpen className="size-4 text-sky-400" />}
             onClose={() => closeWindow("files")}
@@ -801,9 +798,10 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {isWindowVisible("settings") && (
+        {openWindows.includes("settings") && (
           <Window
             mobile={isMobile}
+            inactive={isMobile && focusedWindow !== "settings"}
             title="Settings"
             icon={<Settings className="size-4 text-muted-foreground" />}
             onClose={() => closeWindow("settings")}
@@ -829,9 +827,10 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {isWindowVisible("monitor") && (
+        {openWindows.includes("monitor") && (
           <Window
             mobile={isMobile}
+            inactive={isMobile && focusedWindow !== "monitor"}
             title="Monitor"
             icon={<Activity className="size-4 text-primary" />}
             onClose={() => closeWindow("monitor")}
@@ -849,9 +848,10 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {isWindowVisible("notifications") && (
+        {openWindows.includes("notifications") && (
           <Window
             mobile={isMobile}
+            inactive={isMobile && focusedWindow !== "notifications"}
             title="Notifications"
             icon={<Bell className="size-4 text-primary" />}
             onClose={() => closeWindow("notifications")}
@@ -869,9 +869,10 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {isWindowVisible("app-store") && (
+        {openWindows.includes("app-store") && (
           <Window
             mobile={isMobile}
+            inactive={isMobile && focusedWindow !== "app-store"}
             title="App Store"
             icon={<ShoppingBag className="size-4 text-sky-400" />}
             onClose={() => closeWindow("app-store")}
@@ -892,9 +893,10 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {isWindowVisible("custom-install") && (
+        {openWindows.includes("custom-install") && (
           <Window
             mobile={isMobile}
+            inactive={isMobile && focusedWindow !== "custom-install"}
             title="Install Custom App"
             icon={<Package className="size-4 text-primary" />}
             onClose={() => closeWindow("custom-install")}
@@ -915,9 +917,10 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {isWindowVisible("app-settings") && appSettingsTarget && (
+        {openWindows.includes("app-settings") && appSettingsTarget && (
           <Window
             mobile={isMobile}
+            inactive={isMobile && focusedWindow !== "app-settings"}
             title={`${appSettingsTarget.appName} Settings`}
             icon={<Settings className="size-4 text-primary" />}
             onClose={() => {
@@ -957,9 +960,10 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {isWindowVisible("terminal") && (
+        {openWindows.includes("terminal") && (
           <Window
             mobile={isMobile}
+            inactive={isMobile && focusedWindow !== "terminal"}
             title="Terminal"
             icon={<TerminalSquare className="size-4 text-emerald-400" />}
             onClose={() => {
@@ -980,9 +984,10 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {isWindowVisible("disk-manager") && (
+        {openWindows.includes("disk-manager") && (
           <Window
             mobile={isMobile}
+            inactive={isMobile && focusedWindow !== "disk-manager"}
             title="Disk Manager"
             icon={<HardDrive className="size-4 text-amber-400" />}
             onClose={() => closeWindow("disk-manager")}
