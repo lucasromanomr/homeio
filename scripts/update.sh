@@ -37,6 +37,7 @@ HOMEIO_BACKUP_ROOT="${HOMEIO_BACKUP_ROOT:-/var/backups/home-server/releases}"
 HOMEIO_HEALTHCHECK_URL="${HOMEIO_HEALTHCHECK_URL:-http://127.0.0.1:${APP_PORT}/api/health}"
 HOMEIO_HEALTHCHECK_RETRIES="${HOMEIO_HEALTHCHECK_RETRIES:-60}"
 HOMEIO_HEALTHCHECK_DELAY_SEC="${HOMEIO_HEALTHCHECK_DELAY_SEC:-3}"
+MAINTENANCE_ROOT="/var/lib/homeio-maintenance"
 
 SERVICE_UNIT="${SERVICE_NAME}"
 if [[ "${SERVICE_UNIT}" != *.service ]]; then
@@ -57,6 +58,7 @@ BACKUP_DIR=""
 PREVIOUS_GIT_REV=""
 ROLLBACK_READY="false"
 ROLLBACK_DONE="false"
+UPDATE_PHASE=""
 PREVIOUS_LOCK_HASH=""
 NEW_LOCK_HASH=""
 
@@ -447,6 +449,22 @@ tune_nginx_limits() {
 	print_status "nginx now accepts ${worker_connections} connections per worker."
 }
 
+write_update_phase() {
+	UPDATE_PHASE="$1"
+	[[ -d "${MAINTENANCE_ROOT}" ]] || return 0
+
+	local status_tmp
+	if status_tmp="$(mktemp "${MAINTENANCE_ROOT}/.update-status.XXXXXX")"; then
+		if printf '{"phase":"%s","updatedAt":%(%s)T}\n' "${UPDATE_PHASE}" -1 >"${status_tmp}" \
+			&& chmod 0644 "${status_tmp}" \
+			&& mv -f "${status_tmp}" "${MAINTENANCE_ROOT}/__homeio_update_status.json"; then
+			return 0
+		fi
+		rm -f "${status_tmp}" || true
+	fi
+	print_warn "Could not write the update status."
+}
+
 configure_reverse_proxy() {
 	if ! command_exists nginx; then
 		print_warn "nginx is not installed; skipping reverse proxy update."
@@ -455,12 +473,11 @@ configure_reverse_proxy() {
 
 	local nginx_conf="/etc/nginx/sites-available/${NGINX_SITE_NAME}.conf"
 	local nginx_enabled="/etc/nginx/sites-enabled/${NGINX_SITE_NAME}.conf"
-	local maintenance_root="/var/lib/homeio-maintenance"
-	local maintenance_file="${maintenance_root}/__homeio_unavailable.html"
+	local maintenance_file="${MAINTENANCE_ROOT}/__homeio_unavailable.html"
 
 	print_status "Configuring nginx reverse proxy on :${PUBLIC_PORT} -> 127.0.0.1:${APP_PORT}..."
 
-	mkdir -p "${maintenance_root}"
+	mkdir -p "${MAINTENANCE_ROOT}"
 	cat >"${maintenance_file}" <<'EOF'
 <!doctype html>
 <html lang="en">
@@ -468,7 +485,7 @@ configure_reverse_proxy() {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="cache-control" content="no-store" />
-    <title>Homeio is restarting</title>
+    <title>Homeio service status</title>
     <style>
       :root {
         color-scheme: dark;
@@ -478,8 +495,6 @@ configure_reverse_proxy() {
         --text: #f8fafc;
         --muted: #94a3b8;
         --accent: #38bdf8;
-        --warn: #f59e0b;
-        --error: #ef4444;
       }
       * { box-sizing: border-box; }
       body {
@@ -513,7 +528,6 @@ configure_reverse_proxy() {
         border-top-color: var(--accent);
         animation: spin 0.9s linear infinite;
       }
-      .spinner.warn { border-top-color: var(--warn); }
       h1 {
         margin: 0;
         font-size: 1.35rem;
@@ -523,83 +537,74 @@ configure_reverse_proxy() {
         line-height: 1.6;
         color: var(--muted);
       }
-      .status {
-        margin-top: 1rem;
-        font-size: 0.85rem;
-        color: var(--muted);
-      }
-      .log-hint {
-        display: none;
-        margin-top: 1.25rem;
-        padding: 0.75rem 1rem;
-        border-radius: 0.75rem;
-        background: rgba(245, 158, 11, 0.1);
-        border: 1px solid rgba(245, 158, 11, 0.25);
-        font-size: 0.8rem;
-        color: var(--warn);
-        text-align: left;
-        line-height: 1.6;
-      }
-      .log-hint code {
-        display: block;
-        margin-top: 0.4rem;
-        font-family: monospace;
-        word-break: break-all;
-        color: #fde68a;
-      }
       @keyframes spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
     </style>
   </head>
   <body>
     <main class="panel">
-      <div class="spinner" id="spinner" aria-hidden="true"></div>
-      <h1>Homeio is restarting</h1>
-      <p>
-        The update is being applied. This page will automatically reload when
-        <code>/api/health</code> is available again.
-      </p>
-      <div class="status" id="status">Waiting for Homeio...</div>
-      <div class="log-hint" id="log-hint">
-        The update is taking longer than expected — it may still be building, or an error may have occurred.
-        Check the update log for details:
-        <code>sudo tail -f /var/log/homeio-self-update.log</code>
-        To manually restart the service:
-        <code>sudo systemctl restart home-server</code>
-      </div>
+      <div class="spinner" aria-hidden="true"></div>
+      <h1 id="title">Waiting for Homeio</h1>
+      <p id="status" role="status">Homeio is temporarily unavailable.</p>
+      <p>This page refreshes automatically when Homeio is ready.</p>
+      <noscript><p>Refresh this page to check whether Homeio is back.</p></noscript>
     </main>
     <script>
-      const statusEl = document.getElementById("status");
-      const spinnerEl = document.getElementById("spinner");
-      const logHintEl = document.getElementById("log-hint");
-      const startedAt = Date.now();
-      const WARN_AFTER_MS = 5 * 60 * 1000; // 5 minutes
+      const title = document.getElementById("title");
+      const status = document.getElementById("status");
+      const activePhases = new Map([
+        ["preparing", "Preparing the update…"],
+        ["deploying", "Downloading the release…"],
+        ["dependencies", "Installing dependencies…"],
+        ["database", "Applying database migrations…"],
+        ["building", "Building Homeio…"],
+        ["restarting", "Restarting services and checking Homeio…"],
+        ["rolling_back", "Restoring the previous release…"],
+      ]);
 
-      async function checkHealth() {
+      async function readJson(url) {
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 4000);
         try {
-          const response = await fetch("/api/health", { cache: "no-store" });
-          if (response.ok) {
-            statusEl.textContent = "Homeio is back. Reloading...";
+          const response = await fetch(url, { cache: "no-store", signal: controller.signal });
+          return response.ok ? await response.json() : null;
+        } catch {
+          return null;
+        } finally {
+          window.clearTimeout(timeout);
+        }
+      }
+
+      async function checkStatus() {
+        const update = await readJson("/__homeio_update_status.json");
+        // A forced shutdown can leave a progress file behind.
+        const phase = update && Date.now() - update.updatedAt * 1000 < 2 * 60 * 60 * 1000
+          ? update.phase
+          : null;
+        const message = activePhases.get(phase);
+        let heading = "Waiting for Homeio";
+        let description = "Homeio is temporarily unavailable.";
+        if (message) {
+          heading = "Updating Homeio";
+          description = message;
+        } else {
+          if (phase === "failed") {
+            heading = "Homeio update failed";
+            description = "Check the updater log on the Homeio host for details.";
+          }
+          const health = await readJson("/api/health");
+          if (health?.ok === true) {
+            status.textContent = "Homeio is back. Reloading…";
             window.location.reload();
             return;
           }
-        } catch (_) {
-          // Ignore while the backend is still down.
         }
 
-        const elapsed = Date.now() - startedAt;
-        if (elapsed >= WARN_AFTER_MS) {
-          statusEl.textContent = "Still waiting — the update may have failed.";
-          spinnerEl.classList.add("warn");
-          logHintEl.style.display = "block";
-        } else {
-          const mins = Math.floor(elapsed / 60000);
-          const secs = Math.floor((elapsed % 60000) / 1000);
-          statusEl.textContent = `Waiting for Homeio… (${mins}m ${secs}s)`;
-        }
-
-        window.setTimeout(checkHealth, 2000);
+        if (title.textContent !== heading) title.textContent = heading;
+        if (status.textContent !== description) status.textContent = description;
+        window.setTimeout(checkStatus, 2000);
       }
-      window.setTimeout(checkHealth, 1500);
+      checkStatus();
     </script>
   </body>
 </html>
@@ -638,9 +643,17 @@ server {
     error_page 502 503 504 /__homeio_unavailable.html;
 
     location = /__homeio_unavailable.html {
-        root ${maintenance_root};
+        internal;
+        root ${MAINTENANCE_ROOT};
         default_type text/html;
         add_header Cache-Control "no-store, no-cache, must-revalidate" always;
+    }
+
+    location = /__homeio_update_status.json {
+        root ${MAINTENANCE_ROOT};
+        default_type application/json;
+        log_not_found off;
+        add_header Cache-Control "no-store" always;
     }
 
     # Route file uploads directly to the Go upload server, bypassing Next.js.
@@ -743,6 +756,7 @@ healthcheck() {
 rollback_release() {
 	trap - ERR
 	ROLLBACK_DONE="true"
+	write_update_phase rolling_back
 
 	print_error "Update failed! Attempting rollback..."
 	stop_upload_server
@@ -766,6 +780,7 @@ rollback_release() {
 	restart_upload_server_service || true
 
 	if healthcheck; then
+		write_update_phase rolled_back
 		print_status "Rollback succeeded."
 	else
 		print_error "Rollback failed health check. Manual intervention required."; exit 1;
@@ -777,7 +792,7 @@ on_error() {
 	local exit_code="${2}"
 	if [[ "${ROLLBACK_READY}" == "true" && "${ROLLBACK_DONE}" != "true" ]]; then
 		print_error "Update failed at line ${line_no} (exit ${exit_code})."
-		rollback_release || true
+		rollback_release
 	fi
 	exit "${exit_code}"
 }
@@ -839,6 +854,10 @@ main() {
 	resolve_repo_ref
 	capture_current_state
 	create_backup
+	# Make the maintenance page available before taking Homeio offline.
+	configure_reverse_proxy
+	trap 'if [[ $? -ne 0 && "${UPDATE_PHASE}" != "rolled_back" && "${UPDATE_PHASE}" != "ready" ]]; then write_update_phase failed; fi' EXIT
+	write_update_phase preparing
 
 	ROLLBACK_READY="true"
 	trap 'on_error ${LINENO} $?' ERR
@@ -847,16 +866,20 @@ main() {
 	stop_upload_server
 	stop_service
 
+	write_update_phase deploying
 	deploy_from_git
 
+	write_update_phase dependencies
 	ensure_security_dependencies
 	install_go
 	install_dependencies_if_needed
+	write_update_phase database
 	run_database_migrations
+	write_update_phase building
 	build_app
 	build_upload_server
+	write_update_phase restarting
 	start_service
-	configure_reverse_proxy
 	restart_dbus_helper_service
 	restart_upload_server_service
 
@@ -866,6 +889,7 @@ main() {
 	fi
 
 	ROLLBACK_READY="false"
+	write_update_phase ready
 	print_summary
 }
 
