@@ -62,10 +62,16 @@ export function FullScreenShell({
       </div>
 
       {topRight ? (
-        <div className="absolute top-[max(1.25rem,env(safe-area-inset-top))] right-[max(1.25rem,env(safe-area-inset-right))] z-10 sm:right-5 sm:top-5">{topRight}</div>
+        <div className={cn(
+          "absolute top-[max(1.25rem,env(safe-area-inset-top))] right-[max(1.25rem,env(safe-area-inset-right))] z-10 sm:right-5 sm:top-5",
+          compactOnMobile && "handheld:top-[max(0.75rem,env(safe-area-inset-top))]! handheld:right-[max(0.75rem,env(safe-area-inset-right))]!",
+        )}>{topRight}</div>
       ) : null}
 
-      <div className="relative flex min-h-dvh flex-col pt-[env(safe-area-inset-top)] pr-[max(1rem,env(safe-area-inset-right))] pb-[env(safe-area-inset-bottom)] pl-[max(1rem,env(safe-area-inset-left))] sm:min-h-screen sm:px-6 sm:py-0">
+      <div className={cn(
+        "relative flex min-h-dvh flex-col pt-[env(safe-area-inset-top)] pr-[max(1rem,env(safe-area-inset-right))] pb-[env(safe-area-inset-bottom)] pl-[max(1rem,env(safe-area-inset-left))] sm:min-h-screen sm:px-6 sm:py-0",
+        compactOnMobile && "handheld:min-h-dvh! handheld:pt-[env(safe-area-inset-top)]! handheld:pb-[env(safe-area-inset-bottom)]! handheld:px-[var(--mobile-overlay-gutter)]!",
+      )}>
         {showClock ? (
           <div
             className={cn("pointer-events-none mt-9 text-center sm:absolute sm:inset-x-0 sm:top-14 sm:mt-0",
@@ -95,7 +101,7 @@ export function FullScreenShell({
             "flex min-w-0 flex-1 items-center justify-center py-6 sm:py-0",
             showClock ? "sm:pt-36" : "",
             bottom ? "sm:pt-16" : "",
-            compactOnMobile && "handheld:py-12",
+            compactOnMobile && "handheld:py-[clamp(0.75rem,4dvh,2.5rem)]",
             centerClassName,
           )}
         >

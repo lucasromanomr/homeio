@@ -1074,11 +1074,10 @@ function DesktopShellInner() {
               (id === "app-store" && focusedWindow === "custom-install") ||
               (id === "more" && ["settings", "disk-manager", "terminal"].includes(focusedWindow ?? ""));
             return (
-              <button key={id} type="button" aria-current={active ? "page" : undefined} onClick={() => selectMobileTab(id)} className={`flex min-h-[var(--mobile-nav-height)] min-w-0 flex-col items-center justify-center gap-1 rounded-[1.4rem] text-[11px] focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary ${active ? "font-semibold text-[var(--mobile-accent-text)]" : "font-medium text-foreground/75 hover:bg-foreground/10"}`}>
-                <span className={`flex h-7 min-w-10 items-center justify-center rounded-full ${active ? "bg-primary/15" : ""}`}>
-                  <Icon className={`size-5 ${id === "files" ? "" : "opacity-75 brightness-0 dark:invert"}`} aria-hidden="true" />
+              <button key={id} type="button" aria-label={label} aria-current={active ? "page" : undefined} onClick={() => selectMobileTab(id)} className="grid min-h-[var(--mobile-nav-height)] min-w-0 place-items-center rounded-[1.4rem] hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary">
+                <span className={`flex h-9 w-12 max-w-full items-center justify-center rounded-full ${active ? "bg-primary/20" : ""}`}>
+                  <Icon className={`size-6 ${id === "files" ? "" : "opacity-80 brightness-0 dark:invert"}`} aria-hidden="true" />
                 </span>
-                {label}
               </button>
             );
           })}

@@ -14,7 +14,8 @@
   --mobile-nav-surface: color-mix(in srgb, var(--mobile-panel) 82%, transparent);
   --mobile-divider: #d2dce8;
   --mobile-accent-text: color-mix(in oklab, var(--primary) 58%, var(--foreground));
-  --mobile-nav-height: 4rem;
+  --mobile-nav-height: 3.5rem;
+  --mobile-overlay-gutter: max(1rem, env(safe-area-inset-left), env(safe-area-inset-right));
   --background: oklch(0.96 0.006 250);
   --foreground: oklch(0.2 0.02 250);
   --card: oklch(0.99 0.004 250 / 0.8);

@@ -126,7 +126,7 @@ export function AppGridContextMenu({
         <DialogContent
           aria-describedby={undefined}
           showCloseButton={false}
-          className="top-auto bottom-[max(0.75rem,env(safe-area-inset-bottom))] flex max-h-[calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-1.5rem)] max-w-[min(28rem,calc(100%-2rem))] translate-y-0 flex-col gap-0 overflow-hidden rounded-[1.75rem] border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-0 motion-reduce:animate-none"
+          className="top-auto bottom-[max(0.75rem,env(safe-area-inset-bottom))] flex max-h-[calc(100dvh-max(0.75rem,env(safe-area-inset-top))-max(0.75rem,env(safe-area-inset-bottom)))] max-w-[min(28rem,calc(100%-var(--mobile-overlay-gutter)-var(--mobile-overlay-gutter)))] translate-y-0 flex-col gap-0 overflow-hidden rounded-[1.75rem] border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-0 motion-reduce:animate-none"
           onClick={(event) => event.stopPropagation()}
         >
           <div className="flex shrink-0 items-center gap-2 border-b border-[var(--mobile-divider)] px-4 py-1.5">

@@ -29,8 +29,8 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
           offset="max(5.75rem, calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 0.75rem))"
           mobileOffset={{
             bottom: "calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 0.75rem)",
-            left: 16,
-            right: 16,
+            left: "max(1rem, env(safe-area-inset-left))",
+            right: "max(1rem, env(safe-area-inset-right))",
           }}
         />
       </QueryClientProvider>
