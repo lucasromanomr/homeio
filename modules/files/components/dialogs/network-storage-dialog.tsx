@@ -157,7 +157,7 @@ export function NetworkStorageDialog({
       <Dialog open={isOpen && !isAddFormOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent mobileSheet
           showCloseButton={false}
-          className="max-w-[min(96vw,60rem)] gap-0 overflow-hidden rounded-[calc(var(--radius)+0.75rem)] border-glass-border bg-popover/96 p-0 shadow-2xl shadow-black/45 backdrop-blur-2xl"
+          className="max-w-[min(96vw,60rem)] gap-0 overflow-hidden rounded-[calc(var(--radius)+0.75rem)] border-glass-border bg-popover/96 p-0 shadow-2xl shadow-black/45 backdrop-blur-2xl handheld:grid-rows-[auto_minmax(0,1fr)_auto]"
         >
           <DialogHeader className="sr-only">
             <DialogTitle>Network Storage</DialogTitle>
@@ -165,7 +165,7 @@ export function NetworkStorageDialog({
           </DialogHeader>
 
           {/* Window chrome title bar */}
-          <div className="flex h-11 shrink-0 select-none items-center gap-0 border-b border-glass-border/50 bg-popover/70 backdrop-blur-2xl handheld:h-auto handheld:min-h-12">
+          <div className="flex h-11 shrink-0 select-none items-center gap-0 border-b border-glass-border/50 bg-popover/70 backdrop-blur-2xl handheld:grid handheld:h-auto handheld:min-h-12 handheld:grid-cols-[5rem_minmax(0,1fr)_5rem]">
             {/* Traffic lights */}
             <div className="flex items-center gap-1.5 px-4 handheld:px-2">
               <button
@@ -181,16 +181,16 @@ export function NetworkStorageDialog({
 
             {/* Centered title */}
             <div className="flex flex-1 items-center justify-center">
-              <span className="text-xs font-medium text-foreground/80 handheld:text-sm handheld:font-semibold">Network Storage</span>
+              <span className="text-xs font-medium text-foreground/80 handheld:text-center handheld:text-sm handheld:font-semibold">Network Storage</span>
             </div>
 
             {/* Right actions */}
-            <div className="flex items-center justify-end gap-2 px-4">
+            <div className="flex items-center justify-end gap-2 px-4 handheld:px-2">
               <button
                 type="button"
                 onClick={() => void handleDiscoverServers()}
                 disabled={isBusy}
-                className="inline-flex h-6 items-center gap-1 rounded-md border border-glass-border bg-background/80 px-2 text-[11px] text-muted-foreground transition-colors hover:bg-background/50 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50 handheld:h-[var(--mobile-touch-target)] handheld:border-transparent handheld:bg-transparent handheld:text-xs"
+                className="inline-flex h-6 items-center gap-1 rounded-md border border-glass-border bg-background/80 px-2 text-[11px] text-muted-foreground transition-colors hover:bg-background/50 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50 handheld:h-[var(--mobile-touch-target)] handheld:border-transparent handheld:bg-transparent handheld:px-1 handheld:text-xs"
               >
                 {discoverServers.isPending ? (
                   <Loader2 className="size-3 animate-spin" />

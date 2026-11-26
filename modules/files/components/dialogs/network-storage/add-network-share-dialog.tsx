@@ -67,7 +67,7 @@ export function AddNetworkShareDialog({
         </DialogHeader>
 
         {/* Window chrome title bar */}
-        <div className="flex h-11 shrink-0 select-none items-center gap-0 border-b border-glass-border/50 bg-popover/70 backdrop-blur-2xl handheld:h-auto handheld:min-h-12">
+        <div className="flex h-11 shrink-0 select-none items-center gap-0 border-b border-glass-border/50 bg-popover/70 backdrop-blur-2xl handheld:grid handheld:h-auto handheld:min-h-12 handheld:grid-cols-[5rem_minmax(0,1fr)_5rem]">
           {/* Traffic lights */}
           <div className="flex items-center gap-1.5 px-4 handheld:hidden">
             <button
@@ -83,11 +83,11 @@ export function AddNetworkShareDialog({
 
           {/* Centered title */}
           <div className="flex flex-1 items-center justify-center">
-            <span className="text-xs font-medium text-foreground/80 handheld:text-sm handheld:font-semibold">Add Network Share</span>
+            <span className="text-xs font-medium text-foreground/80 handheld:text-center handheld:text-sm handheld:font-semibold">Add Network Share</span>
           </div>
 
           {/* Right action — back button to balance */}
-          <div className="flex items-center justify-end px-4 handheld:order-first handheld:w-20 handheld:justify-start handheld:px-2">
+          <div className="flex items-center justify-end px-4 handheld:order-first handheld:justify-start handheld:px-2">
             <button
               type="button"
               onClick={onClose}
