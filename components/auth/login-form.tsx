@@ -216,14 +216,14 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
 
   return (
     <div className="w-full max-w-md text-center">
-      <div className="mx-auto mb-5 flex w-fit flex-col items-center">
-        <div className="system-hero-surface flex size-[5.5rem] items-center justify-center handheld:size-16 handheld:border-[var(--mobile-divider)]! handheld:bg-[var(--mobile-nav-surface)]! handheld:shadow-sm!">
+      <div className="mx-auto mb-5 flex w-fit flex-col items-center handheld:short-screen:mb-2">
+        <div className="system-hero-surface flex size-[5.5rem] items-center justify-center handheld:size-16 handheld:short-screen:size-11 handheld:border-[var(--mobile-divider)]! handheld:bg-[var(--mobile-nav-surface)]! handheld:shadow-sm!">
           <Image
             src="/icon.png"
             alt="Homeio"
             width={64}
             height={64}
-            className="relative z-10 size-[3.4rem] blur-[0.12px] handheld:size-10 handheld:blur-none"
+            className="relative z-10 size-[3.4rem] blur-[0.12px] handheld:size-10 handheld:short-screen:size-7 handheld:blur-none"
           />
         </div>
         <div className="system-pill-surface mt-2 px-3 py-1 text-[10px] tracking-[0.22em] text-foreground/54 uppercase handheld:hidden">
@@ -231,10 +231,10 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
         </div>
       </div>
 
-      <h1 className="text-[1.48rem] font-medium tracking-[-0.03em] text-foreground handheld:text-[clamp(1.5rem,7vw,2rem)] handheld:font-semibold handheld:text-balance">
+      <h1 className="text-[1.48rem] font-medium tracking-[-0.03em] text-foreground handheld:text-[clamp(1.5rem,7vw,2rem)] handheld:short-screen:text-xl handheld:font-semibold handheld:text-balance">
         {stage.kind === "credentials" ? "Welcome back" : "Two-step verification"}
       </h1>
-      <p className="mb-5 mt-1 text-[11px] tracking-[0.18em] text-muted-foreground/78 uppercase handheld:text-sm handheld:tracking-normal handheld:normal-case handheld:text-muted-foreground">
+      <p className="mb-5 mt-1 text-[11px] tracking-[0.18em] text-muted-foreground/78 uppercase handheld:short-screen:mb-3 handheld:text-sm handheld:tracking-normal handheld:normal-case handheld:text-muted-foreground">
         {stage.kind === "credentials"
           ? "Sign in to continue"
           : stage.useBackupCode

@@ -123,7 +123,7 @@ export function FileGrid({
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-0 md:grid-cols-4 md:gap-3 lg:grid-cols-5 handheld:grid-cols-1 handheld:gap-0 handheld:min-[36rem]:grid-cols-2 handheld:min-[36rem]:gap-x-3">
+      <div className="grid grid-cols-1 gap-0 md:grid-cols-4 md:gap-3 lg:grid-cols-5 handheld:grid-cols-1 handheld:gap-0 handheld:@lg/mobile-files:grid-cols-2 handheld:@lg/mobile-files:gap-x-3">
         {visible.map((entry) => {
           const isImage = entry.type === "file" && IMAGE_EXTS.has((entry.ext ?? "").toLowerCase());
           const isSelected = selectedFiles.has(entry.name);
