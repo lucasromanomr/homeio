@@ -51,7 +51,7 @@ type ToolbarProps = {
   onUploadInputChange: (files: File[]) => void;
 };
 
-const iconBtn = "inline-flex size-11 items-center justify-center rounded-lg transition-colors md:size-7 handheld:size-11";
+const iconBtn = "inline-flex size-11 items-center justify-center rounded-lg transition-colors active:bg-foreground/10 md:size-7 handheld:size-11";
 const iconBtnIdle = "text-muted-foreground hover:bg-background/50 hover:text-foreground";
 
 export function FileManagerToolbar({
@@ -187,12 +187,12 @@ export function FileManagerToolbar({
       </div>
 
       <details className="relative md:hidden handheld:block">
-        <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-lg border border-[var(--mobile-divider)] px-3 text-sm">Options</summary>
+        <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-3 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors active:bg-foreground/10">Options</summary>
         <div className="absolute right-0 z-50 mt-1 flex w-48 flex-col rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-1 shadow-xl">
-          <button type="button" onClick={onCycleSortBy} className="min-h-11 px-3 text-left text-sm">Sort by {sortBy}</button>
-          <button type="button" onClick={onToggleSortDir} className="min-h-11 px-3 text-left text-sm">{sortDir === "asc" ? "Ascending" : "Descending"}</button>
-          <button type="button" onClick={onToggleIncludeHidden} className="min-h-11 px-3 text-left text-sm">{includeHidden ? "Hide hidden files" : "Show hidden files"}</button>
-          {isTrashView && <button type="button" aria-label="Permanently remove trashed items" onClick={onEmptyTrash} disabled={isEmptyingTrash || emptyTrashPending || currentEntriesCount === 0} className="min-h-11 px-3 text-left text-sm text-status-red disabled:opacity-40">Empty Trash</button>}
+          <button type="button" onClick={onCycleSortBy} className="min-h-11 rounded-lg px-3 text-left text-sm transition-colors active:bg-foreground/10">Sort by {sortBy}</button>
+          <button type="button" onClick={onToggleSortDir} className="min-h-11 rounded-lg px-3 text-left text-sm transition-colors active:bg-foreground/10">{sortDir === "asc" ? "Ascending" : "Descending"}</button>
+          <button type="button" onClick={onToggleIncludeHidden} className="min-h-11 rounded-lg px-3 text-left text-sm transition-colors active:bg-foreground/10">{includeHidden ? "Hide hidden files" : "Show hidden files"}</button>
+          {isTrashView && <button type="button" aria-label="Permanently remove trashed items" onClick={onEmptyTrash} disabled={isEmptyingTrash || emptyTrashPending || currentEntriesCount === 0} className="min-h-11 rounded-lg px-3 text-left text-sm transition-colors active:bg-foreground/10 text-status-red disabled:opacity-40">Empty Trash</button>}
         </div>
       </details>
       {/* Sort + visibility */}

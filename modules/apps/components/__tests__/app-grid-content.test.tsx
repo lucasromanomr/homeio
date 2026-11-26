@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Container } from "@/components/icons/platform-icons";
 import { AppGridContent } from "@/modules/apps/components/app-grid-content";
@@ -22,12 +22,22 @@ describe("AppGridContent", () => {
       onAppContextMenu={onAppContextMenu} onOpenApp={onOpenApp} primaryOperation={null} />);
     expect(screen.getByText(longNameApp.name)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "List" }));
-    expect(screen.getByText("Running")).toBeTruthy();
+    expect(within(screen.getByRole("button", { name: `Open ${longNameApp.name} (Running)` })).getByText("Running")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: `Actions for ${longNameApp.name}` }));
     expect(onAppContextMenu).toHaveBeenCalledOnce();
     expect(onOpenApp).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: `Open ${longNameApp.name} (Running)` }));
     expect(onOpenApp).toHaveBeenCalledWith(longNameApp);
+  });
+
+  it("counts listed apps and only reports a running state with a known status", () => {
+    const apps: AppItem[] = [app, { ...app, id: "stopped", status: "stopped" }, { ...app, id: "external", status: "unmanaged" }];
+    render(<AppGridContent mobile activeAppId={null} activeOperationsCount={0} animationsEnabled={false}
+      apps={apps} iconSize="medium" isAppsError={false} isAppsLoading={false}
+      onAppContextMenu={vi.fn()} onOpenApp={vi.fn()} primaryOperation={null} />);
+    const activity = screen.getByRole("region", { name: "App activity" });
+    expect(within(activity).getByText("of 3")).toBeTruthy();
+    expect(within(activity).getByText("1")).toBeTruthy();
   });
 
 

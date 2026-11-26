@@ -97,14 +97,14 @@ export function SettingsPanel({
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col md:flex-row handheld:!flex-col">
       <nav aria-label="Settings sections" className={cn("min-h-0 flex-1 overflow-y-auto px-4 pb-5 pt-3 md:hidden handheld:!block", !mobileNavigation.open && "handheld:!hidden hidden")}>
-        <h2 className="mb-3 text-xl font-semibold text-foreground">Settings</h2>
+        <h2 className="mb-3 font-mono text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Settings</h2>
         {SIDEBAR_GROUPS.map((group) => {
           const sections = sectionDefinitions.filter((section) => group.ids.includes(section.id as SettingsSectionId));
           if (!sections.length) return null;
           return (
             <section key={group.label} className="mb-4">
-              <h3 className="mb-1 text-xs font-medium text-muted-foreground">{group.label}</h3>
-              <div className="divide-y divide-glass-border/60 overflow-hidden rounded-xl border border-glass-border bg-[var(--mobile-panel)]">
+              <h3 className="mb-2 px-1 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">{group.label}</h3>
+              <div className="divide-y divide-[var(--mobile-divider)] overflow-hidden rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                 {sections.map((section) => (
                   <button
                     key={section.id}
@@ -115,7 +115,7 @@ export function SettingsPanel({
                       setActiveSection(section.id);
                       setMobileNavigation({ requested: selectedSection, open: false });
                     }}
-                    className={cn("flex min-h-12 w-full items-center gap-3 px-3 text-left text-sm text-foreground hover:bg-secondary/50 focus-visible:outline-primary", activeSection === section.id && "bg-primary/10 font-semibold")}
+                    className={cn("flex min-h-12 w-full items-center gap-3 px-3 text-left text-sm text-foreground transition-colors hover:bg-secondary/50 active:bg-foreground/10 focus-visible:outline-primary", activeSection === section.id && "bg-primary/10 font-semibold")}
                   >
                     <section.icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
                     <span className="min-w-0 flex-1">{section.label}</span>
@@ -190,7 +190,7 @@ export function SettingsPanel({
 
       <main className={cn("min-h-0 min-w-0 flex-1 overflow-y-auto md:block", mobileNavigation.open && "hidden handheld:!hidden")}>
         <div className="min-w-0 max-w-2xl p-4 md:p-5">
-          <button type="button" onClick={() => setMobileNavigation({ requested: selectedSection, open: true })} className="mb-2 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 focus-visible:outline-primary md:hidden handheld:!inline-flex">
+          <button type="button" onClick={() => setMobileNavigation({ requested: selectedSection, open: true })} className="mb-2 inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-primary transition-colors hover:text-primary/80 active:bg-foreground/10 focus-visible:outline-primary md:hidden handheld:!inline-flex">
             <ChevronLeftIcon className="size-4" aria-hidden="true" /> All settings
           </button>
           <div className="mb-4 flex items-center justify-between gap-3">
