@@ -13,6 +13,12 @@ export const metadata: Metadata = {
   title: "Homeio",
   description:
     "Your home server dashboard - manage all your self-hosted services in one place.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Homeio",
+    statusBarStyle: "black-translucent",
+  },
   icons: {
     icon: [
       {
@@ -21,13 +27,13 @@ export const metadata: Metadata = {
         sizes: "512x512",
       },
     ],
-    apple: "/icon.png",
+    apple: "/apple-touch-icon.png",
   },
 };
 
 export const viewport: Viewport = {
   themeColor: "#1a2332",
-  userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
