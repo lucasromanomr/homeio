@@ -356,15 +356,15 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
               ].map(({ label, percent, detail }, index) => {
                 const hasReading = typeof percent === "number" && Number.isFinite(percent);
                 return (
-                  <div key={label} className={cn("min-w-0 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-3", index === 0 && "col-span-2 bg-[linear-gradient(115deg,var(--mobile-panel),color-mix(in_srgb,var(--primary)_13%,var(--mobile-panel)))] p-3.5")}>
+                  <div key={label} className={cn("min-w-0 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-3 @xl/mobile-monitor:p-2.5", index === 0 && "col-span-2 bg-[linear-gradient(115deg,var(--mobile-panel),color-mix(in_srgb,var(--primary)_13%,var(--mobile-panel)))] p-3.5")}>
                     <dt className="text-sm font-medium">{label}</dt>
-                    <dd className={cn("mt-2 break-words font-mono text-xl font-semibold tracking-tight tabular-nums", index === 0 && hasReading && "text-[clamp(2rem,9vw,2.75rem)] leading-none text-[var(--mobile-accent-text)]", !hasReading && "text-sm text-muted-foreground")}>
+                    <dd className={cn("mt-2 break-words font-mono text-xl font-semibold tracking-tight tabular-nums @xl/mobile-monitor:mt-1", index === 0 && hasReading && "text-[clamp(2rem,9vw,2.75rem)] leading-none text-[var(--mobile-accent-text)] @xl/mobile-monitor:text-[2rem]", !hasReading && "text-sm text-muted-foreground")}>
                       {hasReading ? `${percent.toFixed(1)}%` : "Unavailable"}
                     </dd>
-                    {hasReading && <dd aria-hidden="true" className="mt-2.5 h-1 overflow-hidden rounded-full bg-[var(--mobile-divider)]">
+                    {hasReading && <dd aria-hidden="true" className="mt-2.5 h-1 overflow-hidden rounded-full bg-[var(--mobile-divider)] @xl/mobile-monitor:mt-1.5">
                       <div className="h-full rounded-full bg-[var(--mobile-accent-text)]" style={{ width: `${Math.min(100, Math.max(0, percent))}%` }} />
                     </dd>}
-                    {detail && <dd className="mt-2 break-words text-xs text-muted-foreground">{detail}</dd>}
+                    {detail && <dd className="mt-2 break-words text-xs text-muted-foreground @xl/mobile-monitor:mt-1">{detail}</dd>}
                   </div>
                 );
               })}
