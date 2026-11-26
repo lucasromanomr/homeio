@@ -144,7 +144,7 @@ export function AppGridContextMenu({
           aria-describedby={undefined}
           showCloseButton={false}
           data-mobile-app-menu
-          className="mobile-glass top-[var(--mobile-menu-top)] left-[var(--mobile-menu-left)] flex max-h-[var(--mobile-menu-height)] w-[var(--mobile-menu-width)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-[1.35rem] bg-[var(--mobile-glass-background)] p-0 shadow-2xl motion-reduce:animate-none"
+          className="mobile-glass top-[var(--mobile-menu-top)] left-[var(--mobile-menu-left)] flex max-h-[var(--mobile-menu-height)] w-[var(--mobile-menu-width)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-[1.35rem] bg-[var(--mobile-glass-background)] p-0 shadow-2xl motion-reduce:animate-none handheld:top-[var(--mobile-menu-top)] handheld:max-h-[var(--mobile-menu-height)]"
           style={{
             "--mobile-menu-anchor-left": `${preferredLeft}px`,
             "--mobile-menu-anchor-top": `${preferredTop}px`,
