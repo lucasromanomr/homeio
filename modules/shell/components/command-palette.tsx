@@ -124,7 +124,7 @@ export function CommandPalette({
       onOpenChange={onOpenChange}
       title="Search Homeio"
       description="Find settings, apps, and tools."
-      className="overflow-hidden border border-white/[0.09] bg-black/60 p-0 shadow-[var(--system-shadow-floating)] [backdrop-filter:blur(40px)_saturate(160%)] [border-radius:var(--system-radius-floating)] max-w-[min(92vw,44rem)] handheld:top-[max(0.75rem,env(safe-area-inset-top))] handheld:max-h-[min(75dvh,38rem)] handheld:translate-y-0 handheld:bg-[var(--mobile-panel)] handheld:[backdrop-filter:none]"
+      className="overflow-hidden border border-white/[0.09] bg-black/60 p-0 shadow-[var(--system-shadow-floating)] [backdrop-filter:blur(40px)_saturate(160%)] [border-radius:var(--system-radius-floating)] max-w-[min(92vw,44rem)] handheld:top-[max(0.75rem,env(safe-area-inset-top))] handheld:max-h-[min(75dvh,38rem,calc(100dvh-max(0.75rem,env(safe-area-inset-top))-max(0.75rem,env(safe-area-inset-bottom))))] handheld:max-w-[min(44rem,calc(100%-var(--mobile-overlay-gutter)-var(--mobile-overlay-gutter)))] handheld:translate-y-0 handheld:bg-[var(--mobile-panel)] handheld:[backdrop-filter:none]"
       showCloseButton={false}
     >
       {/* Hero header — matches lock screen / login design language */}
