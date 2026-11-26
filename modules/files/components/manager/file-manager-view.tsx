@@ -202,6 +202,7 @@ export function FileManagerView({
   viewMode,
 }: FileManagerViewProps) {
   const [showLocations, setShowLocations] = useState(false);
+  const [selectingFiles, setSelectingFiles] = useState(false);
   return (
     <div
       ref={rootRef}
@@ -214,6 +215,11 @@ export function FileManagerView({
       <div className="flex shrink-0 items-center gap-2 px-4 pt-3 max-[360px]:px-3 md:hidden handheld:flex">
         <button type="button" onClick={() => setShowLocations((shown) => !shown)} aria-expanded={showLocations} aria-controls="file-locations" className="min-h-11 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors active:bg-foreground/10">{showLocations ? "Close locations" : "Locations"}</button>
         {!activeDriveConnection && !isTrashView && !isStarredView && <button type="button" onClick={onPositionBackgroundContextMenu} className="min-h-11 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors active:bg-foreground/10">New / Paste</button>}
+        {!activeDriveConnection && !showLocations && (sortedEntries.length > 0 || selectingFiles) && (
+          <button type="button" aria-label={selectingFiles ? "Done selecting" : "Select"} aria-pressed={selectingFiles} onClick={() => setSelectingFiles((value) => !value)} className="ml-auto min-h-11 min-w-11 shrink-0 rounded-lg px-2 text-sm font-medium text-[var(--mobile-accent-text)] active:bg-primary/15 focus-visible:outline-2 focus-visible:outline-primary">
+            {selectingFiles ? "Done" : "Select"}
+          </button>
+        )}
       </div>
       <div id="file-locations" className={`${showLocations ? "flex handheld:flex" : "hidden handheld:hidden"} absolute inset-y-12 left-0 z-50 max-w-[85%] md:static md:flex md:max-w-none handheld:absolute handheld:max-w-[85%]`}>
       <FileManagerSidebar
@@ -303,6 +309,7 @@ export function FileManagerView({
           pendingEntryPath={pendingEntryPath}
           searchQuery={searchQuery}
           selectedFiles={selectedFiles}
+          selectingFiles={selectingFiles}
           sortedEntries={sortedEntries}
           totalEntriesCount={totalEntriesCount}
           viewMode={viewMode}
