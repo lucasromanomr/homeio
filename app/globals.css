@@ -153,6 +153,12 @@
 }
 
 @layer components {
+  .mobile-tool,
+  .mobile-dock-button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   .mobile-tool {
     display: grid;
     place-items: center;

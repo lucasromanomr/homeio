@@ -162,11 +162,12 @@ export function FileManagerToolbar({
           <input
             type="text"
             aria-label="Search files"
+            enterKeyHint="search"
             value={searchQuery}
             onChange={(e) => onSearchQueryChange(e.target.value)}
             placeholder={globalSearch ? "Search everywhere…" : "Search…"}
             className={cn(
-              "h-11 w-full rounded-lg border pl-7 pr-2 text-sm md:h-7 md:text-xs handheld:h-11 handheld:text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-all",
+              "h-11 w-full rounded-lg border pl-7 pr-2 text-sm md:h-7 md:text-xs handheld:!h-11 handheld:!text-base text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors",
               globalSearch
                 ? "border-primary/40 bg-background/60 focus:border-primary/60"
                 : "border-glass-border bg-background/55 focus:border-primary/40",

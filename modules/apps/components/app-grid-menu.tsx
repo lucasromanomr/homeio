@@ -18,7 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 type AppGridAction =
@@ -50,6 +50,7 @@ export function AppGridContextMenu({
   onAction: (action: AppGridAction) => void;
   onClose?: () => void;
 }) {
+  const openerRef = useRef<HTMLElement | null>(null);
   const actions = (
     <>
       <AppGridContextMenuItem
@@ -128,6 +129,15 @@ export function AppGridContextMenu({
           showCloseButton={false}
           className="top-auto bottom-[max(0.75rem,env(safe-area-inset-bottom))] flex max-h-[calc(100dvh-max(0.75rem,env(safe-area-inset-top))-max(0.75rem,env(safe-area-inset-bottom)))] max-w-[min(28rem,calc(100%-var(--mobile-overlay-gutter)-var(--mobile-overlay-gutter)))] translate-y-0 flex-col gap-0 overflow-hidden rounded-[1.75rem] border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-0 motion-reduce:animate-none"
           onClick={(event) => event.stopPropagation()}
+          onOpenAutoFocus={() => {
+            const activeElement = document.activeElement;
+            openerRef.current = activeElement instanceof HTMLElement && activeElement !== document.body ? activeElement : null;
+          }}
+          onCloseAutoFocus={(event) => {
+            if (!openerRef.current?.isConnected) return;
+            event.preventDefault();
+            openerRef.current.focus({ preventScroll: true });
+          }}
         >
           <div className="flex shrink-0 items-center gap-2 border-b border-[var(--mobile-divider)] px-4 py-1.5">
             <DialogTitle className="min-w-0 flex-1 break-words text-base">{app.name}</DialogTitle>
