@@ -168,6 +168,10 @@
       0 6px 22px rgb(15 10 14 / 0.20);
   }
 
+  .mobile-glass[data-mobile-app-menu] {
+    --mobile-glass-fill: color-mix(in srgb, var(--mobile-panel) 92%, transparent);
+  }
+
   @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .mobile-glass {
       --mobile-glass-background: var(--mobile-glass-fill);

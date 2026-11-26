@@ -226,7 +226,7 @@ function MobileApp({ app, active, list = false, onOpenApp, onAppContextMenu }: {
       >
         {icon}
         <span className={list ? "min-w-0 flex-1" : "w-full min-w-0 text-center"}>
-          <span className={list ? "block break-words text-sm font-medium text-foreground" : "line-clamp-2 text-balance text-[0.7rem] font-medium leading-[1.15] text-white [overflow-wrap:anywhere] [text-shadow:0_1px_3px_rgba(0,0,0,0.95),0_1px_6px_rgba(0,0,0,0.65)]"}>{app.name}</span>
+          <span className={list ? "block break-words text-sm font-medium text-foreground" : `mobile-wallpaper-label text-[0.7rem] font-medium leading-tight ${app.name.includes(" ") ? "line-clamp-2 text-balance [overflow-wrap:anywhere]" : "block truncate"}`}>{app.name}</span>
           {list && <span className="block text-xs text-muted-foreground">{visual.title}{app.updateAvailable && app.status === "running" ? " · Update available" : ""}</span>}
         </span>
       </button>
