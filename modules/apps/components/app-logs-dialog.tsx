@@ -209,8 +209,8 @@ export function AppLogsDialog({ target, onClose }: AppLogsDialogProps) {
         <div className="flex items-center gap-3 px-4 py-3 border-b border-glass-border/60 shrink-0 handheld:flex-wrap handheld:gap-2 handheld:border-[var(--mobile-divider)] handheld:px-[var(--mobile-gutter)] handheld:py-2">
           <ScrollText className="size-4 text-muted-foreground shrink-0 handheld:hidden" />
           <div className="flex-1 min-w-0">
-            <span className="block text-sm font-semibold text-foreground truncate">
-              {target?.appName ?? "App"} — Logs
+            <span className="block text-sm font-semibold text-foreground truncate handheld:whitespace-normal handheld:[overflow-wrap:anywhere]">
+              {target?.appName ?? "App"}<span className="handheld:hidden"> — Logs</span>
             </span>
           </div>
 
@@ -274,7 +274,7 @@ export function AppLogsDialog({ target, onClose }: AppLogsDialogProps) {
                       : "bg-muted-foreground/40",
               )}
             />
-            <span className="tabular-nums">{lines.length} lines</span>
+            <span className="tabular-nums">{lines.length} {lines.length === 1 ? "line" : "lines"}</span>
           </div>
 
           {/* Close */}
@@ -289,14 +289,14 @@ export function AppLogsDialog({ target, onClose }: AppLogsDialogProps) {
 
         {/* Error banner */}
         {streamError && (
-          <div className="flex items-center gap-3 px-4 py-2.5 text-xs bg-status-red/8 border-b border-status-red/20 shrink-0">
+          <div className="flex items-center gap-3 px-4 py-2.5 text-xs bg-status-red/8 border-b border-status-red/20 shrink-0 handheld:px-[var(--mobile-gutter)] handheld:py-1.5">
             <span className="size-1.5 rounded-full bg-status-red shrink-0" />
             <span className="text-status-red flex-1">{streamError}</span>
             <button
               onClick={handleReconnect}
               className={cn(
                 BADGE_SURFACE,
-                "flex items-center gap-1.5 px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer",
+                "flex items-center gap-1.5 px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer handheld:min-h-11 handheld:shrink-0",
               )}
             >
               <RefreshCw className="size-3" />
@@ -316,14 +316,14 @@ export function AppLogsDialog({ target, onClose }: AppLogsDialogProps) {
               {search.trim() ? "No matching log lines." : "Waiting for logs…"}
             </p>
           ) : (
-            <div className="space-y-px">
+            <div className="space-y-px handheld:space-y-2">
               {filteredLines.map((line) => (
                 <div
                   key={line.id}
-                  className="flex items-start gap-2 font-mono text-xs leading-relaxed"
+                  className="flex items-start gap-2 font-mono text-xs leading-relaxed handheld:flex-wrap handheld:items-center handheld:gap-y-0.5"
                 >
                   {/* Timestamp */}
-                  <span className="shrink-0 whitespace-nowrap text-muted-foreground/40 select-none w-28">
+                  <span className="shrink-0 whitespace-nowrap text-muted-foreground/40 select-none w-28 handheld:w-auto handheld:text-muted-foreground">
                     {formatTimestamp(line.timestamp)}
                   </span>
 
@@ -342,13 +342,13 @@ export function AppLogsDialog({ target, onClose }: AppLogsDialogProps) {
                       ERR
                     </span>
                   ) : (
-                    <span className="shrink-0 w-9.75" />
+                    <span className="shrink-0 w-9.75 handheld:hidden" />
                   )}
 
                   {/* Message */}
                   <span
                     className={cn(
-                      "break-all",
+                      "break-all handheld:min-w-0 handheld:basis-full handheld:break-normal handheld:[overflow-wrap:anywhere]",
                       line.level
                         ? LEVEL_TEXT[line.level]
                         : line.stream === "stderr"
@@ -367,15 +367,15 @@ export function AppLogsDialog({ target, onClose }: AppLogsDialogProps) {
 
         {/* Footer */}
         {streamEnded && (
-          <div className="flex items-center gap-3 px-4 py-2 border-t border-glass-border/60 shrink-0">
-            <span className="text-xs text-muted-foreground/60 flex-1">
+          <div className="flex items-center gap-3 px-4 py-2 border-t border-glass-border/60 shrink-0 handheld:px-[var(--mobile-gutter)] handheld:py-1.5">
+            <span className="text-xs text-muted-foreground/60 flex-1 handheld:text-muted-foreground">
               Stream ended — container stopped or log tail reached.
             </span>
             <button
               onClick={handleReconnect}
               className={cn(
                 BADGE_SURFACE,
-                "flex items-center gap-1.5 px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer",
+                "flex items-center gap-1.5 px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer handheld:min-h-11 handheld:shrink-0",
               )}
             >
               <RefreshCw className="size-3" />
