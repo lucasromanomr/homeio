@@ -66,6 +66,7 @@ export function LockScreen({
   return (
     <div className="fixed inset-0 z-[500] overflow-y-auto">
       <FullScreenShell
+        compactOnMobile
         wallpaper={wallpaper}
         topRight={
           <button
@@ -80,31 +81,31 @@ export function LockScreen({
         }
         center={
           <div className="w-full max-w-md text-center">
-            <div className="mx-auto mb-5 flex w-fit flex-col items-center">
-              <div className="system-hero-surface flex size-24 items-center justify-center bg-black/22 shadow-[var(--system-shadow-dock)]">
+            <div className="mx-auto mb-5 flex w-fit flex-col items-center handheld:mx-0 handheld:mb-4 handheld:items-start">
+              <div className="system-hero-surface flex size-24 items-center justify-center bg-black/22 shadow-[var(--system-shadow-dock)] handheld:size-14 handheld:bg-[var(--mobile-panel)] handheld:shadow-none">
                 <Image
                   src="/icon.png"
                   alt="Homeio"
                   width={64}
                   height={64}
-                  className="relative z-10 size-[3.65rem] blur-[0.15px]"
+                  className="relative z-10 size-[3.65rem] blur-[0.15px] handheld:size-10 handheld:blur-none"
                 />
               </div>
-              <div className="system-pill-surface mt-2.5 px-3 py-1 text-[10px] tracking-[0.24em] text-foreground/58 uppercase">
+              <div className="system-pill-surface mt-2.5 px-3 py-1 text-[10px] tracking-[0.24em] text-foreground/58 uppercase handheld:hidden">
                 Home server
               </div>
             </div>
 
-            <p className="text-[1.48rem] font-medium tracking-[-0.03em] text-foreground">
+            <h1 className="text-[1.48rem] font-medium tracking-[-0.03em] text-foreground handheld:text-left handheld:text-3xl">
               {displayUsername}
-            </p>
-            <p className="mb-5 mt-1 text-[11px] tracking-[0.18em] text-muted-foreground/78 uppercase">
+            </h1>
+            <p className="mb-5 mt-1 text-[11px] tracking-[0.18em] text-muted-foreground/78 uppercase handheld:text-left handheld:text-sm handheld:tracking-normal handheld:normal-case">
               Locked session
             </p>
 
             <form className="space-y-3" onSubmit={handleUnlock}>
               <div className="system-soft-surface bg-black/22 px-2.5 py-2 shadow-[var(--system-shadow-dock)]">
-                <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:flex">
+                <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:flex handheld:grid">
                   <div className="system-icon-surface flex size-10 shrink-0 items-center justify-center bg-white/[0.14] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                     <Lock className="size-[1.1rem]" />
                   </div>

@@ -17,6 +17,7 @@ type Filter = "all" | "unread";
 export function NotificationsPanel() {
   const { notifications, unreadCount, markAllRead, clearAll } = useNotifications();
   const [filter, setFilter] = useState<Filter>("all");
+  const [confirmClear, setConfirmClear] = useState(false);
 
   const visible = filter === "unread" ? notifications.filter((n) => !n.read) : notifications;
 
@@ -30,7 +31,7 @@ export function NotificationsPanel() {
               key={f}
               onClick={() => setFilter(f)}
               className={cn(
-                "rounded-md px-3 py-1 text-xs font-medium capitalize transition-colors",
+                "rounded-md px-3 py-1 handheld:min-h-11 text-xs font-medium capitalize transition-colors",
                 filter === f
                   ? "bg-primary/15 text-primary"
                   : "text-muted-foreground hover:text-foreground",
@@ -51,16 +52,16 @@ export function NotificationsPanel() {
             onClick={() => markAllRead()}
             disabled={unreadCount === 0}
             title="Mark all read"
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-background/50 hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 handheld:min-h-11 text-xs text-muted-foreground transition-colors hover:bg-background/50 hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <CheckCircle2 className="size-3.5" />
             Mark all read
           </button>
           <button
-            onClick={() => clearAll()}
+            onClick={() => setConfirmClear(true)}
             disabled={notifications.length === 0}
             title="Clear all"
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-background/50 hover:text-status-red disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 handheld:min-h-11 text-xs text-muted-foreground transition-colors hover:bg-background/50 hover:text-status-red disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Trash2 className="size-3.5" />
             Clear all
@@ -68,6 +69,7 @@ export function NotificationsPanel() {
         </div>
       </div>
 
+      {confirmClear && <div role="alertdialog" aria-label="Clear all notifications?" className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 py-3"><p className="text-sm">Clear all notifications?</p><div className="flex gap-2"><button type="button" onClick={() => setConfirmClear(false)} className="min-h-11 rounded-lg px-3 text-sm">Cancel</button><button type="button" onClick={() => { clearAll(); setConfirmClear(false); }} className="min-h-11 rounded-lg bg-status-red/15 px-3 text-sm text-status-red">Clear all</button></div></div>}
       {/* List */}
       <div className="flex-1 overflow-y-auto">
         {visible.length === 0 ? (

@@ -20,6 +20,8 @@ import {
 import type { SettingsPanelProps, SettingsSectionId } from "@/modules/settings/components/panel/types";
 import { useSettingsBackend } from "@/modules/settings/hooks/useSettingsBackend";
 import { cn } from "@/lib/utils";
+import { ChevronLeftIcon, ChevronRight } from "@/components/icons/platform-icons";
+import { useState } from "react";
 
 const SIDEBAR_GROUPS: { label: string; ids: SettingsSectionId[] }[] = [
   { label: "System",         ids: ["general", "appearance", "updates"] },
@@ -40,6 +42,11 @@ export function SettingsPanel({
   selectedSection,
   onOpenDiskManager,
 }: SettingsPanelProps) {
+  const [mobileNavigation, setMobileNavigation] = useState(() => ({ requested: selectedSection, open: !selectedSection }));
+  // A request from another part of the desktop should open that section directly.
+  if (mobileNavigation.requested !== selectedSection) {
+    setMobileNavigation({ requested: selectedSection, open: !selectedSection });
+  }
   const settingsBackend = useSettingsBackend();
   const desktopPreferences = useDesktopPreferences();
   const { activeSection, setActiveSection } = useActiveSettingsSection(
@@ -88,25 +95,40 @@ export function SettingsPanel({
     sectionDefinitions[0];
 
   return (
-    <div className="flex h-full min-h-0 min-w-0 flex-col md:flex-row">
-      <label className="flex shrink-0 flex-col gap-1.5 px-4 pt-3 md:hidden">
-        <span className="text-xs font-medium text-muted-foreground">Settings category</span>
-        <select
-          aria-label="Settings category"
-          value={activeSection}
-          onChange={(event) => setActiveSection(event.target.value as SettingsSectionId)}
-          className="min-h-11 w-full rounded-lg border border-glass-border bg-background px-3 text-sm text-foreground focus-visible:outline-primary"
-        >
-          {SIDEBAR_GROUPS.map((group) => (
-            <optgroup key={group.label} label={group.label}>
-              {sectionDefinitions.filter((section) => group.ids.includes(section.id as SettingsSectionId)).map((section) => (
-                <option key={section.id} value={section.id}>{section.label}</option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
-      </label>
-      <aside className={cn("m-2 hidden w-52 shrink-0 flex-col md:flex", SETTINGS_PANEL_SHELL)}>
+    <div className="flex h-full min-h-0 min-w-0 flex-col md:flex-row handheld:!flex-col">
+      <nav aria-label="Settings sections" className={cn("min-h-0 flex-1 overflow-y-auto px-4 pb-5 pt-3 md:hidden handheld:!block", !mobileNavigation.open && "handheld:!hidden hidden")}>
+        <h2 className="mb-3 text-xl font-semibold text-foreground">Settings</h2>
+        {SIDEBAR_GROUPS.map((group) => {
+          const sections = sectionDefinitions.filter((section) => group.ids.includes(section.id as SettingsSectionId));
+          if (!sections.length) return null;
+          return (
+            <section key={group.label} className="mb-4">
+              <h3 className="mb-1 text-xs font-medium text-muted-foreground">{group.label}</h3>
+              <div className="divide-y divide-glass-border/60 overflow-hidden rounded-xl border border-glass-border bg-[var(--mobile-panel)]">
+                {sections.map((section) => (
+                  <button
+                    key={section.id}
+                    type="button"
+                    aria-label={`Open ${section.label} settings`}
+                    aria-current={activeSection === section.id ? "page" : undefined}
+                    onClick={() => {
+                      setActiveSection(section.id);
+                      setMobileNavigation({ requested: selectedSection, open: false });
+                    }}
+                    className={cn("flex min-h-12 w-full items-center gap-3 px-3 text-left text-sm text-foreground hover:bg-secondary/50 focus-visible:outline-primary", activeSection === section.id && "bg-primary/10 font-semibold")}
+                  >
+                    <section.icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                    <span className="min-w-0 flex-1">{section.label}</span>
+                    {section.badge ? <span className="text-xs font-semibold text-primary">{section.badge}</span> : null}
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  </button>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+      </nav>
+      <aside aria-label="Settings sidebar" className={cn("m-2 hidden w-52 shrink-0 flex-col md:flex handheld:!hidden", SETTINGS_PANEL_SHELL)}>
         <div className="flex-1 overflow-y-auto px-2 py-3">
           {SIDEBAR_GROUPS.map((group) => {
             const sections = sectionDefinitions.filter((s) => group.ids.includes(s.id as SettingsSectionId));
@@ -166,9 +188,12 @@ export function SettingsPanel({
         </div>
       </aside>
 
-      <main className="min-h-0 min-w-0 flex-1 overflow-y-auto">
+      <main className={cn("min-h-0 min-w-0 flex-1 overflow-y-auto md:block", mobileNavigation.open && "hidden handheld:!hidden")}>
         <div className="min-w-0 max-w-2xl p-4 md:p-5">
-          <div className="flex items-center justify-between mb-4">
+          <button type="button" onClick={() => setMobileNavigation({ requested: selectedSection, open: true })} className="mb-2 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 focus-visible:outline-primary md:hidden handheld:!inline-flex">
+            <ChevronLeftIcon className="size-4" aria-hidden="true" /> All settings
+          </button>
+          <div className="mb-4 flex items-center justify-between gap-3">
             <h2 className="text-base font-semibold text-foreground">
               {activeDefinition.label}
             </h2>

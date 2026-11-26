@@ -15,6 +15,7 @@ type FullScreenShellProps = {
   topRight?: ReactNode;
   wallpaper?: string;
   showClock?: boolean;
+  compactOnMobile?: boolean;
   centerClassName?: string;
   bottomClassName?: string;
 };
@@ -25,6 +26,7 @@ export function FullScreenShell({
   topRight,
   wallpaper,
   showClock = true,
+  compactOnMobile = false,
   centerClassName,
   bottomClassName,
 }: FullScreenShellProps) {
@@ -43,10 +45,11 @@ export function FullScreenShell({
 
   return (
     <main
-      className="relative min-h-dvh overflow-hidden bg-background text-white sm:min-h-screen"
+      className={cn("relative min-h-dvh overflow-hidden bg-background text-white sm:min-h-screen",
+        compactOnMobile && "handheld:min-h-dvh handheld:bg-[var(--mobile-canvas)] handheld:text-foreground")}
       data-testid="full-screen-shell"
     >
-      <div className="absolute inset-0">
+      <div className={cn("absolute inset-0", compactOnMobile && "handheld:hidden")}>
         <div
           className="absolute inset-0 scale-110 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url('${resolvedWallpaper}')` }}
@@ -65,7 +68,8 @@ export function FullScreenShell({
       <div className="relative flex min-h-dvh flex-col pt-[env(safe-area-inset-top)] pr-[max(1rem,env(safe-area-inset-right))] pb-[env(safe-area-inset-bottom)] pl-[max(1rem,env(safe-area-inset-left))] sm:min-h-screen sm:px-6 sm:py-0">
         {showClock ? (
           <div
-            className="pointer-events-none mt-9 text-center sm:absolute sm:inset-x-0 sm:top-14 sm:mt-0"
+            className={cn("pointer-events-none mt-9 text-center sm:absolute sm:inset-x-0 sm:top-14 sm:mt-0",
+              compactOnMobile && "handheld:hidden")}
             data-testid="full-screen-clock"
           >
             <div className="system-floating-surface inline-flex max-w-full flex-col items-center bg-black/14 px-5 py-3 shadow-[0_24px_60px_rgba(0,0,0,0.24)] sm:min-w-[18rem] sm:px-8 sm:py-5">
@@ -91,6 +95,7 @@ export function FullScreenShell({
             "flex min-w-0 flex-1 items-center justify-center py-6 sm:py-0",
             showClock ? "sm:pt-36" : "",
             bottom ? "sm:pt-16" : "",
+            compactOnMobile && "handheld:py-12",
             centerClassName,
           )}
         >

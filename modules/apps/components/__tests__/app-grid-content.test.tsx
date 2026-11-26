@@ -12,6 +12,32 @@ const app: AppItem = {
 };
 
 describe("AppGridContent", () => {
+  it("shows mobile rows with full names, status and separate actions", () => {
+    const onOpenApp = vi.fn();
+    const onAppContextMenu = vi.fn();
+    const longNameApp = { ...app, name: "Example app with a very long name" };
+    render(<AppGridContent mobile activeAppId={null} activeOperationsCount={0} animationsEnabled={false}
+      apps={[longNameApp]} iconSize="medium" isAppsError={false} isAppsLoading={false}
+      onAppContextMenu={onAppContextMenu} onOpenApp={onOpenApp} primaryOperation={null} />);
+    expect(screen.getByText(longNameApp.name)).toBeTruthy();
+    expect(screen.getByText("Running")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: `Actions for ${longNameApp.name}` }));
+    expect(onAppContextMenu).toHaveBeenCalledOnce();
+    expect(onOpenApp).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: `Open ${longNameApp.name}` }));
+    expect(onOpenApp).toHaveBeenCalledWith(longNameApp);
+  });
+
+  it("offers the store for an empty mobile list", () => {
+    const onBrowseStore = vi.fn();
+    render(<AppGridContent mobile onBrowseStore={onBrowseStore} activeAppId={null} activeOperationsCount={0}
+      animationsEnabled={false} apps={[]} iconSize="medium" isAppsError={false} isAppsLoading={false}
+      onAppContextMenu={vi.fn()} onOpenApp={vi.fn()} primaryOperation={null} />);
+    expect(screen.getByText("No apps installed yet.")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Browse Store" }));
+    expect(onBrowseStore).toHaveBeenCalledOnce();
+  });
+
   it("opens the app independently from its touch action button and right-click menu", () => {
     const onOpenApp = vi.fn();
     const onAppContextMenu = vi.fn();

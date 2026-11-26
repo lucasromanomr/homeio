@@ -24,7 +24,15 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <QueryClientProvider client={queryClient}>
         {children}
-        <Toaster position="bottom-center" offset="5.75rem" />
+        <Toaster
+          position="bottom-center"
+          offset="max(5.75rem, calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 0.75rem))"
+          mobileOffset={{
+            bottom: "calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 0.75rem)",
+            left: 16,
+            right: 16,
+          }}
+        />
       </QueryClientProvider>
     </ThemeProvider>
   );

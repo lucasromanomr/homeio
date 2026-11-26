@@ -18,6 +18,7 @@ import type { FileReadResponse } from "@/lib/shared/contracts/files";
 import type { DragEventHandler, MouseEvent, SetStateAction } from "react";
 
 type FileManagerFileAreaProps = {
+  active: boolean;
   canSaveOpenFile: boolean;
   directoryErrorMessage: string;
   directoryIsError: boolean;
@@ -62,6 +63,7 @@ type FileManagerFileAreaProps = {
 };
 
 export function FileManagerFileArea({
+  active,
   canSaveOpenFile,
   directoryErrorMessage,
   directoryIsError,
@@ -106,7 +108,7 @@ export function FileManagerFileArea({
 }: FileManagerFileAreaProps) {
   return (
     <div
-      className="relative flex-1 overflow-y-auto p-3"
+      className="relative min-h-0 flex-1 overflow-y-auto p-3"
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
@@ -142,6 +144,7 @@ export function FileManagerFileArea({
 
       {openFile ? (
         <OpenFileDialog
+          active={active}
           canSaveOpenFile={canSaveOpenFile}
           editorNotice={editorNotice}
           fileContentErrorMessage={fileContentErrorMessage}
@@ -186,6 +189,7 @@ function renderBrowserState({
   viewMode,
 }: Omit<
   FileManagerFileAreaProps,
+  | "active"
   | "canSaveOpenFile"
   | "editorNotice"
   | "fileContentErrorMessage"

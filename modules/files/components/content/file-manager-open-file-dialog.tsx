@@ -13,6 +13,7 @@ import React, { useState } from "react";
 import type { SetStateAction } from "react";
 
 type OpenFileDialogProps = {
+  active: boolean;
   canSaveOpenFile: boolean;
   editorNotice: string | null;
   fileContentErrorMessage: string;
@@ -33,6 +34,7 @@ type OpenFileDialogProps = {
 };
 
 export function OpenFileDialog({
+  active,
   canSaveOpenFile,
   editorNotice,
   fileContentErrorMessage,
@@ -68,7 +70,7 @@ export function OpenFileDialog({
 
   return (
     <>
-      <Dialog open onOpenChange={(open) => { if (!open) handleCloseRequest(); }}>
+      <Dialog open={active} onOpenChange={(open) => { if (!open) handleCloseRequest(); }}>
         <DialogContent
           showCloseButton={false}
           aria-label={`Open file ${openFile.entry.name}`}

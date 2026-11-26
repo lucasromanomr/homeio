@@ -533,17 +533,17 @@ Shortcuts: Ctrl+C interrupt  Ctrl+L clear  Ctrl+F search  Ctrl+W delete word`,
           }`}
         />
         <ChevronRight className="size-3 text-muted-foreground shrink-0" />
-        <span className="font-mono text-xs text-muted-foreground">
+        <span className="min-w-0 truncate font-mono text-xs text-muted-foreground" title={`${USER}@${HOSTNAME}`}>
           {USER}@{HOSTNAME}
         </span>
 
         {/* Right-side action buttons */}
-        <div className="ml-auto flex items-center gap-0.5">
+        <div className="ml-auto flex shrink-0 items-center gap-0.5">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 onClick={() => setSearchOpen((o) => !o)}
-                className={`rounded p-1 transition-colors cursor-pointer ${
+                className={`rounded p-1 transition-colors cursor-pointer handheld:grid handheld:size-11 handheld:place-items-center ${
                   searchOpen
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
@@ -559,7 +559,7 @@ Shortcuts: Ctrl+C interrupt  Ctrl+L clear  Ctrl+F search  Ctrl+W delete word`,
             <TooltipTrigger asChild>
               <button
                 onClick={handleCopyAll}
-                className="rounded p-1 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+                className="rounded p-1 text-muted-foreground transition-colors hover:text-foreground cursor-pointer handheld:grid handheld:size-11 handheld:place-items-center"
                 aria-label="Copy all terminal output"
               >
                 <Copy className="size-3.5" />
@@ -571,7 +571,7 @@ Shortcuts: Ctrl+C interrupt  Ctrl+L clear  Ctrl+F search  Ctrl+W delete word`,
             <TooltipTrigger asChild>
               <button
                 onClick={handleDownloadTranscript}
-                className="rounded p-1 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+                className="rounded p-1 text-muted-foreground transition-colors hover:text-foreground cursor-pointer handheld:grid handheld:size-11 handheld:place-items-center"
                 aria-label="Download terminal transcript"
               >
                 <Download className="size-3.5" />
@@ -705,7 +705,7 @@ Shortcuts: Ctrl+C interrupt  Ctrl+L clear  Ctrl+F search  Ctrl+W delete word`,
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex items-center">
-            <span className="text-status-green shrink-0">{getPrompt(cwd)}</span>
+            <span className="text-status-green shrink-0 handheld:max-w-[45%] handheld:truncate">{getPrompt(cwd)}</span>
             <span>&nbsp;</span>
             <input
               ref={inputRef}
@@ -718,7 +718,7 @@ Shortcuts: Ctrl+C interrupt  Ctrl+L clear  Ctrl+F search  Ctrl+W delete word`,
               onKeyDown={handleKeyDown}
               onFocus={() => setIsFocused(true)}
               onBlur={handleInputBlur}
-              className="flex-1 bg-transparent text-foreground outline-none font-mono text-sm caret-primary"
+              className="min-w-0 flex-1 bg-transparent text-foreground outline-none font-mono text-sm caret-primary handheld:min-h-11 handheld:text-base"
               autoFocus
               spellCheck={false}
               autoComplete="off"

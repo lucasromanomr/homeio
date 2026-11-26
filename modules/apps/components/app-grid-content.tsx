@@ -11,6 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useState, type MouseEvent } from "react";
 
 type AppGridContentProps = {
+  mobile?: boolean;
+  onBrowseStore?: () => void;
   activeAppId: string | null;
   activeOperationsCount: number;
   animationsEnabled: boolean;
@@ -24,6 +26,8 @@ type AppGridContentProps = {
 };
 
 export function AppGridContent({
+  mobile = false,
+  onBrowseStore,
   activeAppId,
   activeOperationsCount,
   animationsEnabled,
@@ -80,7 +84,17 @@ export function AppGridContent({
         </div>
       ) : null}
 
-      {isAppsLoading && apps.length === 0 ? (
+      {mobile ? (
+        <MobileAppList
+          activeAppId={activeAppId}
+          apps={apps}
+          isAppsError={isAppsError}
+          isAppsLoading={isAppsLoading}
+          onAppContextMenu={onAppContextMenu}
+          onBrowseStore={onBrowseStore}
+          onOpenApp={onOpenApp}
+        />
+      ) : isAppsLoading && apps.length === 0 ? (
         <div className="mt-24" role="status" aria-live="polite">
           <div className="mx-auto flex max-w-xs flex-col items-center text-center">
             <div className="relative h-1 w-48 overflow-hidden rounded-full bg-glass-border/30">
@@ -234,5 +248,69 @@ export function AppGridContent({
         </div>
       )}
     </>
+  );
+}
+
+
+type MobileAppListProps = Pick<AppGridContentProps,
+  "activeAppId" | "apps" | "isAppsError" | "isAppsLoading" |
+  "onAppContextMenu" | "onBrowseStore" | "onOpenApp">;
+
+function MobileAppList({ activeAppId, apps, isAppsError, isAppsLoading,
+  onAppContextMenu, onBrowseStore, onOpenApp }: MobileAppListProps) {
+  return (
+    <div className="min-w-0">
+      <h2 className="pb-2 pt-3 text-base font-semibold text-foreground">Installed apps</h2>
+      {isAppsLoading && apps.length === 0 ? (
+        <p role="status" className="py-4 text-sm text-muted-foreground">Loading apps…</p>
+      ) : isAppsError && apps.length === 0 ? (
+        <p role="alert" className="py-4 text-sm text-status-red">Could not load apps. Check your connection and try again.</p>
+      ) : apps.length === 0 ? (
+        <div className="border-t border-border py-5 text-sm text-muted-foreground">
+          <p>No apps installed yet.</p>
+          {onBrowseStore ? <button type="button" onClick={onBrowseStore}
+            className="mt-3 min-h-11 rounded-lg bg-primary px-4 font-medium text-primary-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+            Browse Store
+          </button> : null}
+        </div>
+      ) : (
+        <ul className="divide-y divide-border border-y border-border">
+          {apps.map((app) => <MobileAppRow key={app.id} app={app}
+            active={activeAppId === app.id} onOpenApp={onOpenApp} onAppContextMenu={onAppContextMenu} />)}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function MobileAppRow({ app, active, onOpenApp, onAppContextMenu }: {
+  app: AppItem; active: boolean; onOpenApp: (app: AppItem) => void;
+  onAppContextMenu: (event: MouseEvent, app: AppItem) => void;
+}) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const visual = getAppVisualState(app);
+  return (
+    <li className="flex min-w-0 items-center gap-1">
+      <button type="button" onClick={() => onOpenApp(app)}
+        onContextMenu={(event) => onAppContextMenu(event, app)}
+        aria-label={`Open ${app.name}`} data-app-status={app.status}
+        className="flex min-h-16 min-w-0 flex-1 items-center gap-3 rounded-lg py-2 text-left focus-visible:ring-2 focus-visible:ring-primary">
+        <span className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border ${visual.ringClass} ${app.logoUrl && !imageFailed ? "bg-white/90" : `${app.bgColor} ${app.color}`}`}>
+          {app.logoUrl && !imageFailed ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={app.logoUrl} alt="" width={44} height={44} className={`size-full object-contain p-1 ${visual.imageClass}`} onError={() => setImageFailed(true)} />
+          ) : <app.icon className={`size-6 ${visual.imageClass}`} aria-hidden="true" />}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block break-words text-sm font-medium leading-snug text-foreground">{app.name}</span>
+          <span className="mt-0.5 block text-xs text-muted-foreground">{visual.title}{app.updateAvailable && app.status === "running" ? " · Update available" : ""}</span>
+        </span>
+      </button>
+      <button type="button" aria-label={`Actions for ${app.name}`} aria-expanded={active}
+        onClick={(event) => { event.stopPropagation(); onAppContextMenu(event, app); }}
+        className="flex size-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary">
+        <MoreHorizontal className="size-5" aria-hidden="true" />
+      </button>
+    </li>
   );
 }

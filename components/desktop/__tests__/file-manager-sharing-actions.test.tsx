@@ -37,6 +37,25 @@ describe("FileManager sharing and actions", () => {
     await waitFor(() => expect(moveToTrash).toHaveBeenCalledWith({ path: "notes.txt" }));
   });
 
+  it("does not act on an item after deselecting the last selection", async () => {
+    mockUseFilesDirectory.mockReturnValue(mockDirectory([{ name: "notes.txt", path: "notes.txt", type: "file" }]));
+    const moveToTrash = vi.fn();
+    mockUseMoveToTrash.mockReturnValue({ mutateAsync: moveToTrash, isPending: false });
+    vi.stubGlobal("matchMedia", () => ({ matches: true }));
+    try {
+      await renderFileManager();
+      fireEvent.click(screen.getByRole("button", { name: "Select" }));
+      fireEvent.click(screen.getByRole("button", { name: "notes.txt" }));
+      fireEvent.click(screen.getByRole("button", { name: "notes.txt" }));
+      fireEvent.keyDown(window, { key: "Delete" });
+      fireEvent.keyDown(window, { key: "c", ctrlKey: true });
+      expect(moveToTrash).not.toHaveBeenCalled();
+      expect(screen.queryByText(/Clipboard:/)).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("shows Share Folder action when folder is not shared", async () => {
     mockUseFilesDirectory.mockReturnValue(mockDirectory([{ name: "FolderToShare", path: "FolderToShare", type: "folder" }]));
     await renderFileManager();

@@ -348,6 +348,7 @@ export function FileManager({ keyboardEnabled = true }: { keyboardEnabled?: bool
 
   return (
     <FileManagerView
+      keyboardEnabled={keyboardEnabled}
       rootRef={rootRef}
       actions={actions}
       canSaveOpenFile={canSaveOpenFile}

@@ -11,6 +11,8 @@ vi.mock("@/modules/shell/hooks/useServerConnection", () => ({ useServerConnectio
 vi.mock("@/modules/apps/hooks/StoreActionsContext", () => ({ StoreActionsProvider: ({ children }: { children: React.ReactNode }) => children, useSharedStoreActions: () => ({}) }));
 vi.mock("@/modules/apps/components/app-grid", () => ({ AppGrid: () => <div>Installed apps</div> }));
 vi.mock("@/modules/settings/components/settings", () => ({ SettingsPanel: ({ onOpenDiskManager }: { onOpenDiskManager: () => void }) => <><input aria-label="Settings draft" /><button onClick={onOpenDiskManager}>Open disks</button></> }));
+vi.mock("@/modules/files/components/file-manager", () => ({ FileManager: () => <input aria-label="File draft" /> }));
+vi.mock("@/modules/apps/components/app-store", () => ({ AppStore: () => <div>Store content</div> }));
 vi.mock("@/modules/system/components/monitor", () => ({ Monitor: () => null }));
 vi.mock("@/modules/system/components/disk-manager", () => ({ DiskManager: () => <div>Disk content</div> }));
 vi.mock("@/modules/system/components/status-bar", () => ({ StatusBar: () => <div>Desktop status</div> }));
@@ -33,6 +35,7 @@ describe("responsive shell", () => {
     render(<DesktopShell />);
     expect(screen.getByText("Installed apps")).toBeTruthy();
     expect(screen.queryByText("Desktop widgets")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "More" }));
     fireEvent.click(screen.getByRole("button", { name: "Settings" }));
     expect(screen.queryByText("Installed apps")).toBeNull();
     const draft = screen.getByRole("textbox", { name: "Settings draft" }) as HTMLInputElement;
@@ -51,7 +54,26 @@ describe("responsive shell", () => {
     expect(screen.getByRole("textbox", { name: "Settings draft" })).toBe(draft);
     expect(draft.value).toBe("unsaved");
     fireEvent.click(screen.getByRole("button", { name: "Go back" }));
+    expect(screen.getByRole("button", { name: "Sign out" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Home" }));
     expect(screen.getByText("Installed apps")).toBeTruthy();
+  });
+
+  it("switches primary tabs without losing state or adding unrelated back steps", () => {
+    mobile = true;
+    render(<DesktopShell />);
+    fireEvent.click(screen.getByRole("button", { name: "Files" }));
+    const draft = screen.getByRole("textbox", { name: "File draft" }) as HTMLInputElement;
+    fireEvent.change(draft, { target: { value: "kept" } });
+    fireEvent.click(screen.getByRole("button", { name: "Store" }));
+    expect(screen.getByText("Store content")).toBeTruthy();
+    expect(draft.closest('[aria-label="Files"]')?.getAttribute("inert")).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Files" }));
+    expect(screen.getByRole("textbox", { name: "File draft" })).toBe(draft);
+    expect(draft.value).toBe("kept");
+    fireEvent.click(screen.getByRole("button", { name: "Go back" }));
+    expect(screen.getByText("Installed apps")).toBeTruthy();
+    expect(screen.queryByText("Store content")).toBeTruthy(); // mounted, hidden
   });
 
   it("preserves desktop launcher, dock and window controls", () => {

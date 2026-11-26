@@ -209,25 +209,25 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
 
   return (
     <div className="w-full max-w-md text-center">
-      <div className="mx-auto mb-5 flex w-fit flex-col items-center">
-        <div className="system-hero-surface flex size-[5.5rem] items-center justify-center">
+      <div className="mx-auto mb-5 flex w-fit flex-col items-center handheld:mx-0 handheld:mb-4 handheld:items-start">
+        <div className="system-hero-surface flex size-[5.5rem] items-center justify-center handheld:size-14 handheld:bg-[var(--mobile-panel)] handheld:shadow-none">
           <Image
             src="/icon.png"
             alt="Homeio"
             width={64}
             height={64}
-            className="relative z-10 size-[3.4rem] blur-[0.12px]"
+            className="relative z-10 size-[3.4rem] blur-[0.12px] handheld:size-10 handheld:blur-none"
           />
         </div>
-        <div className="system-pill-surface mt-2 px-3 py-1 text-[10px] tracking-[0.22em] text-foreground/54 uppercase">
+        <div className="system-pill-surface mt-2 px-3 py-1 text-[10px] tracking-[0.22em] text-foreground/54 uppercase handheld:hidden">
           Home server
         </div>
       </div>
 
-      <p className="text-[1.48rem] font-medium tracking-[-0.03em] text-foreground">
+      <h1 className="text-[1.48rem] font-medium tracking-[-0.03em] text-foreground handheld:text-left handheld:text-3xl">
         {stage.kind === "credentials" ? "Welcome back" : "Two-step verification"}
-      </p>
-      <p className="mb-5 mt-1 text-[11px] tracking-[0.18em] text-muted-foreground/78 uppercase">
+      </h1>
+      <p className="mb-5 mt-1 text-[11px] tracking-[0.18em] text-muted-foreground/78 uppercase handheld:text-left handheld:text-sm handheld:tracking-normal handheld:normal-case">
         {stage.kind === "credentials"
           ? "Sign in to continue"
           : stage.useBackupCode
@@ -267,13 +267,14 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
                 </div>
                 <input
                   id="username"
+                  aria-label="Username"
                   name="username"
                   type="text"
                   autoComplete="username"
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
                   placeholder="Username"
-                  className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
+                  className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] handheld:h-11 handheld:text-base text-foreground outline-none placeholder:text-muted-foreground/52"
                   required
                   autoFocus
                 />
@@ -285,18 +286,19 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
                 </div>
                 <input
                   id="password"
+                  aria-label="Password"
                   name="password"
                   type={isPasswordVisible ? "text" : "password"}
                   autoComplete="current-password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder="Password"
-                  className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
+                  className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] handheld:h-11 handheld:text-base text-foreground outline-none placeholder:text-muted-foreground/52"
                   required
                 />
                 <button
                   type="button"
-                  className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-[var(--system-radius-icon)] text-muted-foreground transition-colors hover:bg-white/[0.08] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                  className="flex size-9 shrink-0 cursor-pointer handheld:size-11 items-center justify-center rounded-[var(--system-radius-icon)] text-muted-foreground transition-colors hover:bg-white/[0.08] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                   aria-label={isPasswordVisible ? "Hide password" : "Show password"}
                   aria-pressed={isPasswordVisible}
                   onMouseDown={(event) => event.preventDefault()}
@@ -333,7 +335,7 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
               !username.trim() ||
               !password.trim()
             }
-            className="system-primary-action group flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-sm font-medium transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="system-primary-action group flex w-full items-center justify-center gap-2 rounded-full py-2.5 handheld:min-h-11 text-sm font-medium transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span>
               {isSubmitting
@@ -355,6 +357,7 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
               </div>
               <input
                 id="totp-code"
+                aria-label={stage.useBackupCode ? "Backup code" : "Verification code"}
                 name="code"
                 type="text"
                 inputMode={stage.useBackupCode ? "text" : "numeric"}
@@ -383,7 +386,7 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
           <button
             type="submit"
             disabled={isSubmitting || !totpCode.trim()}
-            className="system-primary-action group flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-sm font-medium transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="system-primary-action group flex w-full items-center justify-center gap-2 rounded-full py-2.5 handheld:min-h-11 text-sm font-medium transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span>{isSubmitting ? "Verifying..." : "Verify and sign in"}</span>
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />

@@ -99,7 +99,7 @@ export function Toggle({
         aria-label={`Toggle ${label}`}
         onClick={availability.disabled ? undefined : onToggle}
         disabled={availability.disabled}
-        className={`relative inline-flex h-5 w-10 shrink-0 items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
+        className={`relative inline-flex h-5 w-10 shrink-0 items-center before:absolute before:-inset-y-3 before:inset-x-0 before:content-[''] md:before:inset-y-0 handheld:before:!-inset-y-3 rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
           availability.disabled
             ? "cursor-not-allowed opacity-50"
             : "cursor-pointer"
