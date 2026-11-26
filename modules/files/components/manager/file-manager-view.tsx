@@ -347,13 +347,7 @@ export function FileManagerView({
           }}
           onEntryClick={onEntryClick}
           onEntryContextMenu={onPositionEntryContextMenu}
-          onToggleSelection={(entry) => {
-            const next = new Set(selectedFiles);
-            if (next.has(entry.name)) next.delete(entry.name);
-            else next.add(entry.name);
-            dispatch({ type: "SET_SELECTED_FILES", files: next });
-            dispatch({ type: "SELECT_FILE", name: next.has(entry.name) ? entry.name : [...next].at(-1) ?? null });
-          }}
+          onToggleSelection={(entry) => dispatch({ type: "TOGGLE_FILE_SELECTION", path: entry.path })}
           onLoadMoreSearch={() => dispatch({ type: "LOAD_MORE_SEARCH" })}
           onOpenEntry={navigateTo}
           onSaveOpenFile={() => {

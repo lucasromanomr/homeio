@@ -30,8 +30,15 @@ describe("AppGridContent", () => {
     expect(onOpenApp).toHaveBeenCalledWith(longNameApp);
   });
 
-  it("counts listed apps and only reports a running state with a known status", () => {
-    const apps: AppItem[] = [app, { ...app, id: "stopped", status: "stopped" }, { ...app, id: "external", status: "unmanaged" }];
+  it("uses optimistic managed status for the running count and indicator", () => {
+    const running = { condition: "running" as const, exitCode: null };
+    const apps: AppItem[] = [
+      app,
+      { ...app, id: "stopped", name: "Stopped app", status: "stopped", condition: running },
+      { ...app, id: "restarting", name: "Restarting app", status: "updating", condition: running },
+      { ...app, id: "external", name: "External app", status: "unmanaged", condition: running },
+      { ...app, id: "unknown", name: "Unknown app", status: "unmanaged" },
+    ];
     vi.stubGlobal("ResizeObserver", class {
       constructor(private callback: ResizeObserverCallback) {}
       observe() {
@@ -44,8 +51,11 @@ describe("AppGridContent", () => {
         apps={apps} iconSize="medium" isAppsError={false} isAppsLoading={false}
         onAppContextMenu={vi.fn()} onOpenApp={vi.fn()} primaryOperation={null} />);
       const activity = screen.getByRole("region", { name: "App activity" });
-      expect(within(activity).getByText("of 3")).toBeTruthy();
-      expect(within(activity).getByText("1")).toBeTruthy();
+      expect(within(activity).getByText("of 5")).toBeTruthy();
+      expect(within(activity).getByText("2")).toBeTruthy();
+      expect(screen.getByRole("button", { name: /Open Stopped app/ }).querySelector("[data-running-indicator]")).toBeNull();
+      expect(screen.getByRole("button", { name: /Open Restarting app/ }).querySelector("[data-running-indicator]")).toBeNull();
+      expect(screen.getByRole("button", { name: /Open External app/ }).querySelector("[data-running-indicator]")).toBeTruthy();
     } finally {
       vi.unstubAllGlobals();
     }

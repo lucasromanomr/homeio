@@ -143,7 +143,7 @@ export function CommandPalette({
               onValueChange={onQueryChange}
               aria-label="Search settings, apps, and tools"
               placeholder="Search Homeio"
-              className="text-[15px] text-foreground placeholder:text-muted-foreground/70 handheld:text-base"
+              className="text-[15px] text-foreground placeholder:text-muted-foreground/70 handheld:text-[length:max(16px,1rem)]"
             />
           </div>
         </div>

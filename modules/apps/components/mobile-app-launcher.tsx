@@ -18,7 +18,9 @@ type Props = {
 const VIEW_KEY = "homeio.mobile-launcher.view.v1";
 
 function isAppRunning(app: AppItem) {
-  return app.condition ? app.condition.condition === "running" : app.status === "running";
+  return app.status === "unmanaged"
+    ? app.condition?.condition === "running"
+    : app.status === "running";
 }
 
 export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoading, onAppContextMenu, onBrowseStore, onOpenApp }: Props) {

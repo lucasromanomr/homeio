@@ -3,6 +3,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { useCallback, useState } from "react";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { useMobileWindowPage } from "@/components/ui/mobile-window-page";
 import { Window } from "@/modules/shell/components/window";
@@ -46,6 +47,30 @@ describe("Window", () => {
     expect(screen.queryByRole("dialog", { name: "Add source" })).toBeNull();
     rerender(window(false));
     expect((screen.getByRole("textbox", { name: "Source name" }) as HTMLInputElement).value).toBe("Example");
+  });
+
+  it("removes inactive confirmations and releases their modal focus", () => {
+    const view = (inactive: boolean) => (
+      <>
+        <Window mobile inactive={inactive} title="Settings" onClose={() => {}}>
+          <AlertDialog open>
+            <AlertDialogContent>
+              <AlertDialogTitle>Restart Homeio</AlertDialogTitle>
+              <AlertDialogDescription>Confirm restart</AlertDialogDescription>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+            </AlertDialogContent>
+          </AlertDialog>
+        </Window>
+        <button type="button">Other tool</button>
+      </>
+    );
+    const { rerender } = render(view(false));
+    expect(screen.getByRole("alertdialog", { name: "Restart Homeio" })).toBeTruthy();
+    rerender(view(true));
+    expect(screen.queryByRole("alertdialog", { name: "Restart Homeio" })).toBeNull();
+    const otherTool = screen.getByRole("button", { name: "Other tool" });
+    otherTool.focus();
+    expect(document.activeElement).toBe(otherTool);
   });
 
   it("only navigates back for a deliberate swipe on the mobile header", () => {

@@ -286,28 +286,24 @@ export function FileManager({ keyboardEnabled = true }: { keyboardEnabled?: bool
 
   function handleEntryClick(event: MouseEvent, entry: FileEntry) {
     if (event.ctrlKey || event.metaKey) {
-      const next = new Set(state.selectedFiles);
-      if (next.has(entry.name)) next.delete(entry.name);
-      else next.add(entry.name);
-      dispatch({ type: "SET_SELECTED_FILES", files: next });
-      dispatch({ type: "SELECT_FILE", name: entry.name });
+      dispatch({ type: "TOGGLE_FILE_SELECTION", path: entry.path });
       return;
     }
     if (event.shiftKey && state.selectedFile) {
-      const anchor = sortedEntries.findIndex((candidate) => candidate.name === state.selectedFile);
-      const clicked = sortedEntries.findIndex((candidate) => candidate.name === entry.name);
+      const anchor = sortedEntries.findIndex((candidate) => candidate.path === state.selectedFile);
+      const clicked = sortedEntries.findIndex((candidate) => candidate.path === entry.path);
       if (anchor !== -1 && clicked !== -1) {
         const [from, to] = anchor <= clicked ? [anchor, clicked] : [clicked, anchor];
         dispatch({
           type: "SET_SELECTED_FILES",
-          files: new Set(sortedEntries.slice(from, to + 1).map((candidate) => candidate.name)),
+          files: new Set(sortedEntries.slice(from, to + 1).map((candidate) => candidate.path)),
         });
       }
-      dispatch({ type: "SELECT_FILE", name: entry.name });
+      dispatch({ type: "SELECT_FILE", path: entry.path });
       return;
     }
-    dispatch({ type: "SET_SELECTED_FILES", files: new Set([entry.name]) });
-    dispatch({ type: "SELECT_FILE", name: entry.name });
+    dispatch({ type: "SET_SELECTED_FILES", files: new Set([entry.path]) });
+    dispatch({ type: "SELECT_FILE", path: entry.path });
   }
 
   useFileManagerKeyboard({
@@ -406,7 +402,7 @@ export function FileManager({ keyboardEnabled = true }: { keyboardEnabled?: bool
         const next = positionMenu(event, { width: 220, height: 400 });
         if (!next) return;
         dispatch({ type: "SHOW_CONTEXT_MENU", entry, ...next });
-        dispatch({ type: "SELECT_FILE", name: entry.name });
+        dispatch({ type: "SELECT_FILE", path: entry.path });
       }}
       openFile={state.openFile}
       hasUnsavedChanges={openFileState.hasUnsavedChanges}

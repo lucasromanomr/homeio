@@ -112,7 +112,7 @@ export function WeatherLocationRow({ value, onChange }: WeatherLocationRowProps)
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search a city"
             aria-label="Search a city"
-            className="min-h-11 min-w-0 flex-1 md:min-h-0 md:h-8 md:w-44 md:flex-none rounded-lg border border-glass-border bg-background/55 px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all focus:border-primary/40 focus:outline-none"
+            className="min-h-11 min-w-0 flex-1 md:min-h-0 md:h-8 md:w-44 md:flex-none rounded-lg border border-glass-border bg-background/55 px-3 text-xs text-foreground placeholder:text-muted-foreground/60 handheld:text-[length:max(16px,1rem)] transition-all focus:border-primary/40 focus:outline-none"
           />
           <button type="submit" disabled={busy || query.trim().length < 2} className={SMALL_BUTTON} aria-label="Search">
             <Search className="size-3.5" />

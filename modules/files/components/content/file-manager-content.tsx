@@ -130,6 +130,7 @@ export function FileManagerFileArea({
         globalSearchIsFetching,
         hasMoreSearchResults,
         isGlobalSearchActive,
+        isStarredView,
         isTrashView,
         onEntryClick,
         onEntryContextMenu,
@@ -178,6 +179,7 @@ function renderBrowserState({
   globalSearchIsFetching,
   hasMoreSearchResults,
   isGlobalSearchActive,
+  isStarredView,
   isTrashView,
   onEntryClick,
   onEntryContextMenu,
@@ -201,7 +203,6 @@ function renderBrowserState({
   | "fileContentIsLoading"
   | "hasUnsavedChanges"
   | "isDragOver"
-  | "isStarredView"
   | "openFile"
   | "openFileAssetUrl"
   | "openFileBadgeLabel"
@@ -280,7 +281,7 @@ function renderBrowserState({
         pendingEntryPath={pendingEntryPath}
         selectedFiles={selectedFiles}
         selecting={selectingFiles}
-        titleFromPath={isGlobalSearchActive}
+        showLocation={isGlobalSearchActive || isStarredView}
         onEntryClick={onEntryClick}
         onEntryContextMenu={onEntryContextMenu}
         onToggleSelection={onToggleSelection}
@@ -289,7 +290,7 @@ function renderBrowserState({
     ) : (
       <FileList
         entries={sortedEntries}
-        isGlobalSearchActive={isGlobalSearchActive}
+        showLocation={isGlobalSearchActive || isStarredView}
         isTrashView={isTrashView}
         pendingEntryPath={pendingEntryPath}
         selectedFiles={selectedFiles}
