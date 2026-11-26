@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { ReactNode } from "react";
+import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 type AppGridAction =
   | "open"
@@ -39,6 +40,7 @@ export function AppGridContextMenu({
   x,
   y,
   onAction,
+  onClose,
 }: {
   app: AppItem;
   hasDashboardUrl: boolean;
@@ -46,13 +48,10 @@ export function AppGridContextMenu({
   x: number;
   y: number;
   onAction: (action: AppGridAction) => void;
+  onClose?: () => void;
 }) {
-  return (
-    <div
-      className="fixed z-[220] max-h-[calc(100dvh-1rem)] w-48 max-w-[calc(100vw-1rem)] overflow-y-auto overscroll-contain rounded-xl border border-glass-border bg-popover py-1.5 shadow-2xl shadow-black/50 backdrop-blur-2xl"
-      style={{ left: x, top: y, maxHeight: `calc(100dvh - ${y + 8}px)` }}
-      onClick={(event) => event.stopPropagation()}
-    >
+  const actions = (
+    <>
       <AppGridContextMenuItem
         icon={<ExternalLink className="size-3.5" />}
         label="Open Dashboard"
@@ -118,6 +117,37 @@ export function AppGridContextMenu({
         disabled={isBusy}
         onClick={() => onAction("remove")}
       />
+    </>
+  );
+
+  if (onClose) {
+    return (
+      <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+        <DialogContent
+          aria-describedby={undefined}
+          showCloseButton={false}
+          className="top-auto bottom-[max(0.75rem,env(safe-area-inset-bottom))] flex max-h-[calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-1.5rem)] max-w-[min(28rem,calc(100%-2rem))] translate-y-0 flex-col gap-0 overflow-hidden rounded-[1.75rem] border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-0 motion-reduce:animate-none"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="flex shrink-0 items-center gap-2 border-b border-[var(--mobile-divider)] px-4 py-1.5">
+            <DialogTitle className="min-w-0 flex-1 break-words text-base">{app.name}</DialogTitle>
+            <DialogClose className="min-h-11 rounded-full px-3 text-sm font-semibold text-[var(--mobile-accent-text)] hover:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-primary">Done</DialogClose>
+          </div>
+          <div className="min-h-0 overflow-y-auto overscroll-contain py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&_button]:min-h-11 [&_button]:px-4 [&_button]:text-sm">
+            {actions}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <div
+      className="fixed z-[220] max-h-[calc(100dvh-1rem)] w-48 max-w-[calc(100vw-1rem)] overflow-y-auto overscroll-contain rounded-xl border border-glass-border bg-popover py-1.5 shadow-2xl shadow-black/50 backdrop-blur-2xl"
+      style={{ left: x, top: y, maxHeight: `calc(100dvh - ${y + 8}px)` }}
+      onClick={(event) => event.stopPropagation()}
+    >
+      {actions}
     </div>
   );
 }
@@ -141,7 +171,7 @@ function AppGridContextMenuItem({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`flex w-full items-center gap-2.5 px-3 min-h-11 py-1.5 text-xs transition-colors sm:min-h-0 ${
+      className={`flex w-full items-center gap-2.5 px-3 min-h-11 py-1.5 text-xs transition-colors focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary sm:min-h-0 ${
         danger
           ? "text-status-red hover:bg-status-red/10 disabled:hover:bg-transparent"
           : "text-foreground hover:bg-secondary/50"

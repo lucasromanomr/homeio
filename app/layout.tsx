@@ -32,7 +32,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#141d2b",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#eef2f7" },
+    { media: "(prefers-color-scheme: dark)", color: "#141d2b" },
+  ],
   viewportFit: "cover",
 };
 
@@ -46,6 +49,7 @@ export default function RootLayout({
       <body
         className={`${_inter.variable} ${_geistMono.variable} font-sans antialiased`}
       >
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{if(!localStorage.getItem('theme')&&matchMedia('(width < 48rem), (pointer: coarse) and (hover: none)').matches)localStorage.setItem('theme','system')}catch(e){}})()` }} />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>
