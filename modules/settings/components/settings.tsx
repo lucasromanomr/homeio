@@ -18,7 +18,7 @@ import {
 } from "@/modules/settings/components/panel/surface";
 import type { SettingsPanelProps, SettingsSectionId } from "@/modules/settings/components/panel/types";
 import { useSettingsBackend } from "@/modules/settings/hooks/useSettingsBackend";
-import { useMobileWindowPage } from "@/modules/shell/components/mobile-window-page";
+import { useMobileWindowPage } from "@/components/ui/mobile-window-page";
 import { cn } from "@/lib/utils";
 import { ChevronLeftIcon, ChevronRight } from "@/components/icons/platform-icons";
 import { useCallback, useState } from "react";

@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { useCallback, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { useMobileWindowPage } from "@/modules/shell/components/mobile-window-page";
+import { useMobileWindowPage } from "@/components/ui/mobile-window-page";
 import { Window } from "@/modules/shell/components/window";
 
 describe("Window", () => {
