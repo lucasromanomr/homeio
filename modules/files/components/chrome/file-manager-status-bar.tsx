@@ -68,7 +68,7 @@ export function FileManagerStatusBar({
             {clipboardOperation === "copy" ? "Clipboard" : "Cut"}: {clipboardName}
           </span>
         )}
-        <span className="hidden font-mono text-muted-foreground/50 md:inline">
+        <span className="hidden font-mono text-muted-foreground/50 md:inline handheld:hidden">
           {rootLabel}
           {currentPathForDisplay.length > 0 ? `/${currentPathForDisplay.join("/")}` : ""}
         </span>

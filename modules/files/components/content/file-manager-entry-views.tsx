@@ -123,7 +123,7 @@ export function FileGrid({
   return (
     <>
       <div className="flex justify-end md:hidden handheld:flex"><button type="button" aria-pressed={selecting} onClick={() => setSelecting((value) => !value)} className="min-h-11 rounded-lg px-3 text-sm font-medium text-primary transition-colors active:bg-foreground/10">{selecting ? "Done selecting" : "Select"}</button></div>
-      <div className="grid grid-cols-1 gap-0 md:grid-cols-4 md:gap-3 lg:grid-cols-5 handheld:grid-cols-1 handheld:gap-0">
+      <div className="grid grid-cols-1 gap-0 md:grid-cols-4 md:gap-3 lg:grid-cols-5 handheld:grid-cols-1 handheld:gap-0 handheld:min-[36rem]:grid-cols-2 handheld:min-[36rem]:gap-x-3">
         {visible.map((entry) => {
           const isImage = entry.type === "file" && IMAGE_EXTS.has((entry.ext ?? "").toLowerCase());
           const isSelected = selectedFiles.has(entry.name);

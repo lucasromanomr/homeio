@@ -85,7 +85,7 @@ export function FileManagerToolbar({
   onUploadInputChange,
 }: ToolbarProps) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-2 md:flex-nowrap md:overflow-x-auto border-b border-glass-border/60 px-2 py-2 md:px-3 handheld:!px-2 handheld:!flex-wrap handheld:!overflow-x-visible", FILES_PANEL_SHELL)}>
+    <div className={cn("flex flex-wrap items-center gap-2 md:flex-nowrap md:overflow-x-auto border-b border-glass-border/60 px-2 py-2 md:px-3 handheld:!px-2 handheld:!flex-wrap handheld:!overflow-x-visible handheld:min-[36rem]:!flex-nowrap", FILES_PANEL_SHELL)}>
 
       {/* Back / up */}
       <button
@@ -152,8 +152,8 @@ export function FileManagerToolbar({
       )}
 
       {/* Search */}
-      <div className="order-first flex w-full items-center gap-1 md:order-none md:w-auto md:shrink-0 handheld:!order-first handheld:!w-full">
-        <div className="relative flex-1 md:w-36 md:flex-none handheld:flex-1">
+      <div className="order-first flex w-full items-center gap-1 md:order-none md:w-auto md:shrink-0 handheld:!order-first handheld:!w-full handheld:min-[36rem]:!order-none handheld:min-[36rem]:!w-[42%] handheld:min-[36rem]:max-w-72">
+        <div className="relative min-w-0 flex-1 md:w-36 md:flex-none handheld:flex-1">
           {globalSearchIsFetching ? (
             <Loader2 className="absolute left-2 top-1/2 size-3 -translate-y-1/2 animate-spin text-primary" />
           ) : (
