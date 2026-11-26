@@ -1,6 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { ChevronDownRegular, ChevronRightRegular } from "@fluentui/react-icons";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import {
   CUSTOM_STORE_SOURCE_ID,
@@ -183,14 +184,14 @@ function CatalogSidebar({
 }) {
   return (
     <aside className={cn("mx-4 mb-2 flex min-w-0 shrink-0 flex-row gap-2 border-0 bg-transparent px-0 py-0 shadow-none backdrop-blur-none md:m-2 md:w-48 md:flex-col md:gap-0 md:overflow-y-auto md:border md:bg-card/78 md:px-2 md:py-3 md:shadow-sm md:backdrop-blur-xl handheld:!mx-4 handheld:!mb-2 handheld:!w-auto handheld:!flex-row handheld:!gap-2 handheld:!overflow-visible handheld:!border-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-0 handheld:!shadow-none handheld:!backdrop-blur-none", STORE_PANEL_SHELL)}>
-      <label className="flex min-w-0 flex-1 flex-col gap-1.5 md:mb-3 md:flex-none md:px-3 handheld:!mb-0 handheld:!flex-1 handheld:!px-0">
-        <span className="text-xs font-medium text-muted-foreground md:text-[10px] md:font-semibold md:uppercase md:tracking-[0.16em] md:text-muted-foreground/50">
+      <label className="relative flex min-w-0 flex-1 flex-col gap-1.5 md:mb-3 md:flex-none md:px-3 handheld:!mb-0 handheld:!flex-1 handheld:!px-0">
+        <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted-foreground md:font-sans md:text-[10px] handheld:!font-mono md:font-semibold md:uppercase md:tracking-[0.16em] md:text-muted-foreground/50">
           Source
         </span>
         <select
           value={selectedSourceId}
           onChange={(event) => onSelectSource(event.target.value)}
-          className="min-h-11 w-full rounded-lg border border-glass-border bg-background px-2 py-1.5 text-xs text-foreground focus-visible:outline-primary md:min-h-0 md:bg-background/55"
+          className="min-h-11 w-full rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-3 py-1.5 text-xs text-foreground focus-visible:outline-primary md:min-h-0 md:border-glass-border md:bg-background/55 md:px-2 handheld:!min-h-11 handheld:appearance-none handheld:!border-[var(--mobile-divider)] handheld:!bg-[var(--mobile-panel)] handheld:!pr-8 handheld:!pl-3"
         >
           <option value="">All Sources</option>
           {sources.map((source) => (
@@ -198,13 +199,14 @@ function CatalogSidebar({
           ))}
           <option value={CUSTOM_STORE_SOURCE_ID}>Custom</option>
         </select>
+        <ChevronDownRegular className="pointer-events-none absolute right-3 bottom-3.5 hidden size-4 text-muted-foreground handheld:block" aria-hidden="true" />
       </label>
-      <label className="flex min-w-0 flex-1 flex-col gap-1.5 md:hidden handheld:!flex">
-        <span className="text-xs font-medium text-muted-foreground">Category</span>
+      <label className="relative flex min-w-0 flex-1 flex-col gap-1.5 md:hidden handheld:!flex">
+        <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Category</span>
         <select
           value={selectedCategory ?? ""}
           onChange={(event) => onSelectCategory(event.target.value || null)}
-          className="min-h-11 w-full rounded-lg border border-glass-border bg-background px-2 text-xs text-foreground focus-visible:outline-primary"
+          className="min-h-11 w-full appearance-none rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] pr-8 pl-3 text-xs text-foreground focus-visible:outline-primary"
         >
           <option value="">All Apps</option>
           {categories.map((cat) => (
@@ -213,6 +215,7 @@ function CatalogSidebar({
             </option>
           ))}
         </select>
+        <ChevronDownRegular className="pointer-events-none absolute right-3 bottom-3.5 size-4 text-muted-foreground" aria-hidden="true" />
       </label>
       <div className="mb-1 hidden px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50 md:block handheld:!hidden">
         Categories
@@ -326,7 +329,7 @@ function CatalogRow({
       onClick={onClick}
       className={cn(
         STORE_PANEL_INSET,
-        "group flex min-h-16 w-full items-center gap-3 rounded-none border-x-0 border-t-0 bg-transparent px-0 py-2 text-left transition-colors hover:bg-secondary/30 md:rounded-[calc(var(--radius)+0.125rem)] md:border md:bg-background/42 md:p-3 md:hover:border-primary/25 md:hover:bg-background/60 handheld:!rounded-none handheld:!border-x-0 handheld:!border-t-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-2",
+        "group flex min-h-16 w-full items-center gap-3 rounded-none border-x-0 border-t-0 bg-transparent px-0 py-2 text-left transition-colors active:bg-foreground/10 hover:bg-secondary/30 md:rounded-[calc(var(--radius)+0.125rem)] md:border md:bg-background/42 md:p-3 md:hover:border-primary/25 md:hover:bg-background/60 handheld:!rounded-none handheld:!border-x-0 handheld:!border-t-0 handheld:!bg-transparent handheld:!px-0 handheld:!py-2",
       )}
       style={{ contentVisibility: "auto", containIntrinsicSize: "72px" }}
     >
@@ -387,9 +390,10 @@ function CatalogRow({
         ) : app.status === "error" ? (
           <span className="text-2xs font-medium text-status-red">Error</span>
         ) : (
-          <span className="text-xs font-semibold text-primary transition-colors group-hover:text-primary/80">
-            View
-          </span>
+          <>
+            <span className="text-xs font-semibold text-primary transition-colors group-hover:text-primary/80 handheld:hidden">View</span>
+            <ChevronRightRegular className="hidden size-5 text-[var(--mobile-accent-text)] handheld:block" aria-hidden="true" />
+          </>
         )}
       </div>
     </button>
@@ -895,7 +899,7 @@ export function AppStore({
               onClick={() => setFilter(f)}
               aria-pressed={filter === f}
               className={cn(
-                "min-h-11 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors md:min-h-0",
+                "min-h-11 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors active:bg-foreground/10 md:min-h-0 handheld:!min-h-11",
                 filter === f ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-background/50 hover:text-foreground",
               )}
             >
@@ -920,7 +924,7 @@ export function AppStore({
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search apps…"
             aria-label="Search apps"
-            className="min-h-11 w-full rounded-lg border border-glass-border bg-background/55 py-1.5 pl-8 pr-3 md:min-h-0 text-base md:text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/50"
+            className="min-h-11 w-full rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] md:border-glass-border md:bg-background/55 handheld:!border-[var(--mobile-divider)] handheld:!bg-[var(--mobile-panel)] pl-8 pr-3 md:min-h-0 text-base md:text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/50"
           />
         </div>
       </div>
@@ -998,11 +1002,11 @@ export function AppStore({
               {/* Catalog list */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="handheld:flex handheld:w-full handheld:items-baseline handheld:justify-between handheld:gap-2">
                     <h2 className="text-sm font-semibold text-foreground">
                       {selectedCategory ?? (filter === "installed" ? "Installed Apps" : "Catalog")}
                     </h2>
-                    <p className="text-xs text-muted-foreground">{apps.length} apps{sourceFilter ? ` in ${sources.find((source) => source.id === sourceFilter)?.name ?? "Custom"}` : ""}</p>
+                    <p className="font-mono text-xs text-muted-foreground md:font-sans handheld:!font-mono">{apps.length} apps{sourceFilter ? ` in ${sources.find((source) => source.id === sourceFilter)?.name ?? "Custom"}` : ""}</p>
                   </div>
                 </div>
 
@@ -1011,7 +1015,7 @@ export function AppStore({
                     {appGroups.length > 1 && (
                       <h3 className="text-xs font-semibold text-muted-foreground">{group.name}</h3>
                     )}
-                    <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-2 handheld:grid-cols-1">
                       {group.apps.slice(0, visibleCatalogCount).map((app) => (
                         <CatalogRow
                           key={app.id}

@@ -341,20 +341,58 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <section aria-label="System overview" className="hidden min-h-0 flex-1 overflow-y-auto bg-[var(--mobile-canvas)] p-4 text-foreground handheld:block">
-        <div className="mb-4 flex items-start justify-between gap-3">
-          <div><h2 className="text-lg font-semibold">System overview</h2><p className="mt-1 text-sm text-muted-foreground">{systemMetrics?.hostname ?? "Server metrics"}</p></div>
-          <span className="rounded-full bg-[var(--mobile-panel)] px-3 py-1 text-xs text-muted-foreground">{systemMetrics ? "Latest reading" : metricsLoading ? "Loading…" : "Unavailable"}</span>
+      <section aria-label="System overview" className="hidden min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[var(--mobile-canvas)] p-4 text-foreground [scrollbar-width:none] handheld:block">
+        <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h2 className="min-w-0 break-words text-lg font-semibold tracking-tight">{systemMetrics?.hostname ?? "System overview"}</h2>
+          {systemMetrics && <span className="text-xs text-muted-foreground">Latest reading</span>}
         </div>
-        {systemMetrics ? <div className="overflow-hidden rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)]">
-          {[
-            { label: "CPU", value: systemMetrics.cpu.normalizedPercent == null ? "Unavailable" : `${systemMetrics.cpu.normalizedPercent.toFixed(1)}%`, detail: "Processor load" },
-            { label: "Memory", value: systemMetrics.memory.usedPercent == null ? "Unavailable" : `${systemMetrics.memory.usedPercent.toFixed(1)}%`, detail: `${formatBytesCompact(systemMetrics.memory.usedBytes)} of ${formatBytesCompact(systemMetrics.memory.totalBytes)}` },
-            { label: "Disk", value: systemMetrics.storage ? `${systemMetrics.storage.usedPercent.toFixed(1)}%` : "Unavailable", detail: systemMetrics.storage ? `${formatBytesCompact(systemMetrics.storage.usedBytes)} of ${formatBytesCompact(systemMetrics.storage.totalBytes)}` : "Storage data unavailable" },
-          ].map((item) => <div key={item.label} className="flex min-h-20 items-center justify-between gap-4 border-b border-[var(--mobile-divider)] px-4 py-3 last:border-0"><div><p className="font-medium">{item.label}</p><p className="mt-1 text-xs text-muted-foreground">{item.detail}</p></div><span className="text-xl font-semibold tabular-nums text-orange-400">{item.value}</span></div>)}
-        </div> : <div className="rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-4"><p className="text-sm text-muted-foreground">{metricsLoading ? "Loading server measurements…" : "Server measurements are unavailable. Check the connection and try again."}</p>{metricsError && <button type="button" onClick={() => void refetchMetrics()} className="mt-3 min-h-11 rounded-lg bg-orange-500 px-4 font-medium text-slate-950">Retry</button>}</div>}
-        <details className="mt-4 rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)]"><summary className="flex min-h-11 cursor-pointer items-center px-4 font-medium">System details</summary><div className="divide-y divide-[var(--mobile-divider)] px-4"><InfoRow label="Hostname" value={systemMetrics?.hostname ?? "Unavailable"} /><InfoRow label="Platform" value={systemMetrics?.platform ?? "Unavailable"} /><InfoRow label="Uptime" value={systemMetrics ? formatUptimeShort(systemMetrics.uptimeSeconds) : "Unavailable"} /><InfoRow label="Containers" value={daemonAvailable === false ? "Unavailable" : `${dockerStats.length} total`} /></div></details>
-        {onOpenDiskManager && <button type="button" onClick={onOpenDiskManager} className="mt-4 min-h-11 w-full rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-left text-sm font-medium">Manage disks</button>}
+        {systemMetrics ? (
+          <dl className="grid grid-cols-2 gap-2">
+            {[
+              { label: "CPU load", percent: systemMetrics.cpu.normalizedPercent, detail: null },
+              { label: "Memory", percent: systemMetrics.memory.usedPercent, detail: `${formatBytesCompact(systemMetrics.memory.usedBytes)} of ${formatBytesCompact(systemMetrics.memory.totalBytes)}` },
+              { label: "Disk", percent: systemMetrics.storage?.usedPercent, detail: systemMetrics.storage ? `${formatBytesCompact(systemMetrics.storage.usedBytes)} of ${formatBytesCompact(systemMetrics.storage.totalBytes)}` : null },
+            ].map(({ label, percent, detail }, index) => {
+              const hasReading = typeof percent === "number" && Number.isFinite(percent);
+              return (
+                <div key={label} className={cn("min-w-0 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-3", index === 0 && "col-span-2 bg-[linear-gradient(115deg,var(--mobile-panel),color-mix(in_srgb,var(--primary)_13%,var(--mobile-panel)))] p-4")}>
+                  <dt className="text-sm font-medium">{label}</dt>
+                  <dd className={cn("mt-2 break-words font-mono text-xl font-semibold tracking-tight tabular-nums", index === 0 && hasReading && "text-[clamp(2rem,10vw,3.25rem)] leading-none text-[var(--mobile-accent-text)]", !hasReading && "text-sm text-muted-foreground")}>
+                    {hasReading ? `${percent.toFixed(1)}%` : "Unavailable"}
+                  </dd>
+                  {hasReading && <dd aria-hidden="true" className="mt-3 h-1 overflow-hidden rounded-full bg-[var(--mobile-divider)]">
+                    <div className="h-full rounded-full bg-[var(--mobile-accent-text)]" style={{ width: `${Math.min(100, Math.max(0, percent))}%` }} />
+                  </dd>}
+                  {detail && <dd className="mt-2 break-words text-xs text-muted-foreground">{detail}</dd>}
+                </div>
+              );
+            })}
+          </dl>
+        ) : (
+          <div className="rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-4">
+            <p className="text-sm text-muted-foreground">{metricsLoading ? "Loading server measurements…" : "Server measurements are unavailable. Check the connection and try again."}</p>
+            {metricsError && <button type="button" onClick={() => void refetchMetrics()} className="mt-3 min-h-11 cursor-pointer rounded-lg bg-primary px-4 font-medium text-primary-foreground focus-visible:outline-2 focus-visible:outline-primary">Retry</button>}
+          </div>
+        )}
+        {cpuStats.average !== null && (
+          <section aria-label="CPU history" className="mt-3 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-3">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-sm font-semibold">CPU history</h3>
+              <p className="font-mono text-xs text-muted-foreground">{formatPercent(cpuStats.average)} average</p>
+            </div>
+            <MetricHistoryChart {...chartProps} series={cpuSeries} max={100} formatValue={formatPercent} />
+          </section>
+        )}
+        <details className="mt-3 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)]">
+          <summary className="min-h-11 cursor-pointer rounded-xl px-4 py-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-primary">System details</summary>
+          <div className="divide-y divide-[var(--mobile-divider)] px-4">
+            <InfoRow label="Hostname" value={systemMetrics?.hostname ?? "Unavailable"} />
+            <InfoRow label="Platform" value={systemMetrics?.platform ?? "Unavailable"} />
+            <InfoRow label="Uptime" value={systemMetrics ? formatUptimeShort(systemMetrics.uptimeSeconds) : "Unavailable"} />
+            <InfoRow label="Containers" value={daemonAvailable === false ? "Unavailable" : `${dockerStats.length} total`} />
+          </div>
+        </details>
+        {onOpenDiskManager && <button type="button" onClick={onOpenDiskManager} className="mt-3 min-h-11 w-full cursor-pointer rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-left text-sm font-semibold text-[var(--mobile-accent-text)] active:bg-primary/10 focus-visible:outline-2 focus-visible:outline-primary">Manage disks</button>}
       </section>
       <div className="flex min-h-0 flex-1 flex-col handheld:hidden">
       {/* Header */}

@@ -212,8 +212,8 @@ export function FileManagerView({
       }}
     >
       <div className="flex shrink-0 items-center gap-2 px-2 pt-2 md:hidden handheld:flex">
-        <button type="button" onClick={() => setShowLocations((shown) => !shown)} aria-expanded={showLocations} aria-controls="file-locations" className="min-h-11 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-sm">{showLocations ? "Close locations" : "Locations"}</button>
-        {!activeDriveConnection && !isTrashView && !isStarredView && <button type="button" onClick={onPositionBackgroundContextMenu} className="min-h-11 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-sm">New / Paste</button>}
+        <button type="button" onClick={() => setShowLocations((shown) => !shown)} aria-expanded={showLocations} aria-controls="file-locations" className="min-h-11 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors active:bg-foreground/10">{showLocations ? "Close locations" : "Locations"}</button>
+        {!activeDriveConnection && !isTrashView && !isStarredView && <button type="button" onClick={onPositionBackgroundContextMenu} className="min-h-11 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors active:bg-foreground/10">New / Paste</button>}
       </div>
       <div id="file-locations" className={`${showLocations ? "flex handheld:flex" : "hidden handheld:hidden"} absolute inset-y-12 left-0 z-50 max-w-[85%] md:static md:flex md:max-w-none handheld:absolute handheld:max-w-[85%]`}>
       <FileManagerSidebar

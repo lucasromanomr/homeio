@@ -1,6 +1,7 @@
 "use client";
 
 import { Maximize2, Minimize2, Minus, X } from "@/components/icons/platform-icons";
+import { ChevronLeftRegular } from "@fluentui/react-icons";
 import {
   Tooltip,
   TooltipContent,
@@ -211,7 +212,7 @@ export function Window({
     >
       {mobile ? (
         <header
-          className="flex min-h-14 shrink-0 items-center gap-3 border-b border-[var(--mobile-divider)] bg-[var(--mobile-nav-surface)] px-3"
+          className="flex min-h-16 shrink-0 items-center gap-3 border-b border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4"
           onTouchStart={(event) => {
             const touch = event.touches[0];
             backSwipe.current = event.touches.length === 1 && touch.clientX >= 24 && !(event.target as Element).closest("button")
@@ -229,9 +230,11 @@ export function Window({
           }}
           onTouchCancel={() => { backSwipe.current = null; }}
         >
-          <button type="button" onClick={onClose} aria-label="Go back" className="min-h-11 shrink-0 rounded-full px-3 text-sm font-semibold text-[var(--mobile-accent-text)] hover:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-primary">‹ Back</button>
-          {icon}
-          <h1 className="min-w-0 truncate text-base font-semibold">{title}</h1>
+          <button type="button" onClick={onClose} aria-label="Go back" className="mobile-tool">
+            <ChevronLeftRegular className="size-5" aria-hidden="true" />
+          </button>
+          <h1 className="min-w-0 flex-1 truncate text-xl font-semibold tracking-[-0.045em]">{title}</h1>
+          {icon && <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10" aria-hidden="true">{icon}</span>}
         </header>
       ) : (
       <div

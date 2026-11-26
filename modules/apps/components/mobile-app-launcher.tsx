@@ -16,6 +16,10 @@ type Props = {
 
 const VIEW_KEY = "homeio.mobile-launcher.view.v1";
 
+function isAppRunning(app: AppItem) {
+  return app.condition ? app.condition.condition === "running" : app.status === "running";
+}
+
 export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoading, onAppContextMenu, onBrowseStore, onOpenApp }: Props) {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [size, setSize] = useState({ columns: 4, rows: 3 });
@@ -48,6 +52,8 @@ export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoadin
   const capacity = size.columns * size.rows;
   const pageCount = Math.max(1, Math.ceil(apps.length / capacity));
   const currentPage = Math.min(page, pageCount - 1);
+  const runningCount = apps.filter(isAppRunning).length;
+  const runningShare = apps.length > 0 ? runningCount / apps.length : 0;
   function chooseView(next: "grid" | "list") {
     setView(next);
     setPage(0);
@@ -69,16 +75,34 @@ export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoadin
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
+      {!isAppsLoading && !isAppsError && (
+        <section aria-label="App activity" className="mb-2 hidden shrink-0 overflow-hidden rounded-[1.2rem] border border-[var(--mobile-divider)] bg-[linear-gradient(130deg,var(--mobile-panel),color-mix(in_srgb,var(--primary)_12%,var(--mobile-panel)))] [@media(min-height:650px)]:block">
+          <div className="flex items-end justify-between gap-4 px-4 py-3">
+            <div className="min-w-0 shrink-0">
+              <p className="text-[0.78rem] font-semibold text-muted-foreground">Apps running</p>
+              <p className="mt-1 flex items-baseline gap-2 font-mono tabular-nums">
+                <strong className="text-3xl leading-none tracking-tighter text-foreground">{runningCount}</strong>
+                <span className="text-xs text-muted-foreground">of {apps.length}</span>
+              </p>
+            </div>
+            <div aria-hidden="true" className="relative mb-1 flex h-7 min-w-0 flex-1 items-end justify-end gap-[3px] text-[var(--mobile-accent-text)]">
+              {Array.from({ length: 16 }, (_, position) => (
+                <span className={`h-full w-2 rounded-[2px] ${position < Math.round(runningShare * 16) ? "bg-current" : "bg-foreground/12"}`} key={position} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
       <div className="flex min-h-14 shrink-0 items-center justify-between gap-3">
-        <h2 className="text-base font-semibold text-foreground">Apps</h2>
-        <div role="group" className="flex rounded-full border border-[var(--mobile-divider)] bg-[var(--mobile-nav-surface)] p-0.5 text-xs backdrop-blur-xl" aria-label="App view">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-foreground">Apps</h2>
+        <div role="group" className="flex rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-0.5 text-xs" aria-label="App view">
           {(["grid", "list"] as const).map((option) => (
             <button
               key={option}
               type="button"
               aria-pressed={view === option}
               onClick={() => chooseView(option)}
-              className={`min-h-11 min-w-11 rounded-full px-3 font-medium focus-visible:outline-2 focus-visible:outline-primary ${view === option ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`min-h-11 min-w-11 rounded-lg px-3 font-medium focus-visible:outline-2 focus-visible:outline-primary ${view === option ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               {option === "grid" ? "Grid" : "List"}
             </button>
@@ -103,7 +127,7 @@ export function MobileAppLauncher({ activeAppId, apps, isAppsError, isAppsLoadin
       ) : (
         <>
           <div ref={areaRef} className="min-h-0 flex-1 overflow-hidden [touch-action:pan-y_pinch-zoom]" onPointerDown={startSwipe} onPointerUp={endSwipe} onPointerCancel={() => { swipe.current = null; }}>
-            <ul className="grid h-full content-start" style={{ gridTemplateColumns: `repeat(${size.columns}, minmax(0, 1fr))`, gridAutoRows: "104px" }}>
+            <ul className="grid h-full content-start gap-y-1" style={{ gridTemplateColumns: `repeat(${size.columns}, minmax(0, 1fr))`, gridAutoRows: "100px" }}>
               {apps.slice(currentPage * capacity, (currentPage + 1) * capacity).map((app) => (
                 <MobileApp key={app.id} app={app} active={activeAppId === app.id} onOpenApp={onOpenApp} onAppContextMenu={onAppContextMenu} />
               ))}
@@ -131,7 +155,7 @@ function MobileApp({ app, active, list = false, onOpenApp, onAppContextMenu }: {
   const suppressClick = useRef(false);
   const held = useRef(false);
   const visual = getAppVisualState(app);
-  const running = app.condition ? ["running", "starting", "unhealthy"].includes(app.condition.condition) : app.status === "running";
+  const running = isAppRunning(app);
   function cancelHold() {
     if (timer.current) clearTimeout(timer.current);
     timer.current = null;
@@ -155,14 +179,14 @@ function MobileApp({ app, active, list = false, onOpenApp, onAppContextMenu }: {
       suppressClick.current = true;
     }
   }
-  const icon = <span className={`relative flex ${list ? "size-11 rounded-xl" : "size-14 rounded-2xl"} shrink-0 items-center justify-center border shadow-md shadow-black/15 ${visual.ringClass} ${app.logoUrl && !imageFailed ? "bg-white/90" : `${app.bgColor} ${app.color}`}`}>
+  const icon = <span className={`relative flex ${list ? "size-11 rounded-xl" : "size-[3.25rem] rounded-[0.85rem]"} shrink-0 items-center justify-center border ${visual.ringClass} ${app.logoUrl && !imageFailed ? "bg-white/90" : `${app.bgColor} ${app.color}`}`}>
     {app.logoUrl && !imageFailed ? (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={app.logoUrl} alt="" width={64} height={64} className={`size-full rounded-[inherit] object-contain p-1.5 ${visual.imageClass}`} onError={() => setImageFailed(true)} />) : <app.icon className={`size-7 ${visual.imageClass}`} aria-hidden="true" />}
+      <img src={app.logoUrl} alt="" width={64} height={64} className={`size-full rounded-[inherit] object-contain p-1 ${visual.imageClass}`} onError={() => setImageFailed(true)} />) : <app.icon className={`size-7 ${visual.imageClass}`} aria-hidden="true" />}
     {running ? <span data-running-indicator className="absolute -bottom-1 -right-1 size-3 rounded-full border-2 border-background bg-emerald-400" aria-hidden="true" /> : null}
   </span>;
   return (
-    <li className={list ? "flex min-w-0 items-center" : "relative flex min-w-0 flex-col items-center justify-start"}>
+    <li className={list ? "flex min-w-0 items-center" : "relative flex min-w-0 flex-col items-center justify-start px-0.5"}>
       <button
         type="button"
         aria-label={`Open ${app.name} (${visual.title})`}
@@ -190,11 +214,11 @@ function MobileApp({ app, active, list = false, onOpenApp, onAppContextMenu }: {
           }
           onOpenApp(app);
         }}
-        className={`select-none [-webkit-touch-callout:none] focus-visible:outline-2 focus-visible:outline-primary ${list ? "flex min-h-16 min-w-0 flex-1 items-center gap-3 rounded-xl py-2 text-left" : "flex w-full min-w-0 flex-col items-center gap-1.5 rounded-xl px-1 pt-2"}`}
+        className={`cursor-pointer select-none [-webkit-touch-callout:none] focus-visible:outline-2 focus-visible:outline-primary ${list ? "flex min-h-16 min-w-0 flex-1 items-center gap-3 rounded-xl py-2 text-left active:bg-foreground/5" : "flex h-full w-full min-w-0 flex-col items-center gap-1.5 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-1 py-2 active:bg-foreground/5"}`}
       >
         {icon}
         <span className={list ? "min-w-0 flex-1" : "w-full min-w-0 text-center"}>
-          <span className={list ? "block break-words text-sm font-medium text-foreground" : "line-clamp-2 text-xs font-medium leading-tight text-foreground [overflow-wrap:anywhere]"}>{app.name}</span>
+          <span className={list ? "block break-words text-sm font-medium text-foreground" : `text-xs font-medium leading-tight text-foreground ${app.name.includes(" ") ? "line-clamp-2 text-balance [overflow-wrap:anywhere]" : "block truncate"}`}>{app.name}</span>
           {list && <span className="block text-xs text-muted-foreground">{visual.title}{app.updateAvailable && app.status === "running" ? " · Update available" : ""}</span>}
         </span>
       </button>

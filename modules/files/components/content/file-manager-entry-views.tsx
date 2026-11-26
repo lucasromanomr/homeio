@@ -122,7 +122,7 @@ export function FileGrid({
 
   return (
     <>
-      <div className="mb-2 flex justify-end md:hidden handheld:flex"><button type="button" aria-pressed={selecting} onClick={() => setSelecting((value) => !value)} className="min-h-11 px-3 text-sm text-primary">{selecting ? "Done selecting" : "Select"}</button></div>
+      <div className="mb-2 flex justify-end md:hidden handheld:flex"><button type="button" aria-pressed={selecting} onClick={() => setSelecting((value) => !value)} className="min-h-11 rounded-lg px-3 text-sm font-medium text-primary transition-colors active:bg-foreground/10">{selecting ? "Done selecting" : "Select"}</button></div>
       <div className="grid grid-cols-1 gap-0 md:grid-cols-4 md:gap-3 lg:grid-cols-5 handheld:grid-cols-1 handheld:gap-0">
         {visible.map((entry) => {
           const isImage = entry.type === "file" && IMAGE_EXTS.has((entry.ext ?? "").toLowerCase());
@@ -140,7 +140,7 @@ export function FileGrid({
                 "flex min-h-14 min-w-0 flex-1 cursor-pointer flex-row items-center gap-3 rounded-xl border p-2 text-left transition-colors md:w-full md:flex-col md:p-4 handheld:flex-row handheld:p-2",
                 isSelected
                   ? "border-primary/30 bg-primary/15"
-                  : "border-transparent hover:bg-background/50",
+                  : "border-transparent hover:bg-background/50 active:bg-foreground/10",
               )}
             >
               <div className="relative scale-75 md:scale-100 handheld:scale-75">
@@ -161,12 +161,13 @@ export function FileGrid({
                 <span className="line-clamp-2 break-all text-sm font-medium leading-tight text-foreground md:text-center handheld:text-left">
                   {entry.name}
                 </span>
-                {entry.size && (
-                  <span className="text-2xs text-muted-foreground/60">{entry.size}</span>
-                )}
+                <span className="font-mono text-xs text-muted-foreground md:hidden handheld:block">
+                  {[entry.type === "folder" ? "Folder" : entry.size, entry.modified].filter(Boolean).join(" · ")}
+                </span>
+                {entry.size && <span className="hidden text-2xs text-muted-foreground/60 md:block handheld:hidden">{entry.size}</span>}
               </div>
             </button>
-            {selecting ? <span aria-hidden="true" className="px-4 text-primary md:hidden handheld:flex">{isSelected ? "✓" : "○"}</span> : <button type="button" onClick={(event) => onEntryContextMenu(event, entry)} aria-label={`Actions for ${entry.name}`} className="min-h-11 min-w-11 rounded-lg text-xl text-muted-foreground hover:bg-foreground/10 md:hidden handheld:inline-flex handheld:items-center handheld:justify-center">⋯</button>}
+            {selecting ? <span aria-hidden="true" className="px-4 text-primary md:hidden handheld:flex">{isSelected ? "✓" : "○"}</span> : <button type="button" onClick={(event) => onEntryContextMenu(event, entry)} aria-label={`Actions for ${entry.name}`} className="min-h-11 min-w-11 rounded-lg text-xl text-muted-foreground transition-colors hover:bg-foreground/10 active:bg-foreground/15 md:hidden handheld:inline-flex handheld:items-center handheld:justify-center">⋯</button>}
             </div>
           );
         })}
@@ -207,7 +208,7 @@ export function FileList({
 
   return (
     <div className="flex flex-col">
-      <div className="flex justify-end md:hidden handheld:flex"><button type="button" aria-pressed={selecting} onClick={() => setSelecting((value) => !value)} className="min-h-11 px-3 text-sm text-primary">{selecting ? "Done selecting" : "Select"}</button></div>
+      <div className="flex justify-end md:hidden handheld:flex"><button type="button" aria-pressed={selecting} onClick={() => setSelecting((value) => !value)} className="min-h-11 rounded-lg px-3 text-sm font-medium text-primary transition-colors active:bg-foreground/10">{selecting ? "Done selecting" : "Select"}</button></div>
       <div className="hidden items-center gap-3 border-b md:flex border-glass-border/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50">
         <span className="min-w-0 flex-1">Name</span>
         {isTrashView && <span className="hidden w-48 text-right lg:block">Original Location</span>}
@@ -219,7 +220,7 @@ export function FileList({
       </div>
 
       {visible.map((entry) => (
-        <div key={entry.name} className="flex items-center">
+        <div key={entry.name} className="flex items-center border-b border-[var(--mobile-divider)] md:border-0 handheld:border-b">
         <button
           aria-label={entry.name}
           aria-pressed={selecting ? selectedFiles.has(entry.name) : undefined}
@@ -227,7 +228,7 @@ export function FileList({
           onDoubleClick={() => onOpenEntry(entry)}
           onContextMenu={(event) => onEntryContextMenu(event, entry)}
           className={cn(
-            "flex min-w-0 flex-1 cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-colors",
+            "flex min-h-14 min-w-0 flex-1 cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-colors active:bg-foreground/10 md:min-h-0 handheld:min-h-14",
             selectedFiles.has(entry.name) ? "bg-primary/15" : "hover:bg-background/50",
           )}
         >
@@ -237,7 +238,7 @@ export function FileList({
             ) : (
               getFileIcon(entry)
             )}
-            <span className="truncate text-sm font-medium text-foreground">{entry.name}</span>
+            <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-foreground">{entry.name}</span><span className="block font-mono text-xs text-muted-foreground md:hidden handheld:block">{[entry.type === "folder" ? "Folder" : entry.size, entry.modified].filter(Boolean).join(" · ")}</span></span>
             {entry.starred && pendingEntryPath !== entry.path && (
               <Star className="size-3 shrink-0 fill-amber-400 text-amber-400" />
             )}
@@ -278,7 +279,7 @@ export function FileList({
               : entry.modified}
           </span>
         </button>
-        {selecting ? <span aria-hidden="true" className="px-4 text-primary md:hidden handheld:flex">{selectedFiles.has(entry.name) ? "✓" : "○"}</span> : <button type="button" onClick={(event) => onEntryContextMenu(event, entry)} aria-label={`Actions for ${entry.name}`} className="min-h-11 min-w-11 rounded-lg text-xl text-muted-foreground hover:bg-foreground/10 md:hidden handheld:inline-flex handheld:items-center handheld:justify-center">⋯</button>}
+        {selecting ? <span aria-hidden="true" className="px-4 text-primary md:hidden handheld:flex">{selectedFiles.has(entry.name) ? "✓" : "○"}</span> : <button type="button" onClick={(event) => onEntryContextMenu(event, entry)} aria-label={`Actions for ${entry.name}`} className="min-h-11 min-w-11 rounded-lg text-xl text-muted-foreground transition-colors hover:bg-foreground/10 active:bg-foreground/15 md:hidden handheld:inline-flex handheld:items-center handheld:justify-center">⋯</button>}
         </div>
       ))}
 

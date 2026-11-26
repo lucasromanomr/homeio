@@ -46,7 +46,7 @@ function applyAppearanceToDom(settings: AppearanceSettings) {
   root.classList.toggle("dark", resolvedTheme === "dark")
   root.style.colorScheme = resolvedTheme
   document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
-    meta.content = resolvedTheme === "dark" ? "#141d2b" : "#eef2f7"
+    meta.content = resolvedTheme === "dark" ? "#171615" : "#f4efe8"
   })
   root.style.fontSize = `${fontSizeScaleMap[settings.fontSize]}px`
   root.style.setProperty("--radius", `${settings.radius}px`)
