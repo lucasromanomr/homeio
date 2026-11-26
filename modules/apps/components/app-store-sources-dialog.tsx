@@ -90,17 +90,17 @@ export function AppStoreSourcesDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto overscroll-contain border-glass-border bg-card/95 backdrop-blur-xl">
-        <DialogHeader>
+      <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto overscroll-contain border-glass-border bg-card/95 backdrop-blur-xl handheld:@container/store-sources handheld:max-w-[min(42rem,calc(100%-2*var(--mobile-overlay-gutter)))] handheld:gap-3 handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-panel)] handheld:p-4 handheld:[backdrop-filter:none]">
+        <DialogHeader className="handheld:pr-10 handheld:text-left">
           <DialogTitle>Store Sources</DialogTitle>
           <DialogDescription>
             Add ZIP-based CasaOS app stores on top of the official catalog.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-5 lg:grid-cols-[1.3fr,0.9fr]">
+        <div className="grid gap-5 lg:grid-cols-[1.3fr,0.9fr] handheld:gap-3 @lg/store-sources:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)]">
           <div className="space-y-3">
-            <div className="rounded-2xl border border-glass-border bg-glass/30 p-3">
+            <div className="rounded-2xl border border-glass-border bg-glass/30 p-3 handheld:border-0 handheld:bg-transparent handheld:p-0">
               {error ? (
                 <div className="rounded-lg border border-status-red/30 bg-status-red/10 px-3 py-2 text-xs text-status-red">
                   {error}
@@ -251,7 +251,7 @@ export function AppStoreSourcesDialog({
                   value={url}
                   onChange={(event) => setUrl(event.target.value)}
                   placeholder="https://example.com/appstore.zip"
-                  className="h-10 w-full rounded-lg border border-glass-border bg-background/40 px-3 text-sm text-foreground outline-none"
+                  className="h-10 w-full rounded-lg border border-glass-border bg-background/40 px-3 text-sm text-foreground outline-none handheld:min-h-[var(--mobile-touch-target)] handheld:text-[length:max(16px,1rem)]"
                   required
                 />
               </div>
@@ -268,7 +268,7 @@ export function AppStoreSourcesDialog({
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   placeholder="Optional display name"
-                  className="h-10 w-full rounded-lg border border-glass-border bg-background/40 px-3 text-sm text-foreground outline-none"
+                  className="h-10 w-full rounded-lg border border-glass-border bg-background/40 px-3 text-sm text-foreground outline-none handheld:min-h-[var(--mobile-touch-target)] handheld:text-[length:max(16px,1rem)]"
                 />
               </div>
 
@@ -281,7 +281,7 @@ export function AppStoreSourcesDialog({
               <button
                 type="submit"
                 disabled={addPending || !url.trim()}
-                className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:brightness-110 disabled:opacity-60"
+                className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:brightness-110 disabled:opacity-60 handheld:min-h-[var(--mobile-touch-target)]"
               >
                 {addPending ? "Adding Source..." : "Add Source"}
               </button>
