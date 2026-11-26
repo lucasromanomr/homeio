@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Container } from "@/components/icons/platform-icons";
 import { AppGridContent } from "@/modules/apps/components/app-grid-content";
 import type { AppItem } from "@/modules/apps/components/app-grid-presenters";
@@ -12,6 +12,7 @@ const app: AppItem = {
 };
 
 describe("AppGridContent", () => {
+  beforeEach(() => localStorage.clear());
   it("shows mobile rows with full names, status and separate actions", () => {
     const onOpenApp = vi.fn();
     const onAppContextMenu = vi.fn();
@@ -20,12 +21,67 @@ describe("AppGridContent", () => {
       apps={[longNameApp]} iconSize="medium" isAppsError={false} isAppsLoading={false}
       onAppContextMenu={onAppContextMenu} onOpenApp={onOpenApp} primaryOperation={null} />);
     expect(screen.getByText(longNameApp.name)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "List" }));
     expect(screen.getByText("Running")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: `Actions for ${longNameApp.name}` }));
     expect(onAppContextMenu).toHaveBeenCalledOnce();
     expect(onOpenApp).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: `Open ${longNameApp.name}` }));
+    fireEvent.click(screen.getByRole("button", { name: `Open ${longNameApp.name} (Running)` }));
     expect(onOpenApp).toHaveBeenCalledWith(longNameApp);
+  });
+
+
+  it("paginates the mobile grid and persists the optional list", () => {
+    const apps = Array.from({ length: 14 }, (_, index) => ({ ...app, id: `${index}`, name: `App ${index}` }));
+    const props = { mobile: true, activeAppId: null, activeOperationsCount: 0, animationsEnabled: false, apps, iconSize: "medium" as const, isAppsError: false, isAppsLoading: false, onAppContextMenu: vi.fn(), onOpenApp: vi.fn(), primaryOperation: null };
+    const { unmount } = render(<AppGridContent {...props} />);
+    expect(screen.getByText("1 / 2")).toBeTruthy();
+    const OriginalPointerEvent = window.PointerEvent;
+    class TestPointerEvent extends MouseEvent { pointerType: string; constructor(type: string, init: PointerEventInit = {}) { super(type, init); this.pointerType = init.pointerType ?? ""; } }
+    window.PointerEvent = TestPointerEvent as typeof PointerEvent;
+    const gridButton = screen.getByRole("button", { name: "Open App 0 (Running)" });
+    fireEvent.pointerDown(gridButton, { pointerType: "touch", clientX: 200, clientY: 20 });
+    fireEvent.pointerMove(gridButton, { pointerType: "touch", clientX: 100, clientY: 20 });
+    fireEvent.pointerUp(gridButton, { pointerType: "touch", clientX: 100, clientY: 20 });
+    window.PointerEvent = OriginalPointerEvent;
+    expect(screen.getByText("App 12")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Previous app page" }));
+    expect(screen.getByText("App 0")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "List" }));
+    expect(screen.getByText("App 0")).toBeTruthy();
+    unmount();
+    render(<AppGridContent {...props} />);
+    expect(screen.getByRole("button", { name: "List" }).getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("opens actions on hold without opening the app, and cancels a moving touch", () => {
+    vi.useFakeTimers();
+    const OriginalPointerEvent = window.PointerEvent;
+    class TestPointerEvent extends MouseEvent { pointerType: string; constructor(type: string, init: PointerEventInit = {}) { super(type, init); this.pointerType = init.pointerType ?? ""; } }
+    window.PointerEvent = TestPointerEvent as typeof PointerEvent;
+    const onOpenApp = vi.fn();
+    const onAppContextMenu = vi.fn();
+    const { unmount } = render(<AppGridContent mobile activeAppId={null} activeOperationsCount={0} animationsEnabled={false}
+      apps={[app]} iconSize="medium" isAppsError={false} isAppsLoading={false}
+      onAppContextMenu={onAppContextMenu} onOpenApp={onOpenApp} primaryOperation={null} />);
+    const button = screen.getByRole("button", { name: "Open Example (Running)" });
+    fireEvent.pointerDown(button, { pointerType: "touch", clientX: 20, clientY: 20 });
+    act(() => { vi.advanceTimersByTime(600); });
+    fireEvent.contextMenu(button);
+    fireEvent.pointerUp(button, { pointerType: "touch" });
+    fireEvent.click(button);
+    expect(onAppContextMenu).toHaveBeenCalledOnce();
+    expect(onOpenApp).not.toHaveBeenCalled();
+    fireEvent.pointerDown(button, { pointerType: "touch", clientX: 20, clientY: 20 });
+    fireEvent.pointerMove(button, { pointerType: "touch", clientX: 50, clientY: 20 });
+    act(() => { vi.advanceTimersByTime(600); });
+    fireEvent.pointerUp(button, { pointerType: "touch" });
+    fireEvent.click(button);
+    expect(onAppContextMenu).toHaveBeenCalledOnce();
+    expect(onOpenApp).not.toHaveBeenCalled();
+    unmount();
+    window.PointerEvent = OriginalPointerEvent;
+    vi.useRealTimers();
   });
 
   it("offers the store for an empty mobile list", () => {

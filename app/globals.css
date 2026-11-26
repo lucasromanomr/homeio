@@ -11,8 +11,9 @@
 :root {
   --mobile-canvas: #eef2f7;
   --mobile-panel: #ffffff;
+  --mobile-nav-surface: color-mix(in srgb, var(--mobile-panel) 82%, transparent);
   --mobile-divider: #d2dce8;
-  --mobile-accent-text: #a34112;
+  --mobile-accent-text: color-mix(in oklab, var(--primary) 58%, var(--foreground));
   --mobile-nav-height: 4rem;
   --background: oklch(0.96 0.006 250);
   --foreground: oklch(0.2 0.02 250);
@@ -82,7 +83,6 @@
   --mobile-canvas: #141d2b;
   --mobile-panel: #202d3f;
   --mobile-divider: #394961;
-  --mobile-accent-text: #ff9a61;
   --background: oklch(0.13 0.015 250);
   --foreground: oklch(0.97 0.005 250);
   --card: oklch(0.18 0.012 250 / 0.8);
@@ -145,6 +145,12 @@
   --status-amber: oklch(0.78 0.15 80);
   --status-red: oklch(0.65 0.22 25);
 }
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --mobile-nav-surface: var(--mobile-panel);
+  }
+}
+
 @theme inline {
   --font-sans: "Inter", "Geist", "Geist Fallback";
   --font-mono: "Geist Mono", "Geist Mono Fallback";

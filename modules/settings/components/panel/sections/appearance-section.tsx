@@ -144,6 +144,7 @@ export function AppearanceSection({
   const themeOptions: { name: string; value: AppearanceSettings["theme"] }[] = [
     { name: "Dark", value: "dark" },
     { name: "Light", value: "light" },
+    { name: "System", value: "system" },
   ];
 
   return (
@@ -162,6 +163,7 @@ export function AppearanceSection({
               key={theme.value}
               type="button"
               title={theme.name}
+              aria-pressed={active}
               onClick={() => onAppearanceChange({ theme: theme.value })}
               className={cn(
                 "flex w-44 shrink-0 flex-col gap-2 rounded-[calc(var(--radius)+0.375rem)] border p-2.5 text-left transition-all cursor-pointer",
@@ -170,7 +172,12 @@ export function AppearanceSection({
                   : "border-glass-border bg-background/46 hover:border-foreground/20 hover:bg-background/68",
               )}
             >
-              <ThemePreview theme={theme.value as "dark" | "light"} />
+              {theme.value === "system" ? (
+                <div className="flex gap-1" aria-hidden="true">
+                  <ThemePreview theme="light" />
+                  <ThemePreview theme="dark" />
+                </div>
+              ) : <ThemePreview theme={theme.value} />}
               <div className="flex items-center justify-between gap-2 px-0.5">
                 <span className={cn("text-xs font-medium", active ? "text-primary" : "text-muted-foreground")}>
                   {theme.name}

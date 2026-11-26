@@ -55,6 +55,7 @@ export function Window({
   const dragOffset = useRef({ x: 0, y: 0 });
   const windowRef = useRef<HTMLDivElement>(null);
   const preMaxState = useRef({ x: 0, y: 0, w: 0, h: 0 });
+  const backSwipe = useRef<{ x: number; y: number } | null>(null);
 
   // Center on mount
   useEffect(() => {
@@ -193,7 +194,7 @@ export function Window({
       aria-hidden={hidden || undefined}
       inert={hidden || undefined}
       className={mobile
-        ? "absolute inset-x-0 top-0 bottom-[calc(var(--mobile-nav-height)+env(safe-area-inset-bottom)+1px)] z-[110] flex min-h-0 flex-col overflow-hidden bg-[var(--mobile-canvas)] pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]"
+        ? "absolute inset-x-0 top-0 bottom-[calc(var(--mobile-nav-height)+max(0.75rem,env(safe-area-inset-bottom))+0.75rem)] z-[110] flex min-h-0 flex-col overflow-hidden bg-[var(--mobile-canvas)] pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]"
         : `absolute flex flex-col overflow-hidden border border-glass-border ${
             isMaximized
               ? "rounded-[calc(var(--radius)+0.5rem)] shadow-[0_18px_42px_rgba(0,0,0,0.28)]"
@@ -209,8 +210,26 @@ export function Window({
       onMouseDown={mobile ? undefined : () => onFocus?.()}
     >
       {mobile ? (
-        <header className="flex min-h-14 shrink-0 items-center gap-3 border-b border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-3">
-          <button type="button" onClick={onClose} aria-label="Go back" className="min-h-11 rounded-lg px-2 text-sm font-medium text-[var(--mobile-accent-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400">‹ Back</button>
+        <header
+          className="flex min-h-14 shrink-0 items-center gap-3 border-b border-[var(--mobile-divider)] bg-[var(--mobile-nav-surface)] px-3"
+          onTouchStart={(event) => {
+            const touch = event.touches[0];
+            backSwipe.current = event.touches.length === 1 && touch.clientX >= 24 && !(event.target as Element).closest("button")
+              ? { x: touch.clientX, y: touch.clientY }
+              : null;
+          }}
+          onTouchEnd={(event) => {
+            const start = backSwipe.current;
+            backSwipe.current = null;
+            if (!start || event.touches.length || event.changedTouches.length !== 1) return;
+            const touch = event.changedTouches[0];
+            const dx = touch.clientX - start.x;
+            const dy = touch.clientY - start.y;
+            if (dx >= 80 && dx > Math.abs(dy) * 1.5) onClose();
+          }}
+          onTouchCancel={() => { backSwipe.current = null; }}
+        >
+          <button type="button" onClick={onClose} aria-label="Go back" className="min-h-11 shrink-0 rounded-full px-3 text-sm font-semibold text-[var(--mobile-accent-text)] hover:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-primary">‹ Back</button>
           {icon}
           <h1 className="min-w-0 truncate text-base font-semibold">{title}</h1>
         </header>
@@ -281,7 +300,7 @@ export function Window({
       )}
 
       {/* Window content */}
-      <div className={mobile ? "min-h-0 flex-1 overflow-auto overscroll-contain" : "flex-1 overflow-hidden bg-card/90 backdrop-blur-2xl"}>
+      <div className={mobile ? "min-h-0 flex-1 overflow-hidden" : "flex-1 overflow-hidden bg-card/90 backdrop-blur-2xl"}>
         {children}
       </div>
 

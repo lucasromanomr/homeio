@@ -44,7 +44,7 @@ export function AppGrid({
 
   return (
     <section
-      className={cn("min-h-0 flex-1 overflow-y-auto", mobile ? "px-4 pb-4" : "px-6 pt-4 pb-6", className)}
+      className={cn("min-h-0 flex-1", mobile ? "flex flex-col overflow-hidden px-4" : "overflow-y-auto px-6 pt-4 pb-6", className)}
       onClick={controller.closeContextMenu}
     >
       {controller.actionError ? (
@@ -76,7 +76,7 @@ export function AppGrid({
         primaryOperation={controller.primaryOperation}
       />
 
-      {controller.contextMenu ? (
+      {controller.contextMenu && !mobile ? (
         <div
           className="fixed inset-0 z-[219]"
           onClick={controller.closeContextMenu}
@@ -90,6 +90,7 @@ export function AppGrid({
           isBusy={controller.isMenuAppBusy}
           x={controller.contextMenu.x}
           y={controller.contextMenu.y}
+          onClose={mobile ? controller.closeContextMenu : undefined}
           onAction={(action) => {
             void controller.handleMenuAction(action);
           }}

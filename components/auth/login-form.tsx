@@ -21,6 +21,8 @@ const DEFAULT_RETRY_DELAY_SECONDS = 3;
 
 const DEMO_USERNAME = "homeio";
 const DEMO_PASSWORD = "homeio26";
+const CREDENTIAL_ROW = "flex items-center gap-2 rounded-[var(--system-radius-control)] border border-white/6 bg-white/[0.035] px-2 py-1.5 transition-colors hover:bg-white/[0.05] focus-within:ring-2 focus-within:ring-primary/45 handheld:rounded-none handheld:border-0 handheld:bg-transparent handheld:px-3 handheld:py-1 handheld:hover:bg-foreground/5 handheld:focus-within:ring-inset";
+const CREDENTIAL_ICON = "system-icon-surface flex size-9 shrink-0 items-center justify-center bg-white/[0.12] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] handheld:border-0 handheld:bg-transparent handheld:text-[var(--mobile-accent-text)] handheld:shadow-none handheld:backdrop-blur-none";
 
 type LoginStage =
   | { kind: "credentials" }
@@ -209,8 +211,8 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
 
   return (
     <div className="w-full max-w-md text-center">
-      <div className="mx-auto mb-5 flex w-fit flex-col items-center handheld:mx-0 handheld:mb-4 handheld:items-start">
-        <div className="system-hero-surface flex size-[5.5rem] items-center justify-center handheld:size-14 handheld:bg-[var(--mobile-panel)] handheld:shadow-none">
+      <div className="mx-auto mb-5 flex w-fit flex-col items-center">
+        <div className="system-hero-surface flex size-[5.5rem] items-center justify-center handheld:size-16 handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-nav-surface)] handheld:shadow-sm">
           <Image
             src="/icon.png"
             alt="Homeio"
@@ -224,10 +226,10 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
         </div>
       </div>
 
-      <h1 className="text-[1.48rem] font-medium tracking-[-0.03em] text-foreground handheld:text-left handheld:text-3xl">
+      <h1 className="text-[1.48rem] font-medium tracking-[-0.03em] text-foreground handheld:text-[clamp(1.5rem,7vw,2rem)] handheld:font-semibold handheld:text-balance">
         {stage.kind === "credentials" ? "Welcome back" : "Two-step verification"}
       </h1>
-      <p className="mb-5 mt-1 text-[11px] tracking-[0.18em] text-muted-foreground/78 uppercase handheld:text-left handheld:text-sm handheld:tracking-normal handheld:normal-case">
+      <p className="mb-5 mt-1 text-[11px] tracking-[0.18em] text-muted-foreground/78 uppercase handheld:text-sm handheld:tracking-normal handheld:normal-case handheld:text-muted-foreground">
         {stage.kind === "credentials"
           ? "Sign in to continue"
           : stage.useBackupCode
@@ -258,12 +260,12 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
 
       {stage.kind === "credentials" ? (
         <form className="space-y-3" onSubmit={handleCredentialsSubmit}>
-          <div className="system-soft-surface px-2.5 py-2">
-            <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-white/10" />
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2 rounded-[var(--system-radius-control)] border border-white/6 bg-white/[0.035] px-2 py-1.5 transition-colors hover:bg-white/[0.05] focus-within:bg-white/[0.05]">
-                <div className="system-icon-surface flex size-9 shrink-0 items-center justify-center bg-white/[0.12] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                  <UserRound className="size-[1.1rem]" />
+          <div className="system-soft-surface px-2.5 py-2 handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-panel)] handheld:p-0 handheld:shadow-sm">
+            <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-white/10 handheld:hidden" />
+            <div className="space-y-1.5 handheld:space-y-0 handheld:divide-y handheld:divide-[var(--mobile-divider)]">
+              <div className={CREDENTIAL_ROW}>
+                <div className={CREDENTIAL_ICON}>
+                  <UserRound aria-hidden="true" className="size-[1.1rem]" />
                 </div>
                 <input
                   id="username"
@@ -274,15 +276,15 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
                   placeholder="Username"
-                  className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] handheld:h-11 handheld:text-base text-foreground outline-none placeholder:text-muted-foreground/52"
+                  className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] handheld:h-11 handheld:text-base text-foreground outline-none placeholder:text-muted-foreground/52 handheld:placeholder:text-muted-foreground"
                   required
                   autoFocus
                 />
               </div>
 
-              <div className="flex items-center gap-2 rounded-[var(--system-radius-control)] border border-white/6 bg-white/[0.035] px-2 py-1.5 transition-colors hover:bg-white/[0.05] focus-within:bg-white/[0.05]">
-                <div className="system-icon-surface flex size-9 shrink-0 items-center justify-center bg-white/[0.12] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                  <Lock className="size-[1.2rem]" />
+              <div className={CREDENTIAL_ROW}>
+                <div className={CREDENTIAL_ICON}>
+                  <Lock aria-hidden="true" className="size-[1.2rem]" />
                 </div>
                 <input
                   id="password"
@@ -293,7 +295,7 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder="Password"
-                  className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] handheld:h-11 handheld:text-base text-foreground outline-none placeholder:text-muted-foreground/52"
+                  className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] handheld:h-11 handheld:text-base text-foreground outline-none placeholder:text-muted-foreground/52 handheld:placeholder:text-muted-foreground"
                   required
                 />
                 <button
@@ -349,11 +351,11 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
         </form>
       ) : (
         <form className="space-y-3" onSubmit={handleTotpSubmit}>
-          <div className="system-soft-surface px-2.5 py-3">
-            <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-white/10" />
-            <div className="flex items-center gap-2 rounded-[var(--system-radius-control)] border border-white/6 bg-white/[0.035] px-2 py-1.5">
-              <div className="system-icon-surface flex size-9 shrink-0 items-center justify-center bg-white/[0.12] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                <Lock className="size-[1.2rem]" />
+          <div className="system-soft-surface px-2.5 py-3 handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-panel)] handheld:p-0 handheld:shadow-sm">
+            <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-white/10 handheld:hidden" />
+            <div className={CREDENTIAL_ROW}>
+              <div className={CREDENTIAL_ICON}>
+                <Lock aria-hidden="true" className="size-[1.2rem]" />
               </div>
               <input
                 id="totp-code"

@@ -157,6 +157,25 @@ function DesktopShellInner() {
   );
 
   useEffect(() => {
+    if (!isMobile) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const previous = {
+      overflow: html.style.overflow,
+      htmlOverscroll: html.style.overscrollBehavior,
+      bodyOverscroll: body.style.overscrollBehavior,
+    };
+    html.style.overflow = "hidden";
+    html.style.overscrollBehavior = "none";
+    body.style.overscrollBehavior = "none";
+    return () => {
+      html.style.overflow = previous.overflow;
+      html.style.overscrollBehavior = previous.htmlOverscroll;
+      body.style.overscrollBehavior = previous.bodyOverscroll;
+    };
+  }, [isMobile]);
+
+  useEffect(() => {
     if (typeof window === "undefined") return;
     setRecentActions(readRecentCommandActions(window.localStorage));
   }, []);
@@ -686,7 +705,7 @@ function DesktopShellInner() {
   }
 
   return (
-    <div className="relative h-[100dvh] w-full overflow-hidden">
+    <div className={isMobile ? "fixed inset-0 h-[100dvh] w-full overflow-hidden overscroll-none" : "relative h-[100dvh] w-full overflow-hidden"}>
       {/* Wallpaper Background */}
       {!isMobile && <div className="absolute inset-0">
         <div
@@ -761,17 +780,26 @@ function DesktopShellInner() {
 
         {/* Launcher and desktop area */}
         {(!isMobile || !focusedWindow) && <div className={isMobile
-          ? "flex min-h-0 flex-1 flex-col overflow-hidden pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[calc(var(--mobile-nav-height)+env(safe-area-inset-bottom)+1px)] pl-[env(safe-area-inset-left)]"
+          ? "relative isolate flex min-h-0 flex-1 flex-col overflow-hidden pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[calc(var(--mobile-nav-height)+max(0.75rem,env(safe-area-inset-bottom))+0.75rem)] pl-[env(safe-area-inset-left)]"
           : "m-12 flex min-h-0 flex-1 overflow-hidden"}>
-          {isMobile && <header className="flex min-h-16 shrink-0 items-center gap-3 border-b border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4">
+          {isMobile && mobilePage === "home" && displayWallpaper && (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center"
+              style={{ backgroundImage: `linear-gradient(180deg, color-mix(in srgb, var(--mobile-canvas) 81%, transparent), var(--mobile-canvas)), url('${displayWallpaper}')` }}
+            />
+          )}
+          {isMobile && <header className="flex min-h-16 shrink-0 items-center gap-3 px-4">
             <NextImage src="/icon-192.png" alt="" width={36} height={36} className="size-9 rounded-lg" />
             <h1 className="min-w-0 flex-1 text-lg font-semibold tracking-tight">{mobilePage === "more" ? "More" : "Homeio"}</h1>
             {currentUser?.isDemoMode && <span className="text-xs text-foreground/70">Demo</span>}
-            <button type="button" aria-label="Search" onClick={() => { setIsSettingsSearchOpen(true); setSettingsSearchQuery(""); }} className="grid size-11 place-items-center rounded-lg hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"><Search className="size-5" /></button>
-            <button type="button" aria-label="Notifications" onClick={() => openWindow("notifications")} className="grid size-11 place-items-center rounded-lg hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"><Bell className="size-5" /></button>
+            <div className="flex shrink-0 items-center rounded-full border border-[var(--mobile-divider)] bg-[var(--mobile-nav-surface)] backdrop-blur-xl">
+              <button type="button" aria-label="Search" onClick={() => { setIsSettingsSearchOpen(true); setSettingsSearchQuery(""); }} className="grid size-11 place-items-center rounded-full hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-primary"><Search className="size-5 opacity-75 brightness-0 dark:invert" /></button>
+              <button type="button" aria-label="Notifications" onClick={() => openWindow("notifications")} className="grid size-11 place-items-center rounded-full hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-primary"><Bell className="size-5 opacity-75 brightness-0 dark:invert" /></button>
+            </div>
           </header>}
           {isMobile && mobilePage === "more" ? (
-            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <div className="overflow-hidden rounded-xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)]">
                 {([
                   ["settings", "Settings", Settings],
@@ -1036,7 +1064,7 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {isMobile && <nav aria-label="Primary navigation" className="absolute inset-x-0 bottom-0 z-[120] grid grid-cols-5 border-t border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-[env(safe-area-inset-left)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)]">
+        {isMobile && <nav aria-label="Primary navigation" className="absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] right-[max(0.75rem,env(safe-area-inset-right))] z-[120] mx-auto grid max-w-lg grid-cols-5 overflow-hidden rounded-[1.65rem] border border-[var(--mobile-divider)] bg-[var(--mobile-nav-surface)] px-1 shadow-lg backdrop-blur-xl">
           {([
             ["home", "Home", Home], ["files", "Files", FolderOpen],
             ["app-store", "Store", ShoppingBag], ["monitor", "Monitor", Activity],
@@ -1045,7 +1073,14 @@ function DesktopShellInner() {
             const active = focusedWindow === id || (!focusedWindow && mobilePage === id) ||
               (id === "app-store" && focusedWindow === "custom-install") ||
               (id === "more" && ["settings", "disk-manager", "terminal"].includes(focusedWindow ?? ""));
-            return <button key={id} type="button" aria-current={active ? "page" : undefined} onClick={() => selectMobileTab(id)} className={`flex min-h-[var(--mobile-nav-height)] min-w-0 flex-col items-center justify-center gap-1 text-[11px] font-medium focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-orange-400 ${active ? "text-[var(--mobile-accent-text)]" : "text-foreground/70 hover:bg-foreground/10"}`}><Icon className="size-5" aria-hidden="true" />{label}</button>;
+            return (
+              <button key={id} type="button" aria-current={active ? "page" : undefined} onClick={() => selectMobileTab(id)} className={`flex min-h-[var(--mobile-nav-height)] min-w-0 flex-col items-center justify-center gap-1 rounded-[1.4rem] text-[11px] focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-primary ${active ? "font-semibold text-[var(--mobile-accent-text)]" : "font-medium text-foreground/75 hover:bg-foreground/10"}`}>
+                <span className={`flex h-7 min-w-10 items-center justify-center rounded-full ${active ? "bg-primary/15" : ""}`}>
+                  <Icon className={`size-5 ${id === "files" ? "" : "opacity-75 brightness-0 dark:invert"}`} aria-hidden="true" />
+                </span>
+                {label}
+              </button>
+            );
           })}
         </nav>}
 
