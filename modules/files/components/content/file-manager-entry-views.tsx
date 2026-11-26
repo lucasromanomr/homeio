@@ -122,7 +122,7 @@ export function FileGrid({
 
   return (
     <>
-      <div className="mb-2 flex justify-end md:hidden handheld:flex"><button type="button" aria-pressed={selecting} onClick={() => setSelecting((value) => !value)} className="min-h-11 rounded-lg px-3 text-sm font-medium text-primary transition-colors active:bg-foreground/10">{selecting ? "Done selecting" : "Select"}</button></div>
+      <div className="flex justify-end md:hidden handheld:flex"><button type="button" aria-pressed={selecting} onClick={() => setSelecting((value) => !value)} className="min-h-11 rounded-lg px-3 text-sm font-medium text-primary transition-colors active:bg-foreground/10">{selecting ? "Done selecting" : "Select"}</button></div>
       <div className="grid grid-cols-1 gap-0 md:grid-cols-4 md:gap-3 lg:grid-cols-5 handheld:grid-cols-1 handheld:gap-0">
         {visible.map((entry) => {
           const isImage = entry.type === "file" && IMAGE_EXTS.has((entry.ext ?? "").toLowerCase());
@@ -158,10 +158,10 @@ export function FileGrid({
                 )}
               </div>
               <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 md:w-full md:items-center handheld:items-start">
-                <span className="line-clamp-2 break-all text-sm font-medium leading-tight text-foreground md:text-center handheld:text-left">
+                <span className="line-clamp-2 break-words text-sm font-medium leading-tight md:break-all handheld:break-words text-foreground md:text-center handheld:text-left">
                   {entry.name}
                 </span>
-                <span className="font-mono text-xs text-muted-foreground md:hidden handheld:block">
+                <span className="max-w-full truncate font-mono text-xs text-muted-foreground md:hidden handheld:block">
                   {[entry.type === "folder" ? "Folder" : entry.size, entry.modified].filter(Boolean).join(" · ")}
                 </span>
                 {entry.size && <span className="hidden text-2xs text-muted-foreground/60 md:block handheld:hidden">{entry.size}</span>}
@@ -238,7 +238,7 @@ export function FileList({
             ) : (
               getFileIcon(entry)
             )}
-            <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-foreground">{entry.name}</span><span className="block font-mono text-xs text-muted-foreground md:hidden handheld:block">{[entry.type === "folder" ? "Folder" : entry.size, entry.modified].filter(Boolean).join(" · ")}</span></span>
+            <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-foreground">{entry.name}</span><span className="block max-w-full truncate font-mono text-xs text-muted-foreground md:hidden handheld:block">{[entry.type === "folder" ? "Folder" : entry.size, entry.modified].filter(Boolean).join(" · ")}</span></span>
             {entry.starred && pendingEntryPath !== entry.path && (
               <Star className="size-3 shrink-0 fill-amber-400 text-amber-400" />
             )}

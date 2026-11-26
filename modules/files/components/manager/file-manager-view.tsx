@@ -211,7 +211,7 @@ export function FileManagerView({
         dispatch({ type: "HIDE_BACKGROUND_CONTEXT_MENU" });
       }}
     >
-      <div className="flex shrink-0 items-center gap-2 px-2 pt-2 md:hidden handheld:flex">
+      <div className="flex shrink-0 items-center gap-2 px-4 pt-3 max-[360px]:px-3 md:hidden handheld:flex">
         <button type="button" onClick={() => setShowLocations((shown) => !shown)} aria-expanded={showLocations} aria-controls="file-locations" className="min-h-11 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors active:bg-foreground/10">{showLocations ? "Close locations" : "Locations"}</button>
         {!activeDriveConnection && !isTrashView && !isStarredView && <button type="button" onClick={onPositionBackgroundContextMenu} className="min-h-11 rounded-lg border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] px-4 text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors active:bg-foreground/10">New / Paste</button>}
       </div>
@@ -235,14 +235,14 @@ export function FileManagerView({
       />
       </div>
       {activeDriveConnection ? (
-        <div className={`m-2 min-w-0 flex-1 overflow-hidden ${FILES_PANEL_SHELL}`}>
+        <div className={`mx-4 mb-2 mt-2 min-w-0 flex-1 overflow-hidden max-[360px]:mx-3 md:m-2 handheld:mx-4 max-[360px]:handheld:mx-3 ${FILES_PANEL_SHELL}`}>
           <GoogleDrivePanel
             connectionId={activeDriveConnection.id}
             accountEmail={activeDriveConnection.email}
           />
         </div>
       ) : (
-      <div className={`m-2 flex min-h-0 min-w-0 flex-1 flex-col ${FILES_PANEL_SHELL}`}>
+      <div className={`mx-4 mb-2 mt-2 flex min-h-0 min-w-0 flex-1 flex-col max-[360px]:mx-3 md:m-2 handheld:mx-4 max-[360px]:handheld:mx-3 ${FILES_PANEL_SHELL}`}>
         <FileManagerToolbar
           canNavigateUp={currentPath.length > 0}
           currentEntriesCount={currentEntriesCount}

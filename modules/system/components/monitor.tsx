@@ -224,9 +224,9 @@ function DiskUsageCard({ storage }: { storage: SystemMetricsSnapshot["storage"] 
 
 function InfoRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
-    <div className="flex items-center justify-between py-2">
+    <div className="flex items-center justify-between py-2 handheld:items-start handheld:gap-3">
       <span className="text-xs text-muted-foreground">{label}</span>
-      <span className={cn("text-xs font-medium text-foreground", mono && "font-mono")}>{value}</span>
+      <span className={cn("text-xs font-medium text-foreground handheld:min-w-0 handheld:break-all handheld:text-right", mono && "font-mono")}>{value}</span>
     </div>
   );
 }
@@ -342,8 +342,8 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <section aria-label="System overview" className="hidden min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[var(--mobile-canvas)] p-4 text-foreground [scrollbar-width:none] handheld:block">
-        <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <h2 className="min-w-0 break-words text-lg font-semibold tracking-tight">{systemMetrics?.hostname ?? "System overview"}</h2>
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h2 className="min-w-0 break-all text-lg font-semibold tracking-tight">{systemMetrics?.hostname ?? "System overview"}</h2>
           {systemMetrics && <span className="text-xs text-muted-foreground">Latest reading</span>}
         </div>
         {systemMetrics ? (
@@ -355,12 +355,12 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
             ].map(({ label, percent, detail }, index) => {
               const hasReading = typeof percent === "number" && Number.isFinite(percent);
               return (
-                <div key={label} className={cn("min-w-0 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-3", index === 0 && "col-span-2 bg-[linear-gradient(115deg,var(--mobile-panel),color-mix(in_srgb,var(--primary)_13%,var(--mobile-panel)))] p-4")}>
+                <div key={label} className={cn("min-w-0 rounded-2xl border border-[var(--mobile-divider)] bg-[var(--mobile-panel)] p-3", index === 0 && "col-span-2 bg-[linear-gradient(115deg,var(--mobile-panel),color-mix(in_srgb,var(--primary)_13%,var(--mobile-panel)))] p-3.5")}>
                   <dt className="text-sm font-medium">{label}</dt>
-                  <dd className={cn("mt-2 break-words font-mono text-xl font-semibold tracking-tight tabular-nums", index === 0 && hasReading && "text-[clamp(2rem,10vw,3.25rem)] leading-none text-[var(--mobile-accent-text)]", !hasReading && "text-sm text-muted-foreground")}>
+                  <dd className={cn("mt-2 break-words font-mono text-xl font-semibold tracking-tight tabular-nums", index === 0 && hasReading && "text-[clamp(2rem,9vw,2.75rem)] leading-none text-[var(--mobile-accent-text)]", !hasReading && "text-sm text-muted-foreground")}>
                     {hasReading ? `${percent.toFixed(1)}%` : "Unavailable"}
                   </dd>
-                  {hasReading && <dd aria-hidden="true" className="mt-3 h-1 overflow-hidden rounded-full bg-[var(--mobile-divider)]">
+                  {hasReading && <dd aria-hidden="true" className="mt-2.5 h-1 overflow-hidden rounded-full bg-[var(--mobile-divider)]">
                     <div className="h-full rounded-full bg-[var(--mobile-accent-text)]" style={{ width: `${Math.min(100, Math.max(0, percent))}%` }} />
                   </dd>}
                   {detail && <dd className="mt-2 break-words text-xs text-muted-foreground">{detail}</dd>}

@@ -97,7 +97,6 @@ export function SettingsPanel({
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col md:flex-row handheld:!flex-col">
       <nav aria-label="Settings sections" className={cn("min-h-0 flex-1 overflow-y-auto px-4 pb-5 pt-3 md:hidden handheld:!block", !mobileNavigation.open && "handheld:!hidden hidden")}>
-        <h2 className="mb-3 font-mono text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Settings</h2>
         {SIDEBAR_GROUPS.map((group) => {
           const sections = sectionDefinitions.filter((section) => group.ids.includes(section.id as SettingsSectionId));
           if (!sections.length) return null;
@@ -189,17 +188,17 @@ export function SettingsPanel({
       </aside>
 
       <main className={cn("min-h-0 min-w-0 flex-1 overflow-y-auto md:block", mobileNavigation.open && "hidden handheld:!hidden")}>
-        <div className="min-w-0 max-w-2xl p-4 md:p-5">
-          <button type="button" onClick={() => setMobileNavigation({ requested: selectedSection, open: true })} className="mb-2 inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-primary transition-colors hover:text-primary/80 active:bg-foreground/10 focus-visible:outline-primary md:hidden handheld:!inline-flex">
+        <div className="min-w-0 max-w-2xl p-4 md:p-5 handheld:!p-4">
+          <button type="button" onClick={() => setMobileNavigation({ requested: selectedSection, open: true })} className="-ml-2 mb-1 inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-primary transition-colors hover:text-primary/80 active:bg-foreground/10 focus-visible:outline-primary md:hidden handheld:!inline-flex">
             <ChevronLeftIcon className="size-4" aria-hidden="true" /> All settings
           </button>
-          <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3 md:mb-4 handheld:!mb-3">
             <h2 className="text-base font-semibold text-foreground">
               {activeDefinition.label}
             </h2>
             {!activeDefinition.liveApply && activeDefinition.save ? (
               <button
-                className="min-h-11 px-3 py-1.5 text-xs font-medium rounded-lg md:min-h-0 bg-primary text-primary-foreground transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 enabled:hover:bg-primary/90"
+                className="min-h-11 px-3 py-1.5 text-xs font-medium rounded-lg md:min-h-0 handheld:!min-h-11 bg-primary text-primary-foreground transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 enabled:hover:bg-primary/90"
                 disabled={!activeDefinition.save.canSave}
                 title={activeDefinition.save.title}
                 onClick={() => {
