@@ -194,7 +194,7 @@ function MobileApp({ app, active, list = false, onOpenApp, onAppContextMenu }: {
       >
         {icon}
         <span className={list ? "min-w-0 flex-1" : "w-full min-w-0 text-center"}>
-          <span className={list ? "block break-words text-sm font-medium text-foreground" : "line-clamp-2 text-xs font-medium leading-tight text-foreground"}>{app.name}</span>
+          <span className={list ? "block break-words text-sm font-medium text-foreground" : "line-clamp-2 text-xs font-medium leading-tight text-foreground [overflow-wrap:anywhere]"}>{app.name}</span>
           {list && <span className="block text-xs text-muted-foreground">{visual.title}{app.updateAvailable && app.status === "running" ? " · Update available" : ""}</span>}
         </span>
       </button>

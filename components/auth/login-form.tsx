@@ -10,7 +10,7 @@ import {
   UserRound,
 } from "@/components/icons/platform-icons";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import type {
   LoginResponseData,
   TwoFactorErrorCode,
@@ -22,7 +22,7 @@ const DEFAULT_RETRY_DELAY_SECONDS = 3;
 const DEMO_USERNAME = "homeio";
 const DEMO_PASSWORD = "homeio26";
 const CREDENTIAL_ROW = "flex items-center gap-2 rounded-[var(--system-radius-control)] border border-white/6 bg-white/[0.035] px-2 py-1.5 transition-colors hover:bg-white/[0.05] focus-within:ring-2 focus-within:ring-primary/45 handheld:rounded-none handheld:border-0 handheld:bg-transparent handheld:px-3 handheld:py-1 handheld:hover:bg-foreground/5 handheld:focus-within:ring-inset";
-const CREDENTIAL_ICON = "system-icon-surface flex size-9 shrink-0 items-center justify-center bg-white/[0.12] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] handheld:border-0 handheld:bg-transparent handheld:text-[var(--mobile-accent-text)] handheld:shadow-none handheld:backdrop-blur-none";
+const CREDENTIAL_ICON = "system-icon-surface flex size-9 shrink-0 items-center justify-center bg-white/[0.12] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] handheld:border-0! handheld:bg-transparent! handheld:shadow-none! handheld:backdrop-blur-none! handheld:[&_img]:opacity-75 handheld:[&_img]:brightness-0 handheld:dark:[&_img]:invert";
 
 type LoginStage =
   | { kind: "credentials" }
@@ -69,6 +69,11 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
   const [retryCountdown, setRetryCountdown] = useState(0);
   const [stage, setStage] = useState<LoginStage>({ kind: "credentials" });
   const [totpCode, setTotpCode] = useState("");
+  const focusOnDesktop = useCallback((input: HTMLInputElement | null) => {
+    if (!window.matchMedia?.("(width < 48rem), (pointer: coarse) and (hover: none)").matches) {
+      input?.focus({ preventScroll: true });
+    }
+  }, []);
 
   useEffect(() => {
     try {
@@ -212,7 +217,7 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
   return (
     <div className="w-full max-w-md text-center">
       <div className="mx-auto mb-5 flex w-fit flex-col items-center">
-        <div className="system-hero-surface flex size-[5.5rem] items-center justify-center handheld:size-16 handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-nav-surface)] handheld:shadow-sm">
+        <div className="system-hero-surface flex size-[5.5rem] items-center justify-center handheld:size-16 handheld:border-[var(--mobile-divider)]! handheld:bg-[var(--mobile-nav-surface)]! handheld:shadow-sm!">
           <Image
             src="/icon.png"
             alt="Homeio"
@@ -260,7 +265,7 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
 
       {stage.kind === "credentials" ? (
         <form className="space-y-3" onSubmit={handleCredentialsSubmit}>
-          <div className="system-soft-surface px-2.5 py-2 handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-panel)] handheld:p-0 handheld:shadow-sm">
+          <div className="system-soft-surface px-2.5 py-2 handheld:border-[var(--mobile-divider)]! handheld:bg-[var(--mobile-panel)]! handheld:p-0 handheld:shadow-sm!">
             <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-white/10 handheld:hidden" />
             <div className="space-y-1.5 handheld:space-y-0 handheld:divide-y handheld:divide-[var(--mobile-divider)]">
               <div className={CREDENTIAL_ROW}>
@@ -278,7 +283,7 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
                   placeholder="Username"
                   className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] handheld:h-11 handheld:text-base text-foreground outline-none placeholder:text-muted-foreground/52 handheld:placeholder:text-muted-foreground"
                   required
-                  autoFocus
+                  ref={focusOnDesktop}
                 />
               </div>
 
@@ -309,9 +314,9 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
                   }
                 >
                   {isPasswordVisible ? (
-                    <EyeOff className="size-4" />
+                    <EyeOff className="size-4 handheld:opacity-75 handheld:brightness-0 handheld:dark:invert" />
                   ) : (
-                    <Eye className="size-4" />
+                    <Eye className="size-4 handheld:opacity-75 handheld:brightness-0 handheld:dark:invert" />
                   )}
                 </button>
               </div>
@@ -351,7 +356,7 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
         </form>
       ) : (
         <form className="space-y-3" onSubmit={handleTotpSubmit}>
-          <div className="system-soft-surface px-2.5 py-3 handheld:border-[var(--mobile-divider)] handheld:bg-[var(--mobile-panel)] handheld:p-0 handheld:shadow-sm">
+          <div className="system-soft-surface px-2.5 py-3 handheld:border-[var(--mobile-divider)]! handheld:bg-[var(--mobile-panel)]! handheld:p-0 handheld:shadow-sm!">
             <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-white/10 handheld:hidden" />
             <div className={CREDENTIAL_ROW}>
               <div className={CREDENTIAL_ICON}>
@@ -368,7 +373,7 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
                 onChange={(event) => setTotpCode(event.target.value)}
                 placeholder={stage.useBackupCode ? "Backup code" : "123 456"}
                 className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] tracking-[0.2em] text-foreground outline-none placeholder:text-muted-foreground/52"
-                autoFocus
+                ref={focusOnDesktop}
                 required
               />
             </div>
