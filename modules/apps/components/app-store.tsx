@@ -182,15 +182,15 @@ function CatalogSidebar({
   onSelectSource: (sourceId: string) => void;
 }) {
   return (
-    <aside className={cn("m-2 flex w-48 shrink-0 flex-col overflow-y-auto px-2 py-3", STORE_PANEL_SHELL)}>
-      <label className="mb-3 flex flex-col gap-1.5 px-3">
+    <aside className={cn("m-2 flex min-w-0 shrink-0 flex-row gap-2 px-2 py-2 md:w-48 md:flex-col md:gap-0 md:overflow-y-auto md:py-3", STORE_PANEL_SHELL)}>
+      <label className="flex min-w-0 flex-1 flex-col gap-1.5 md:mb-3 md:flex-none md:px-3">
         <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50">
           Source
         </span>
         <select
           value={selectedSourceId}
           onChange={(event) => onSelectSource(event.target.value)}
-          className="w-full rounded-lg border border-glass-border bg-background/55 px-2 py-1.5 text-xs text-foreground focus-visible:outline-primary"
+          className="min-h-11 w-full rounded-lg border border-glass-border bg-background px-2 py-1.5 text-xs text-foreground focus-visible:outline-primary md:min-h-0 md:bg-background/55"
         >
           <option value="">All Sources</option>
           {sources.map((source) => (
@@ -199,10 +199,25 @@ function CatalogSidebar({
           <option value={CUSTOM_STORE_SOURCE_ID}>Custom</option>
         </select>
       </label>
-      <div className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50">
+      <label className="flex min-w-0 flex-1 flex-col gap-1.5 md:hidden">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50">Category</span>
+        <select
+          value={selectedCategory ?? ""}
+          onChange={(event) => onSelectCategory(event.target.value || null)}
+          className="min-h-11 w-full rounded-lg border border-glass-border bg-background px-2 text-xs text-foreground focus-visible:outline-primary"
+        >
+          <option value="">All Apps</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.name}>
+              {cat.name} ({selectedSourceId ? (cat.appCountBySource[selectedSourceId] ?? 0) : cat.appCount})
+            </option>
+          ))}
+        </select>
+      </label>
+      <div className="mb-1 hidden px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/50 md:block">
         Categories
       </div>
-      <div className="flex flex-col gap-0.5">
+      <div className="hidden flex-col gap-0.5 md:flex">
         <button
           type="button"
           onClick={() => onSelectCategory(null)}
@@ -424,7 +439,7 @@ function AppStoreDetailPanel({
   const busy = isOperationBusy(operation);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-0 min-w-0 flex-col">
       {/* Nav bar */}
       <div className="shrink-0 border-b border-glass-border/60 px-4 py-2.5">
         <button
@@ -449,7 +464,7 @@ function AppStoreDetailPanel({
           <div className="space-y-5 p-5">
 
             {/* App header */}
-            <div className="flex items-start gap-4">
+            <div className="flex flex-wrap items-start gap-4 md:flex-nowrap">
               {/* Logo */}
               <div className={cn(STORE_PANEL_INSET, "flex size-16 shrink-0 items-center justify-center overflow-hidden")}>
                 <StoreLogo logoUrl={detail.logoUrl} alt={detail.name} className="size-9 object-contain" />
@@ -487,14 +502,14 @@ function AppStoreDetailPanel({
               </div>
 
               {/* Actions */}
-              <div className="flex shrink-0 flex-col items-stretch gap-1.5 w-28">
+              <div className="flex w-full shrink-0 flex-row flex-wrap items-stretch gap-1.5 md:w-28 md:flex-col">
                 {actionError && <p className="text-center text-2xs leading-tight text-status-red">{actionError}</p>}
 
                 {detail.status === "not_installed" ? (
                   <button
                     onClick={onInstall}
                     disabled={busy}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex min-h-11 flex-1 items-center justify-center gap-1.5 md:min-h-0 md:w-full md:flex-none rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Download className="size-3.5" /> Install
                   </button>
@@ -503,7 +518,7 @@ function AppStoreDetailPanel({
                     <button
                       onClick={onUpdate}
                       disabled={busy}
-                      className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="flex min-h-11 flex-1 items-center justify-center gap-1.5 md:min-h-0 md:w-full md:flex-none rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <ArrowUpCircle className="size-3.5" /> Update
                     </button>
@@ -513,7 +528,7 @@ function AppStoreDetailPanel({
                     href={resolveStoreDetailUrl(detail) ?? undefined}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-all hover:brightness-110"
+                    className="flex min-h-11 flex-1 items-center justify-center gap-1.5 md:min-h-0 md:w-full md:flex-none rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-all hover:brightness-110"
                   >
                     <ExternalLink className="size-3.5" /> Open
                   </a>
@@ -522,7 +537,7 @@ function AppStoreDetailPanel({
                 <button
                   onClick={onCustomInstall}
                   disabled={busy}
-                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-glass-border bg-background/55 px-3 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex min-h-11 flex-1 items-center justify-center gap-1.5 md:min-h-0 md:w-full md:flex-none rounded-lg border border-glass-border bg-background/55 px-3 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Wrench className="size-3.5" /> Custom
                 </button>
@@ -531,7 +546,7 @@ function AppStoreDetailPanel({
                   <button
                     onClick={onRemoveCustom}
                     disabled={busy || removingCustom}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-status-red/30 bg-status-red/8 px-3 py-2 text-xs font-medium text-status-red transition-colors hover:bg-status-red/15 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex min-h-11 flex-1 items-center justify-center gap-1.5 md:min-h-0 md:w-full md:flex-none rounded-lg border border-status-red/30 bg-status-red/8 px-3 py-2 text-xs font-medium text-status-red transition-colors hover:bg-status-red/15 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Trash2 className="size-3.5" />
                     {removingCustom ? "Removing…" : "Remove"}
@@ -542,7 +557,7 @@ function AppStoreDetailPanel({
                   <button
                     onClick={onUninstall}
                     disabled={busy}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-status-red/30 bg-status-red/8 px-3 py-2 text-xs font-medium text-status-red transition-colors hover:bg-status-red/15 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex min-h-11 flex-1 items-center justify-center gap-1.5 md:min-h-0 md:w-full md:flex-none rounded-lg border border-status-red/30 bg-status-red/8 px-3 py-2 text-xs font-medium text-status-red transition-colors hover:bg-status-red/15 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Trash2 className="size-3.5" /> Uninstall
                   </button>
@@ -851,7 +866,7 @@ export function AppStore({
         />
         {customInstallTemplate && (
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm">
-            <div className={cn("relative h-[50vh] w-[min(96vw,980px)] overflow-hidden", STORE_PANEL_SHELL)}>
+            <div className={cn("relative h-[min(85dvh,900px)] w-full overflow-hidden md:h-[50vh] md:w-[min(96vw,980px)]", STORE_PANEL_SHELL)}>
               <AppConfiguratorPanel
                 context="catalog_install"
                 template={customInstallTemplate}
@@ -868,9 +883,9 @@ export function AppStore({
 
   // ── Catalog view ─────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-0 min-w-0 flex-col">
       {/* Header */}
-      <div className={cn("relative z-10 m-2 flex shrink-0 items-center gap-3 px-4 py-2.5", STORE_PANEL_SHELL)}>
+      <div className={cn("relative z-10 m-2 flex shrink-0 flex-wrap items-center gap-2 px-3 py-2 md:flex-nowrap md:gap-3 md:px-4 md:py-2.5", STORE_PANEL_SHELL)}>
         {/* Filter tabs */}
         <div className="flex items-center gap-0.5">
           {(["all", "installed"] as const).map((f) => (
@@ -879,7 +894,7 @@ export function AppStore({
               type="button"
               onClick={() => setFilter(f)}
               className={cn(
-                "rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors",
+                "min-h-11 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors md:min-h-0",
                 filter === f ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-background/50 hover:text-foreground",
               )}
             >
@@ -896,14 +911,14 @@ export function AppStore({
         />
 
         {/* Search */}
-        <div className="relative w-52">
+        <div className="relative order-last w-full md:order-none md:w-52">
           <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/60" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search apps…"
-            className="w-full rounded-lg border border-glass-border bg-background/55 py-1.5 pl-8 pr-3 text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40"
+            className="min-h-11 w-full rounded-lg border border-glass-border bg-background/55 py-1.5 pl-8 pr-3 md:min-h-0 text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40"
           />
         </div>
       </div>
@@ -928,7 +943,7 @@ export function AppStore({
         onRemoveSource={async (sourceId) => { await removeSource.mutateAsync(sourceId); }}
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:flex-row">
         <CatalogSidebar
           categories={categories}
           selectedCategory={selectedCategory}
@@ -938,7 +953,7 @@ export function AppStore({
           onSelectSource={setSelectedSourceId}
         />
 
-        <div className={cn("m-2 flex-1 overflow-y-auto p-4", STORE_PANEL_SHELL)}>
+        <div className={cn("m-2 mt-0 min-h-0 min-w-0 flex-1 overflow-y-auto p-3 md:mt-2 md:p-4", STORE_PANEL_SHELL)}>
           {actionError && (
             <div className="mb-3 rounded-lg border border-status-red/30 bg-status-red/10 px-3 py-2 text-xs text-status-red">
               {actionError}

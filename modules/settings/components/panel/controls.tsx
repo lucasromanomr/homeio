@@ -84,7 +84,7 @@ export function Toggle({
   const availability = useControlAvailability(disabled, disabledReason);
 
   return (
-    <div className="flex items-center justify-between py-3">
+    <div className="flex items-center justify-between gap-3 py-3">
       <div className="flex flex-col gap-0.5">
         <span className="text-sm text-foreground">{label}</span>
         {description ? (
@@ -154,7 +154,7 @@ export function SettingsInput({
       ) : null}
       <ControlDisabledHint text={availability.disabledReason} />
       <div className="flex items-center gap-2">
-        <div className="relative flex-1">
+        <div className="relative min-w-0 flex-1">
           <input
             type={isPassword && !showPassword ? "password" : "text"}
             value={value}
@@ -165,7 +165,7 @@ export function SettingsInput({
               if (!onChange || isReadOnly || availability.disabled) return;
               onChange(event.target.value);
             }}
-            className="h-8 w-full rounded-lg border border-glass-border bg-background/55 px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all focus:border-primary/40 focus:outline-none read-only:opacity-60 disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-11 w-full rounded-lg md:min-h-0 md:h-8 border border-glass-border bg-background/55 px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all focus:border-primary/40 focus:outline-none read-only:opacity-60 disabled:cursor-not-allowed disabled:opacity-50"
           />
           {isPassword ? (
             <button
@@ -248,7 +248,7 @@ export function SettingsSelect({
             }
           : { value })}
         disabled={availability.disabled}
-        className="h-8 cursor-pointer appearance-none rounded-lg border border-glass-border bg-background/55 px-3 text-xs text-foreground transition-all focus:border-primary/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        className="min-h-11 w-full cursor-pointer appearance-none md:min-h-0 md:h-8 rounded-lg border border-glass-border bg-background/55 px-3 text-xs text-foreground transition-all focus:border-primary/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {options.map((option) => (
           <option key={option} value={option}>

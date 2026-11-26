@@ -342,7 +342,7 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex shrink-0 items-center gap-3 border-b border-glass-border/60 px-4 py-2.5">
+      <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-glass-border/60 px-4 py-2.5">
         <div className="flex items-center gap-0.5">
           {TABS.map((t) => (
             <button
@@ -363,7 +363,7 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
         <div className="flex-1" />
 
         {tab === "processes" && (
-          <div className="relative w-52">
+          <div className="relative w-full md:w-52">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/60" />
             <input
               value={query}
@@ -379,7 +379,7 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
       {tab === "processes" && (
         <div className="flex-1 overflow-y-auto p-3">
           {/* Metric summary */}
-          <div className="mb-3 grid grid-cols-4 gap-2">
+          <div className="mb-3 grid grid-cols-2 gap-2 md:grid-cols-4">
             <MetricCard
               label="CPU"
               icon={Cpu}
@@ -433,7 +433,7 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
             </span>
             <RangeSwitch range={range} onChange={setRange} />
           </div>
-          <div className="mb-3 grid grid-cols-2 gap-2">
+          <div className="mb-3 grid grid-cols-1 gap-2 md:grid-cols-2">
             <HistoryCard
               icon={Cpu}
               title="CPU"
@@ -515,7 +515,7 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
               )}
             </div>
 
-            <div className="grid grid-cols-[2.2fr_0.7fr_0.8fr_0.8fr_0.8fr_0.8fr] gap-2 border-b border-glass-border/40 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50">
+            <div className="overflow-x-auto"><div className="min-w-[650px]"><div className="grid grid-cols-[2.2fr_0.7fr_0.8fr_0.8fr_0.8fr_0.8fr] gap-2 border-b border-glass-border/40 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50">
               <span>Container</span>
               <span>Status</span>
               {(["cpu", "memory", "network", "disk"] as SortKey[]).map((key, i) => (
@@ -567,6 +567,7 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
                 ))}
               </div>
             )}
+            </div></div>
           </div>
         </div>
       )}
@@ -622,7 +623,7 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
                 {diskMonitor.data?.unavailableReason ?? "No disks found"}
               </p>
             ) : (
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                 {diskMonitor.data.disks.map((disk) => (
                   <DiskMonitorCard key={disk.name} disk={disk} inContainer={diskMonitor.data?.inContainer} />
                 ))}
@@ -636,7 +637,7 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
       {tab === "network" && (
         <div className="flex-1 overflow-y-auto p-3">
           <div className="flex flex-col gap-2">
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
               <MetricCard
                 label="Download"
                 icon={ArrowDown}
@@ -714,7 +715,7 @@ export function Monitor({ onOpenDiskManager }: MonitorProps = {}) {
             ) : activeInterfaces.length === 0 ? (
               <p className={cn(PANEL_INSET, "px-4 py-4 text-xs text-muted-foreground/60")}>No active network interface</p>
             ) : (
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                 {activeInterfaces.map((iface) => (
                   <NetworkInterfaceCard
                     key={iface.iface}

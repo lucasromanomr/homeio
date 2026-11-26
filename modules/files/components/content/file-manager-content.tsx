@@ -55,6 +55,7 @@ type FileManagerFileAreaProps = {
   onDrop: DragEventHandler<HTMLDivElement>;
   onEntryClick: (event: MouseEvent, entry: FileEntry) => void;
   onEntryContextMenu: (event: MouseEvent, entry: FileEntry) => void;
+  onToggleSelection: (entry: FileEntry) => void;
   onLoadMoreSearch: () => void;
   onOpenEntry: (entry: FileEntry) => void;
   onSaveOpenFile: () => void;
@@ -84,6 +85,7 @@ export function FileManagerFileArea({
   onDrop,
   onEntryClick,
   onEntryContextMenu,
+  onToggleSelection,
   onLoadMoreSearch,
   onOpenEntry,
   onSaveOpenFile,
@@ -127,6 +129,7 @@ export function FileManagerFileArea({
         isTrashView,
         onEntryClick,
         onEntryContextMenu,
+        onToggleSelection,
         onLoadMoreSearch,
         onOpenEntry,
         pendingEntryPath,
@@ -172,6 +175,7 @@ function renderBrowserState({
   isTrashView,
   onEntryClick,
   onEntryContextMenu,
+  onToggleSelection,
   onLoadMoreSearch,
   onOpenEntry,
   pendingEntryPath,
@@ -270,6 +274,7 @@ function renderBrowserState({
         titleFromPath={isGlobalSearchActive}
         onEntryClick={onEntryClick}
         onEntryContextMenu={onEntryContextMenu}
+        onToggleSelection={onToggleSelection}
         onOpenEntry={onOpenEntry}
       />
     ) : (
@@ -281,6 +286,7 @@ function renderBrowserState({
         selectedFiles={selectedFiles}
         onEntryClick={onEntryClick}
         onEntryContextMenu={onEntryContextMenu}
+        onToggleSelection={onToggleSelection}
         onOpenEntry={onOpenEntry}
       />
     );

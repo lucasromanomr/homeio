@@ -23,7 +23,7 @@ export function NotificationsPanel() {
   return (
     <div className="flex h-full flex-col bg-background/60">
       {/* Toolbar */}
-      <div className="flex shrink-0 items-center justify-between border-b border-glass-border/60 px-4 py-3">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-glass-border/60 px-4 py-3">
         <div className="flex items-center gap-1 rounded-lg border border-glass-border/60 bg-background/40 p-0.5">
           {(["all", "unread"] as Filter[]).map((f) => (
             <button
@@ -94,15 +94,15 @@ export function NotificationsPanel() {
                   )}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className={cn("text-sm font-medium", n.read ? "text-muted-foreground" : "text-foreground")}>
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
+                    <span className={cn("break-words text-sm font-medium", n.read ? "text-muted-foreground" : "text-foreground")}>
                       {n.title}
                     </span>
                     <span className="shrink-0 text-xs text-muted-foreground/60">
                       {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-sm text-muted-foreground">{n.body}</p>
+                  <p className="mt-0.5 break-words text-sm text-muted-foreground">{n.body}</p>
                 </div>
               </li>
             ))}

@@ -193,7 +193,7 @@ export function RegisterForm() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Admin username"
-                    className="h-10 w-full border-0 bg-transparent px-1 text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
+                    className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
                     required
                     autoFocus
                   />
@@ -211,7 +211,7 @@ export function RegisterForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="New password"
-                    className="h-10 w-full border-0 bg-transparent px-1 text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
+                    className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
                     required
                   />
                   <button
@@ -236,7 +236,7 @@ export function RegisterForm() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm new password"
-                    className="h-10 w-full border-0 bg-transparent px-1 text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
+                    className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
                     required
                   />
                   <button

@@ -383,6 +383,14 @@ describe("SettingsPanel", () => {
     expect(screen.queryByText("Auto-start services on boot")).toBeNull();
   });
 
+  it("navigates settings through the mobile category selector", () => {
+    render(
+      <SettingsPanel appearance={appearance} wallpaperOptions={[]} accentOptions={[]} onAppearanceChange={() => {}} />,
+    );
+    fireEvent.change(screen.getByRole("combobox", { name: "Settings category" }), { target: { value: "network" } });
+    expect(screen.getByRole("heading", { name: "Network" })).toBeTruthy();
+  });
+
   it("renders Network disconnected state", () => {
     const backend = createBackendMock();
     backend.network.connected = false;

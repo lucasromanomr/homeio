@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 type WindowProps = {
   title: string;
+  mobile?: boolean;
   icon?: React.ReactNode;
   children: React.ReactNode;
   onClose: () => void;
@@ -29,6 +30,7 @@ const SIDE_DOCK_CLEARANCE = 80;
 
 export function Window({
   title,
+  mobile = false,
   icon,
   children,
   onClose,
@@ -54,13 +56,13 @@ export function Window({
 
   // Center on mount
   useEffect(() => {
-    if (position.x === -1) {
+    if (!mobile && position.x === -1) {
       setPosition({
         x: Math.max(40, (window.innerWidth - size.w) / 2),
         y: Math.max(50, (window.innerHeight - size.h) / 2 - 20),
       });
     }
-  }, [position.x, size.w, size.h]);
+  }, [mobile, position.x, size.w, size.h]);
 
   useEffect(() => {
     if (!animationsEnabled) {
@@ -179,7 +181,20 @@ export function Window({
             height: "auto",
           };
 
-  if (isMinimized) return null;
+  if (isMinimized && !mobile) return null;
+
+  if (mobile) {
+    return (
+      <section aria-label={title} className="absolute inset-0 z-[110] flex min-h-0 flex-col overflow-hidden bg-card pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]">
+        <header className="flex min-h-14 shrink-0 items-center gap-3 border-b border-glass-border px-3">
+          <button type="button" onClick={onClose} aria-label="Go back" className="min-h-11 rounded-lg px-2 text-sm text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">‹ Back</button>
+          {icon}
+          <h1 className="min-w-0 truncate text-base font-semibold">{title}</h1>
+        </header>
+        <div className="min-h-0 flex-1 overflow-auto overscroll-contain">{children}</div>
+      </section>
+    );
+  }
 
   return (
     <div

@@ -64,12 +64,12 @@ export function LockScreen({
   }
 
   return (
-    <div className="fixed inset-0 z-[500]">
+    <div className="fixed inset-0 z-[500] overflow-y-auto">
       <FullScreenShell
         wallpaper={wallpaper}
         topRight={
           <button
-            className="system-dock-surface flex size-10 cursor-pointer items-center justify-center text-foreground/68 transition-colors hover:border-white/10 hover:bg-black/26 hover:text-foreground disabled:opacity-60"
+            className="system-dock-surface flex size-11 cursor-pointer items-center justify-center text-foreground/68 transition-colors hover:border-white/10 hover:bg-black/26 hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-60 sm:size-10"
             aria-label="Logout"
             title="Logout"
             onClick={handleLogout}
@@ -104,7 +104,7 @@ export function LockScreen({
 
             <form className="space-y-3" onSubmit={handleUnlock}>
               <div className="system-soft-surface bg-black/22 px-2.5 py-2 shadow-[var(--system-shadow-dock)]">
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:flex">
                   <div className="system-icon-surface flex size-10 shrink-0 items-center justify-center bg-white/[0.14] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                     <Lock className="size-[1.1rem]" />
                   </div>
@@ -114,13 +114,15 @@ export function LockScreen({
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder="Enter your password"
-                    className="h-10 w-full border-0 bg-transparent px-1 text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
+                    className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base text-foreground outline-none placeholder:text-muted-foreground/52 sm:h-10 sm:text-[15px]"
+                    aria-label="Password"
+                    autoComplete="current-password"
                     autoFocus
                   />
 
                   <button
                     type="button"
-                    className="flex size-10 shrink-0 items-center justify-center rounded-[var(--system-radius-control)] text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                    className="flex size-11 shrink-0 items-center justify-center rounded-[var(--system-radius-control)] text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:size-10"
                     aria-label={
                       isPasswordVisible ? "Hide password" : "Show password"
                     }
@@ -137,7 +139,7 @@ export function LockScreen({
 
                   <button
                     type="submit"
-                    className="system-primary-action group flex h-10 shrink-0 items-center gap-2 px-4 text-sm font-medium transition-all hover:translate-x-0.5 hover:brightness-110 disabled:translate-x-0 disabled:cursor-not-allowed disabled:opacity-45"
+                    className="system-primary-action group col-span-full flex h-11 shrink-0 items-center justify-center gap-2 px-4 text-sm font-medium transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-45 sm:h-10"
                     disabled={isUnlocking || !password.trim()}
                   >
                     <span>{isUnlocking ? "Unlocking..." : "Unlock"}</span>
@@ -158,7 +160,7 @@ export function LockScreen({
               ) : null}
             </form>
 
-            <p className="mt-4 text-xs text-muted-foreground">
+            <p className="mt-4 hidden text-xs text-muted-foreground sm:block">
               Press{" "}
               <span className="system-keycap-surface px-1.5 py-0.5 text-[11px] text-foreground/90">
                 Command + L

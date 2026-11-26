@@ -1,0 +1,55 @@
+/* @vitest-environment jsdom */
+import { fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { DesktopShell } from "@/modules/shell/components/desktop-shell";
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }) }));
+vi.mock("@/hooks/useCurrentUser", () => ({ useCurrentUser: () => ({ data: { username: "test" }, isLoading: false, isError: false }), CurrentUserError: class extends Error {} }));
+vi.mock("@/modules/shell/hooks/useDesktopAppearance", () => ({ useDesktopAppearance: () => ({ appearance: { animationsEnabled: false, wallpaper: "", dockPosition: "bottom" }, isAppearanceLoaded: true, updateAppearance: vi.fn(), wallpapers: [], accentColors: [], appIconSize: "medium" }) }));
+vi.mock("@/modules/shell/hooks/useRebootRecovery", () => ({ useRebootRecovery: () => ({ isHydrated: true, isActive: false }) }));
+vi.mock("@/modules/shell/hooks/useServerConnection", () => ({ useServerConnection: () => ({ phase: "online" }) }));
+vi.mock("@/modules/apps/hooks/StoreActionsContext", () => ({ StoreActionsProvider: ({ children }: { children: React.ReactNode }) => children, useSharedStoreActions: () => ({}) }));
+vi.mock("@/modules/apps/components/app-grid", () => ({ AppGrid: () => <div>Installed apps</div> }));
+vi.mock("@/modules/settings/components/settings", () => ({ SettingsPanel: ({ onOpenDiskManager }: { onOpenDiskManager: () => void }) => <button onClick={onOpenDiskManager}>Open disks</button> }));
+vi.mock("@/modules/system/components/monitor", () => ({ Monitor: () => null }));
+vi.mock("@/modules/system/components/disk-manager", () => ({ DiskManager: () => <div>Disk content</div> }));
+vi.mock("@/modules/system/components/status-bar", () => ({ StatusBar: () => <div>Desktop status</div> }));
+vi.mock("@/modules/system/components/system-widgets", () => ({ SystemWidgets: () => <div>Desktop widgets</div> }));
+vi.mock("@/modules/system/components/update-reminder", () => ({ UpdateReminder: () => null }));
+vi.mock("@/modules/apps/components/app-logs-dialog", () => ({ AppLogsDialog: () => null }));
+vi.mock("@/modules/shell/components/dock", () => ({ Dock: ({ onItemClick }: { onItemClick: (id: string) => void }) => <button onClick={() => onItemClick("settings")}>Desktop settings</button> }));
+
+let mobile = true;
+beforeEach(() => {
+  window.localStorage.clear();
+  vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: mobile, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+});
+afterEach(() => { vi.unstubAllGlobals(); });
+
+describe("responsive shell", () => {
+  it("shows one mobile screen and returns through nested screens to the launcher", () => {
+    mobile = true;
+    render(<DesktopShell />);
+    expect(screen.getByText("Installed apps")).toBeTruthy();
+    expect(screen.queryByText("Desktop widgets")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+    expect(screen.queryByText("Installed apps")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Open disks" }));
+    expect(screen.getByText("Disk content")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Open disks" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Go back" }));
+    expect(screen.getByRole("button", { name: "Open disks" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Go back" }));
+    expect(screen.getByText("Installed apps")).toBeTruthy();
+  });
+
+  it("preserves desktop launcher, dock and window controls", () => {
+    mobile = false;
+    render(<DesktopShell />);
+    expect(screen.getByText("Desktop widgets")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Desktop settings" }));
+    expect(screen.getByText("Installed apps")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Minimize window" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Go back" })).toBeNull();
+  });
+});

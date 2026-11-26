@@ -171,8 +171,8 @@ export function useAppGridController({
     event.preventDefault();
     setActionError(null);
     setActiveAppId(app.id);
-    const x = Math.min(event.clientX, window.innerWidth - 220);
-    const y = Math.min(event.clientY, window.innerHeight - 320);
+    const x = Math.max(8, Math.min(event.clientX, window.innerWidth - 200));
+    const y = Math.max(8, Math.min(event.clientY, window.innerHeight - 440));
     setContextMenu({ x, y, appId: app.id });
   }
 

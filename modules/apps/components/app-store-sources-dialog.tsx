@@ -90,7 +90,7 @@ export function AppStoreSourcesDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl border-glass-border bg-card/95 backdrop-blur-xl">
+      <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto overscroll-contain border-glass-border bg-card/95 backdrop-blur-xl">
         <DialogHeader>
           <DialogTitle>Store Sources</DialogTitle>
           <DialogDescription>
@@ -122,7 +122,7 @@ export function AppStoreSourcesDialog({
                         key={source.id}
                         className="rounded-xl border border-glass-border bg-background/40 p-3"
                       >
-                        <div className="flex items-start justify-between gap-3">
+                        <div className="flex min-w-0 flex-col items-start justify-between gap-3 md:flex-row">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <p className="text-sm font-medium text-foreground">
@@ -156,7 +156,7 @@ export function AppStoreSourcesDialog({
                             ) : null}
                           </div>
 
-                          <div className="flex shrink-0 items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <button
                               type="button"
                               onClick={() =>
@@ -166,7 +166,7 @@ export function AppStoreSourcesDialog({
                                 })
                               }
                               disabled={source.kind === "official" || isPending}
-                              className="rounded-md border border-glass-border px-2.5 py-1 text-xs text-foreground transition-colors hover:bg-secondary/50 disabled:opacity-50"
+                              className="rounded-md border border-glass-border min-h-11 px-2.5 py-1 text-xs md:min-h-0 text-foreground transition-colors hover:bg-secondary/50 disabled:opacity-50"
                             >
                               {source.enabled ? "Disable" : "Enable"}
                             </button>
@@ -174,7 +174,7 @@ export function AppStoreSourcesDialog({
                               type="button"
                               onClick={() => void onRefreshSource(source.id)}
                               disabled={isPending}
-                              className="inline-flex items-center gap-1 rounded-md border border-glass-border px-2.5 py-1 text-xs text-foreground transition-colors hover:bg-secondary/50 disabled:opacity-50"
+                              className="inline-flex items-center gap-1 rounded-md border border-glass-border min-h-11 px-2.5 py-1 text-xs md:min-h-0 text-foreground transition-colors hover:bg-secondary/50 disabled:opacity-50"
                             >
                               <RefreshCw
                                 className={`size-3 ${isPending ? "animate-spin" : ""}`}
@@ -186,7 +186,7 @@ export function AppStoreSourcesDialog({
                                 type="button"
                                 onClick={() => void onRemoveSource(source.id)}
                                 disabled={isPending}
-                                className="inline-flex items-center gap-1 rounded-md border border-status-red/25 px-2.5 py-1 text-xs text-status-red transition-colors hover:bg-status-red/10 disabled:opacity-50"
+                                className="inline-flex items-center gap-1 rounded-md border border-status-red/25 min-h-11 px-2.5 py-1 text-xs md:min-h-0 text-status-red transition-colors hover:bg-status-red/10 disabled:opacity-50"
                               >
                                 <Trash2 className="size-3" />
                                 Remove

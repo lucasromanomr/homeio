@@ -96,12 +96,12 @@ export function OpenFileDialog({
             </div>
 
             {/* Centered file tab */}
-            <div className="flex flex-1 items-center justify-center">
-              <div className="flex items-center gap-2 rounded-[var(--system-radius-control)] border border-glass-border/50 bg-background/35 px-3 py-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+            <div className="flex min-w-0 flex-1 items-center justify-center">
+              <div className="flex min-w-0 items-center gap-2 rounded-[var(--system-radius-control)] border border-glass-border/50 bg-background/35 px-3 py-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
                 <span className="flex size-4 shrink-0 items-center justify-center text-primary/80">
                   {getFileIcon(headerEntry)}
                 </span>
-                <span className="max-w-[32ch] truncate text-xs font-medium text-foreground/90">
+                <span className="min-w-0 max-w-[32ch] truncate text-xs font-medium text-foreground/90">
                   {openFile.entry.name}
                 </span>
                 {hasUnsavedChanges ? (
@@ -117,7 +117,7 @@ export function OpenFileDialog({
             </div>
 
             {/* Right gutter — balances traffic lights */}
-            <div className="flex w-[76px] items-center justify-end px-4">
+            <div className="hidden w-[76px] items-center justify-end px-4 sm:flex">
               {hasUnsavedChanges ? (
                 <span className="text-[11px] tabular-nums text-muted-foreground/40">⌘S</span>
               ) : null}
@@ -156,7 +156,7 @@ export function OpenFileDialog({
 
             {/* Inline discard confirmation strip */}
             {showDiscardConfirm ? (
-              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-4 border-t border-glass-border/50 bg-popover/90 px-5 py-3 backdrop-blur-xl">
+              <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-center justify-between gap-4 border-t border-glass-border/50 bg-popover/90 px-5 py-3 backdrop-blur-xl">
                 <p className="text-sm text-foreground/75">
                   Discard changes to{" "}
                   <span className="font-medium text-foreground">{openFile.entry.name}</span>?

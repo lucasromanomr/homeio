@@ -330,6 +330,13 @@ describe("AppStore", () => {
     expect(screen.getByTitle("Media apps")).toBeTruthy();
   });
 
+  it("applies the mobile category selector to the catalog", () => {
+    setup();
+    fireEvent.change(screen.getByRole("combobox", { name: "Category" }), { target: { value: "Media" } });
+    expect(useStoreCatalogMock).toHaveBeenLastCalledWith({ category: "Media", search: undefined, installedOnly: false });
+    expect(screen.getByText("Plex")).toBeTruthy();
+  });
+
   it("groups apps by source and combines the source filter with other filters", async () => {
     setup({
       apps: [

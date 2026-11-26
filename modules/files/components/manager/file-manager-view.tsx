@@ -7,7 +7,7 @@ import { FileManagerDialogLayer } from "@/modules/files/components/manager/file-
 import { validateEntryName } from "@/modules/files/components/manager/file-manager-derived";
 import { GoogleDrivePanel } from "@/modules/files/components/panels/google-drive-panel";
 import { buildAssetUrl, toFilePath } from "@/modules/files/hooks/useFiles";
-import type { MouseEvent, RefObject, SetStateAction } from "react";
+import { useState, type MouseEvent, type RefObject, type SetStateAction } from "react";
 import type { FileEntry } from "@/modules/files/components/file-manager-presenters";
 import type { FileInfoResponse, FileReadResponse } from "@/lib/shared/contracts/files";
 import type { ClipboardState, CreateEntryDialogState, FileManagerAction, OpenFileState, PasteConflictState, RenameDialogState, ViewMode } from "@/modules/files/components/manager/file-manager-state";
@@ -199,15 +199,21 @@ export function FileManagerView({
   unzipPending,
   viewMode,
 }: FileManagerViewProps) {
+  const [showLocations, setShowLocations] = useState(false);
   return (
     <div
       ref={rootRef}
-      className="relative flex h-full"
+      className="relative flex h-full min-h-0 min-w-0 flex-col md:flex-row"
       onClick={() => {
         dispatch({ type: "HIDE_CONTEXT_MENU" });
         dispatch({ type: "HIDE_BACKGROUND_CONTEXT_MENU" });
       }}
     >
+      <div className="flex shrink-0 items-center gap-2 px-2 pt-2 md:hidden">
+        <button type="button" onClick={() => setShowLocations((shown) => !shown)} aria-expanded={showLocations} aria-controls="file-locations" className="rounded-lg border border-glass-border px-3 py-2 text-xs">{showLocations ? "Close locations" : "Locations"}</button>
+        {!activeDriveConnection && !isTrashView && !isStarredView && <button type="button" onClick={onPositionBackgroundContextMenu} className="rounded-lg border border-glass-border px-3 py-2 text-xs">New / Paste</button>}
+      </div>
+      <div id="file-locations" className={`${showLocations ? "flex" : "hidden"} absolute inset-y-12 left-0 z-50 max-w-[85%] md:static md:flex md:max-w-none`}>
       <FileManagerSidebar
         currentPath={currentPath}
         isSharedView={isSharedView}
@@ -218,13 +224,14 @@ export function FileManagerView({
         sidebarSections={sidebarSections}
         storageUsagePercent={storageUsagePercent}
         storageUsageText={storageUsageText}
-        onNavigateToPath={navigateToPath}
+        onNavigateToPath={(path) => { navigateToPath(path); setShowLocations(false); }}
         onOpenNetworkDialog={() => dispatch({ type: "SHOW_NETWORK_DIALOG" })}
         onOpenGoogleDriveDialog={() => dispatch({ type: "SHOW_GOOGLE_DRIVE_DIALOG" })}
         onOpenUsbDialog={() => dispatch({ type: "SHOW_USB_DIALOG" })}
         onMountDrive={onMountDrive}
         onEjectDrive={onEjectDrive}
       />
+      </div>
       {activeDriveConnection ? (
         <div className={`m-2 min-w-0 flex-1 overflow-hidden ${FILES_PANEL_SHELL}`}>
           <GoogleDrivePanel
@@ -325,6 +332,13 @@ export function FileManagerView({
           }}
           onEntryClick={onEntryClick}
           onEntryContextMenu={onPositionEntryContextMenu}
+          onToggleSelection={(entry) => {
+            const next = new Set(selectedFiles);
+            if (next.has(entry.name)) next.delete(entry.name);
+            else next.add(entry.name);
+            dispatch({ type: "SET_SELECTED_FILES", files: next });
+            dispatch({ type: "SELECT_FILE", name: entry.name });
+          }}
           onLoadMoreSearch={() => dispatch({ type: "LOAD_MORE_SEARCH" })}
           onOpenEntry={navigateTo}
           onSaveOpenFile={() => {

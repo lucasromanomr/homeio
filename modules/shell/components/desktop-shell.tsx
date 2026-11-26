@@ -47,7 +47,7 @@ import { StatusBar } from "@/modules/system/components/status-bar";
 import { SystemWidgets } from "@/modules/system/components/system-widgets";
 import { UpdateReminder } from "@/modules/system/components/update-reminder";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { ConnectionLostScreen } from "./connection-lost-screen";
 import { Dock } from "./dock";
@@ -57,6 +57,15 @@ import { SessionLoadingScreen } from "./session-loading-screen";
 import { Terminal, type TerminalAttachRequest } from "./terminal";
 import { UpdateRecoveryScreen } from "./update-recovery-screen";
 import { Window } from "./window";
+
+const MOBILE_QUERY = "(width < 48rem), (pointer: coarse) and (max-width: 64rem) and (max-height: 32rem)";
+const subscribeMobile = (callback: () => void) => {
+  const media = window.matchMedia(MOBILE_QUERY);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+};
+const getMobileSnapshot = () => window.matchMedia(MOBILE_QUERY).matches;
+const getServerMobileSnapshot = () => false;
 
 const WINDOW_CLOSE_ANIMATION_MS = 180;
 // Long enough to read as a change rather than a flicker; the image is already
@@ -86,6 +95,7 @@ export function DesktopShell() {
 
 function DesktopShellInner() {
   const router = useRouter();
+  const isMobile = useSyncExternalStore(subscribeMobile, getMobileSnapshot, getServerMobileSnapshot);
   const {
     data: currentUser,
     error: currentUserError,
@@ -239,15 +249,12 @@ function DesktopShellInner() {
     setClosingWindows((prev) => prev.filter((w) => w !== id));
     setMinimizedWindows((prev) => prev.filter((w) => w !== id));
     setOpenWindows((prev) => {
-      if (prev.includes(id)) {
-        // Already open, just focus it
-        setFocusedWindow(id);
-        return prev;
-      }
+      if (isMobile) return [...prev.filter((windowId) => windowId !== id), id];
+      if (prev.includes(id)) return prev;
       return [...prev, id];
     });
     setFocusedWindow(id);
-  }, []);
+  }, [isMobile]);
 
   const minimizeWindow = useCallback(
     (id: string) => {
@@ -266,7 +273,7 @@ function DesktopShellInner() {
         delete closeTimersRef.current[id];
       }
 
-      if (!appearance.animationsEnabled) {
+      if (isMobile || !appearance.animationsEnabled) {
         finalizeCloseWindow(id);
         return;
       }
@@ -277,7 +284,7 @@ function DesktopShellInner() {
         finalizeCloseWindow(id);
       }, WINDOW_CLOSE_ANIMATION_MS);
     },
-    [appearance.animationsEnabled, finalizeCloseWindow],
+    [appearance.animationsEnabled, finalizeCloseWindow, isMobile],
   );
 
   // The first real wallpaper is assigned outright. Cross-fading into it would
@@ -458,6 +465,10 @@ function DesktopShellInner() {
     }
 
     openWindow(id);
+  }
+
+  function isWindowVisible(id: string) {
+    return openWindows.includes(id) && (!isMobile || focusedWindow === id);
   }
 
   function getWindowZ(id: string) {
@@ -648,7 +659,7 @@ function DesktopShellInner() {
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden">
+    <div className="relative h-[100dvh] w-full overflow-hidden">
       {/* Wallpaper Background */}
       <div className="absolute inset-0">
         <div
@@ -713,18 +724,46 @@ function DesktopShellInner() {
         )}
 
         {/* Status Bar */}
-        <StatusBar
+        {!isMobile && <StatusBar
           onLock={() => setLockState(true)}
           onLogout={handleLogout}
           isLogoutPending={isLogoutPending}
           onOpenNotifications={() => openWindow("notifications")}
           onOpenSettings={() => openWindow("settings")}
-        />
+        />}
 
         {/* Main Desktop Area */}
-        <div className="m-12 flex min-h-0 flex-1 overflow-hidden">
+        {(!isMobile || !focusedWindow) && <div className={isMobile
+          ? "flex min-h-0 flex-1 flex-col overflow-y-auto pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
+          : "m-12 flex min-h-0 flex-1 overflow-hidden"}>
+          {isMobile && (
+            <div className="shrink-0 px-5 pt-4 text-white">
+              <h1 className="text-2xl font-semibold">Homeio</h1>
+              {currentUser?.isDemoMode && <p className="text-sm text-white/70">Demo · read-only</p>}
+              <nav aria-label="Tools" className="mt-4 grid grid-cols-3 gap-2 min-[375px]:grid-cols-4">
+                {([
+                  ["files", "Files", FolderOpen],
+                  ["app-store", "App Store", ShoppingBag],
+                  ["monitor", "Monitor", Activity],
+                  ["settings", "Settings", Settings],
+                  ["notifications", "Notifications", Bell],
+                  ["disk-manager", "Disks", HardDrive],
+                  ["terminal", "Terminal", TerminalSquare],
+                ] as const).map(([id, label, Icon]) => (
+                  <button key={id} type="button" onClick={() => handleDockClick(id)} className="flex min-h-16 flex-col items-center justify-center gap-1 rounded-xl bg-black/35 p-2 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                    <Icon className="size-5" aria-hidden="true" />{label}
+                  </button>
+                ))}
+                <button type="button" onClick={() => { setIsSettingsSearchOpen(true); setSettingsSearchQuery(""); }} className="min-h-16 rounded-xl bg-black/35 p-2 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Search</button>
+                <button type="button" onClick={() => setLockState(true)} className="min-h-16 rounded-xl bg-black/35 p-2 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Lock</button>
+                <button type="button" disabled={isLogoutPending} onClick={handleLogout} className="min-h-16 rounded-xl bg-black/35 p-2 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:opacity-50">{isLogoutPending ? "Signing out…" : "Sign out"}</button>
+              </nav>
+              <h2 className="mt-5 text-lg font-semibold">Apps</h2>
+            </div>
+          )}
           {/* App Grid (scrollable center) */}
           <AppGrid
+            className={isMobile ? "flex-none" : undefined}
             iconSize={appIconSize}
             animationsEnabled={appearance.animationsEnabled}
             onViewLogs={(target) => setLogsTarget(target)}
@@ -738,12 +777,13 @@ function DesktopShellInner() {
           />
 
           {/* System Widgets (right sidebar) */}
-          <SystemWidgets />
-        </div>
+          {!isMobile && <SystemWidgets />}
+        </div>}
 
         {/* Windows */}
-        {openWindows.includes("files") && (
+        {isWindowVisible("files") && (
           <Window
+            mobile={isMobile}
             title="Files"
             icon={<FolderOpen className="size-4 text-sky-400" />}
             onClose={() => closeWindow("files")}
@@ -761,8 +801,9 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {openWindows.includes("settings") && (
+        {isWindowVisible("settings") && (
           <Window
+            mobile={isMobile}
             title="Settings"
             icon={<Settings className="size-4 text-muted-foreground" />}
             onClose={() => closeWindow("settings")}
@@ -788,8 +829,9 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {openWindows.includes("monitor") && (
+        {isWindowVisible("monitor") && (
           <Window
+            mobile={isMobile}
             title="Monitor"
             icon={<Activity className="size-4 text-primary" />}
             onClose={() => closeWindow("monitor")}
@@ -807,8 +849,9 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {openWindows.includes("notifications") && (
+        {isWindowVisible("notifications") && (
           <Window
+            mobile={isMobile}
             title="Notifications"
             icon={<Bell className="size-4 text-primary" />}
             onClose={() => closeWindow("notifications")}
@@ -826,8 +869,9 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {openWindows.includes("app-store") && (
+        {isWindowVisible("app-store") && (
           <Window
+            mobile={isMobile}
             title="App Store"
             icon={<ShoppingBag className="size-4 text-sky-400" />}
             onClose={() => closeWindow("app-store")}
@@ -848,8 +892,9 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {openWindows.includes("custom-install") && (
+        {isWindowVisible("custom-install") && (
           <Window
+            mobile={isMobile}
             title="Install Custom App"
             icon={<Package className="size-4 text-primary" />}
             onClose={() => closeWindow("custom-install")}
@@ -870,8 +915,9 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {openWindows.includes("app-settings") && appSettingsTarget && (
+        {isWindowVisible("app-settings") && appSettingsTarget && (
           <Window
+            mobile={isMobile}
             title={`${appSettingsTarget.appName} Settings`}
             icon={<Settings className="size-4 text-primary" />}
             onClose={() => {
@@ -911,8 +957,9 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {openWindows.includes("terminal") && (
+        {isWindowVisible("terminal") && (
           <Window
+            mobile={isMobile}
             title="Terminal"
             icon={<TerminalSquare className="size-4 text-emerald-400" />}
             onClose={() => {
@@ -933,8 +980,9 @@ function DesktopShellInner() {
           </Window>
         )}
 
-        {openWindows.includes("disk-manager") && (
+        {isWindowVisible("disk-manager") && (
           <Window
+            mobile={isMobile}
             title="Disk Manager"
             icon={<HardDrive className="size-4 text-amber-400" />}
             onClose={() => closeWindow("disk-manager")}
@@ -953,7 +1001,7 @@ function DesktopShellInner() {
         )}
 
         {/* Command Palette Badge — floats above the dock */}
-        <div className="fixed bottom-[5.75rem] left-1/2 z-40 -translate-x-1/2">
+        {!isMobile && <div className="fixed bottom-[5.75rem] left-1/2 z-40 -translate-x-1/2">
           <button
             onClick={() => { setIsSettingsSearchOpen(true); setSettingsSearchQuery(""); }}
             className="system-pill-surface flex cursor-pointer items-center gap-1.5 px-2.5 py-1 text-foreground/30 transition-colors hover:text-foreground/55"
@@ -962,16 +1010,16 @@ function DesktopShellInner() {
             <Search className="size-2.5 shrink-0" />
             <span className="font-mono text-[9px] tracking-widest">⌘K</span>
           </button>
-        </div>
+        </div>}
 
         {/* Dock */}
-        <Dock
+        {!isMobile && <Dock
           activeWindows={openWindows}
           focusedWindow={focusedWindow}
           onItemClick={handleDockClick}
           position={appearance.dockPosition}
           animationsEnabled={appearance.animationsEnabled}
-        />
+        />}
 
         <UpdateReminder
           enabled={!isLocked && !currentUser?.isDemoMode}

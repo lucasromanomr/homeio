@@ -85,7 +85,7 @@ export function FileManagerToolbar({
   onUploadInputChange,
 }: ToolbarProps) {
   return (
-    <div className={cn("flex flex-nowrap items-center gap-2 overflow-x-auto border-b border-glass-border/60 px-3 py-2", FILES_PANEL_SHELL)}>
+    <div className={cn("flex flex-wrap items-center gap-2 md:flex-nowrap md:overflow-x-auto border-b border-glass-border/60 px-3 py-2", FILES_PANEL_SHELL)}>
 
       {/* Back / up */}
       <button
@@ -98,7 +98,7 @@ export function FileManagerToolbar({
       </button>
 
       {/* Breadcrumb */}
-      <nav className="flex min-w-0 flex-1 items-center gap-0.5" aria-label="File path">
+      <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto" aria-label="File path">
         <button
           onClick={() => onNavigateToPath([])}
           className="inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-background/50 hover:text-foreground"
@@ -150,7 +150,7 @@ export function FileManagerToolbar({
 
       {/* Search */}
       <div className="flex shrink-0 items-center gap-1">
-        <div className="relative w-36">
+        <div className="relative w-28 sm:w-36">
           {globalSearchIsFetching ? (
             <Loader2 className="absolute left-2 top-1/2 size-3 -translate-y-1/2 animate-spin text-primary" />
           ) : (
@@ -158,6 +158,7 @@ export function FileManagerToolbar({
           )}
           <input
             type="text"
+            aria-label="Search files"
             value={searchQuery}
             onChange={(e) => onSearchQueryChange(e.target.value)}
             placeholder={globalSearch ? "Search everywhere…" : "Search…"}
@@ -171,6 +172,7 @@ export function FileManagerToolbar({
         </div>
         <button
           onClick={onToggleGlobalSearch}
+          aria-label={globalSearch ? "Switch to local search" : "Search everywhere"}
           title={globalSearch ? "Switch to local search" : "Search everywhere"}
           className={cn(
             iconBtn,
@@ -196,6 +198,7 @@ export function FileManagerToolbar({
         )}
         <button
           onClick={onToggleIncludeHidden}
+          aria-label={includeHidden ? "Hide hidden files" : "Show hidden files"}
           title={includeHidden ? "Hide hidden files" : "Show hidden files"}
           className={cn(iconBtn, iconBtnIdle)}
         >
@@ -206,10 +209,11 @@ export function FileManagerToolbar({
           title={`Sort by: ${sortBy} (click to change)`}
           className="rounded-lg px-2 py-1 text-xs capitalize text-muted-foreground transition-colors hover:bg-background/50 hover:text-foreground"
         >
-          <span className="hidden xl:inline">{sortBy}</span>
+          <span>{sortBy}</span>
         </button>
         <button
           onClick={onToggleSortDir}
+          aria-label={sortDir === "asc" ? "Sort descending" : "Sort ascending"}
           title={sortDir === "asc" ? "Ascending — click to reverse" : "Descending — click to reverse"}
           className={cn(iconBtn, iconBtnIdle)}
         >

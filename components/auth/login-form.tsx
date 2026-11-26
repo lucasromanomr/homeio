@@ -273,7 +273,7 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
                   placeholder="Username"
-                  className="h-10 w-full border-0 bg-transparent px-1 text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
+                  className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
                   required
                   autoFocus
                 />
@@ -291,7 +291,7 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder="Password"
-                  className="h-10 w-full border-0 bg-transparent px-1 text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
+                  className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] text-foreground outline-none placeholder:text-muted-foreground/52"
                   required
                 />
                 <button
@@ -362,7 +362,7 @@ export function LoginForm({ isDemoMode = false }: { isDemoMode?: boolean }) {
                 value={totpCode}
                 onChange={(event) => setTotpCode(event.target.value)}
                 placeholder={stage.useBackupCode ? "Backup code" : "123 456"}
-                className="h-10 w-full border-0 bg-transparent px-1 text-[15px] tracking-[0.2em] text-foreground outline-none placeholder:text-muted-foreground/52"
+                className="h-11 min-w-0 w-full border-0 bg-transparent px-1 text-base sm:h-10 sm:text-[15px] tracking-[0.2em] text-foreground outline-none placeholder:text-muted-foreground/52"
                 autoFocus
                 required
               />

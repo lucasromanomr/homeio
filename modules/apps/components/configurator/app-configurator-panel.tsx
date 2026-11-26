@@ -545,7 +545,7 @@ export function AppConfiguratorPanel({
               type="button"
               onClick={() => void handleSubmit()}
               disabled={isSaving || !canSubmit}
-              className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius)] bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-[var(--radius)] bg-primary px-3.5 py-1.5 md:min-h-0 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSaving ? <Loader2 className="size-3.5 animate-spin" /> : null}
               {buttonLabel}

@@ -104,6 +104,7 @@ export function FileGrid({
   titleFromPath,
   onEntryClick,
   onEntryContextMenu,
+  onToggleSelection,
   onOpenEntry,
 }: {
   entries: FileEntry[];
@@ -112,6 +113,7 @@ export function FileGrid({
   titleFromPath: boolean;
   onEntryClick: (event: MouseEvent, entry: FileEntry) => void;
   onEntryContextMenu: (event: MouseEvent, entry: FileEntry) => void;
+  onToggleSelection: (entry: FileEntry) => void;
   onOpenEntry: (entry: FileEntry) => void;
 }) {
   const [limit, sentinelRef] = useVirtualLimit(entries.length);
@@ -124,14 +126,15 @@ export function FileGrid({
           const isImage = entry.type === "file" && IMAGE_EXTS.has((entry.ext ?? "").toLowerCase());
           const isSelected = selectedFiles.has(entry.name);
           return (
+            <div key={entry.name} className="min-w-0">
             <button
-              key={entry.name}
+              aria-label={entry.name}
               title={titleFromPath ? entry.path : entry.name}
               onClick={(event) => onEntryClick(event, entry)}
               onDoubleClick={() => onOpenEntry(entry)}
               onContextMenu={(event) => onEntryContextMenu(event, entry)}
               className={cn(
-                "flex cursor-pointer flex-col items-center gap-3 rounded-xl border p-4 transition-all",
+                "flex w-full cursor-pointer flex-col items-center gap-3 rounded-xl border p-4 transition-all",
                 isSelected
                   ? "border-primary/30 bg-primary/15"
                   : "border-transparent hover:bg-background/50",
@@ -160,6 +163,12 @@ export function FileGrid({
                 )}
               </div>
             </button>
+            <div className="flex flex-wrap justify-center gap-1 md:hidden">
+              <button type="button" onClick={() => onToggleSelection(entry)} aria-pressed={isSelected} className="rounded-lg px-2 py-2 text-xs text-primary">{isSelected ? "Deselect" : "Select"}</button>
+              <button type="button" onClick={() => onOpenEntry(entry)} className="rounded-lg px-2 py-2 text-xs text-primary">Open</button>
+              <button type="button" onClick={(event) => onEntryContextMenu(event, entry)} aria-label={`Actions for ${entry.name}`} className="rounded-lg px-2 py-2 text-xs text-primary">Actions</button>
+            </div>
+            </div>
           );
         })}
       </div>
@@ -180,6 +189,7 @@ export function FileList({
   selectedFiles,
   onEntryClick,
   onEntryContextMenu,
+  onToggleSelection,
   onOpenEntry,
 }: {
   entries: FileEntry[];
@@ -189,6 +199,7 @@ export function FileList({
   selectedFiles: Set<string>;
   onEntryClick: (event: MouseEvent, entry: FileEntry) => void;
   onEntryContextMenu: (event: MouseEvent, entry: FileEntry) => void;
+  onToggleSelection: (entry: FileEntry) => void;
   onOpenEntry: (entry: FileEntry) => void;
 }) {
   const [limit, sentinelRef] = useVirtualLimit(entries.length);
@@ -207,13 +218,14 @@ export function FileList({
       </div>
 
       {visible.map((entry) => (
+        <div key={entry.name} className="flex items-center">
         <button
-          key={entry.name}
+          aria-label={entry.name}
           onClick={(event) => onEntryClick(event, entry)}
           onDoubleClick={() => onOpenEntry(entry)}
           onContextMenu={(event) => onEntryContextMenu(event, entry)}
           className={cn(
-            "flex cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-colors",
+            "flex min-w-0 flex-1 cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-colors",
             selectedFiles.has(entry.name) ? "bg-primary/15" : "hover:bg-background/50",
           )}
         >
@@ -264,6 +276,10 @@ export function FileList({
               : entry.modified}
           </span>
         </button>
+        <button type="button" onClick={() => onToggleSelection(entry)} aria-label={`Select ${entry.name}`} aria-pressed={selectedFiles.has(entry.name)} className="px-2 py-3 text-xs text-primary md:hidden">{selectedFiles.has(entry.name) ? "Selected" : "Select"}</button>
+        <button type="button" onClick={() => onOpenEntry(entry)} aria-label={`Open ${entry.name}`} className="px-2 py-3 text-xs text-primary md:hidden">Open</button>
+        <button type="button" onClick={(event) => onEntryContextMenu(event, entry)} aria-label={`Actions for ${entry.name}`} className="px-2 py-3 text-xs text-primary md:hidden">Actions</button>
+        </div>
       ))}
 
       {limit < entries.length && (

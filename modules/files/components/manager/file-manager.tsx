@@ -340,8 +340,8 @@ export function FileManager() {
     const rootRect = rootRef.current?.getBoundingClientRect();
     if (!rootRect) return null;
     return {
-      x: Math.min(Math.max(8, event.clientX - rootRect.left), rootRect.width - dimensions.width - 8),
-      y: Math.min(Math.max(8, event.clientY - rootRect.top), rootRect.height - dimensions.height - 8),
+      x: Math.max(8, Math.min(event.clientX - rootRect.left, rootRect.width - dimensions.width - 8)),
+      y: Math.max(8, Math.min(event.clientY - rootRect.top, rootRect.height - dimensions.height - 8)),
     };
   }
 
@@ -393,6 +393,7 @@ export function FileManager() {
       onPositionBackgroundContextMenu={(event) => {
         if (viewFlags.isTrashView || viewFlags.isStarredView) return;
         event.preventDefault();
+        event.stopPropagation();
         const next = positionMenu(event, { width: 176, height: 112 });
         if (!next) return;
         dispatch({ type: "SHOW_BACKGROUND_CONTEXT_MENU", ...next });
@@ -400,7 +401,7 @@ export function FileManager() {
       onPositionEntryContextMenu={(event, entry) => {
         event.preventDefault();
         event.stopPropagation();
-        const next = positionMenu(event, { width: 220, height: 260 });
+        const next = positionMenu(event, { width: 220, height: 400 });
         if (!next) return;
         dispatch({ type: "SHOW_CONTEXT_MENU", entry, ...next });
         dispatch({ type: "SELECT_FILE", name: entry.name });

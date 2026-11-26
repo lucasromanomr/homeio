@@ -49,8 +49,8 @@ export function AppGridContextMenu({
 }) {
   return (
     <div
-      className="fixed z-[220] min-w-48 rounded-xl border border-glass-border bg-popover py-1.5 shadow-2xl shadow-black/50 backdrop-blur-2xl"
-      style={{ left: x, top: y }}
+      className="fixed z-[220] max-h-[calc(100dvh-1rem)] w-48 max-w-[calc(100vw-1rem)] overflow-y-auto overscroll-contain rounded-xl border border-glass-border bg-popover py-1.5 shadow-2xl shadow-black/50 backdrop-blur-2xl"
+      style={{ left: x, top: y, maxHeight: `calc(100dvh - ${y + 8}px)` }}
       onClick={(event) => event.stopPropagation()}
     >
       <AppGridContextMenuItem
@@ -141,7 +141,7 @@ function AppGridContextMenuItem({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-xs transition-colors ${
+      className={`flex w-full items-center gap-2.5 px-3 min-h-11 py-1.5 text-xs transition-colors sm:min-h-0 ${
         danger
           ? "text-status-red hover:bg-status-red/10 disabled:hover:bg-transparent"
           : "text-foreground hover:bg-secondary/50"

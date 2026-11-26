@@ -88,8 +88,25 @@ export function SettingsPanel({
     sectionDefinitions[0];
 
   return (
-    <div className="flex h-full">
-      <aside className={cn("m-2 flex w-52 shrink-0 flex-col", SETTINGS_PANEL_SHELL)}>
+    <div className="flex h-full min-h-0 min-w-0 flex-col md:flex-row">
+      <label className="flex shrink-0 flex-col gap-1.5 px-4 pt-3 md:hidden">
+        <span className="text-xs font-medium text-muted-foreground">Settings category</span>
+        <select
+          aria-label="Settings category"
+          value={activeSection}
+          onChange={(event) => setActiveSection(event.target.value as SettingsSectionId)}
+          className="min-h-11 w-full rounded-lg border border-glass-border bg-background px-3 text-sm text-foreground focus-visible:outline-primary"
+        >
+          {SIDEBAR_GROUPS.map((group) => (
+            <optgroup key={group.label} label={group.label}>
+              {sectionDefinitions.filter((section) => group.ids.includes(section.id as SettingsSectionId)).map((section) => (
+                <option key={section.id} value={section.id}>{section.label}</option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+      </label>
+      <aside className={cn("m-2 hidden w-52 shrink-0 flex-col md:flex", SETTINGS_PANEL_SHELL)}>
         <div className="flex-1 overflow-y-auto px-2 py-3">
           {SIDEBAR_GROUPS.map((group) => {
             const sections = sectionDefinitions.filter((s) => group.ids.includes(s.id as SettingsSectionId));
@@ -149,15 +166,15 @@ export function SettingsPanel({
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl p-5">
+      <main className="min-h-0 min-w-0 flex-1 overflow-y-auto">
+        <div className="min-w-0 max-w-2xl p-4 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-foreground">
               {activeDefinition.label}
             </h2>
             {!activeDefinition.liveApply && activeDefinition.save ? (
               <button
-                className="px-3 py-1.5 text-xs font-medium rounded-lg bg-primary text-primary-foreground transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 enabled:hover:bg-primary/90"
+                className="min-h-11 px-3 py-1.5 text-xs font-medium rounded-lg md:min-h-0 bg-primary text-primary-foreground transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 enabled:hover:bg-primary/90"
                 disabled={!activeDefinition.save.canSave}
                 title={activeDefinition.save.title}
                 onClick={() => {

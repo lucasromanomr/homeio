@@ -68,7 +68,7 @@ function DiskCard({ disk, selected, onClick }: { disk: DiskDevice; selected: boo
     <button
       onClick={onClick}
       className={cn(
-        "flex w-full flex-col gap-1 rounded-xl border px-3 py-2.5 text-left transition-colors",
+        "flex w-44 shrink-0 flex-col gap-1 rounded-xl md:w-full border px-3 py-2.5 text-left transition-colors",
         selected
           ? "border-primary/40 bg-primary/10 text-foreground"
           : "border-glass-border bg-background/40 text-muted-foreground hover:bg-background/60 hover:text-foreground",
@@ -361,7 +361,7 @@ function PartitionRow({
   const isMounted = Boolean(partition.mountpoint);
 
   return (
-    <div className="grid grid-cols-[1.4fr_0.9fr_0.8fr_1.2fr_auto] items-center gap-3 px-4 py-2.5 text-xs transition-colors hover:bg-background/30">
+    <div className="grid min-w-[600px] grid-cols-[1.4fr_0.9fr_0.8fr_1.2fr_auto] items-center gap-3 px-4 py-2.5 text-xs transition-colors hover:bg-background/30">
       <div className="flex items-center gap-2 min-w-0">
         <div className={cn("size-2 shrink-0 rounded-sm", fsColor(partition.fstype))} />
         <span className="font-mono font-medium text-foreground truncate">{partition.device}</span>
@@ -515,7 +515,7 @@ function DiskDetail({ disk }: { disk: DiskDevice }) {
           </p>
         </div>
         {disk.serial && (
-          <span className="font-mono text-[11px] text-muted-foreground/50">{disk.serial}</span>
+          <span className="hidden font-mono text-[11px] text-muted-foreground/50 sm:inline">{disk.serial}</span>
         )}
       </div>
 
@@ -525,8 +525,8 @@ function DiskDetail({ disk }: { disk: DiskDevice }) {
       )}
 
       {/* Partition table */}
-      <div className={cn(PANEL_INSET, "overflow-hidden")}>
-        <div className="grid grid-cols-[1.4fr_0.9fr_0.8fr_1.2fr_auto] gap-3 border-b border-glass-border/50 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50">
+      <div className={cn(PANEL_INSET, "overflow-x-auto")}>
+        <div className="grid min-w-[600px] grid-cols-[1.4fr_0.9fr_0.8fr_1.2fr_auto] gap-3 border-b border-glass-border/50 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50">
           <span>Partition</span>
           <span>Filesystem</span>
           <span>Size</span>
@@ -648,9 +648,9 @@ export function DiskManager() {
       ) : null}
 
       {/* Body */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden md:flex-row">
         {/* Disk list sidebar */}
-        <div className="flex w-52 shrink-0 flex-col gap-1.5 overflow-y-auto border-r border-glass-border/60 p-2">
+        <div className="flex max-h-32 shrink-0 gap-1.5 overflow-x-auto border-b border-glass-border/60 p-2 md:max-h-none md:w-52 md:flex-col md:overflow-y-auto md:border-b-0 md:border-r">
           {isLoading ? (
             <p className="px-3 py-4 text-center text-xs text-muted-foreground/60">Detecting disks…</p>
           ) : disks.length === 0 ? (
