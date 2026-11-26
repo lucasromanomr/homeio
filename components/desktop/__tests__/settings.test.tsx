@@ -1,10 +1,12 @@
 /* @vitest-environment jsdom */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { QueryObserver } from "@tanstack/react-query";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import type { AppearanceSettings } from "@/lib/desktop/appearance";
 import { createTestQueryClient, createWrapper } from "@/test/query-client-wrapper";
 import { queryKeys } from "@/lib/shared/query-keys";
+import { fetchSystemUpdatesRequest } from "@/modules/settings/hooks/backend/api";
 
 const mockUseSettingsBackend = vi.fn();
 const mockUseDesktopPreferences = vi.fn();
@@ -383,6 +385,16 @@ describe("SettingsPanel", () => {
     expect(screen.queryByText("Auto-start services on boot")).toBeNull();
   });
 
+  it("navigates settings through the mobile section list", () => {
+    render(
+      <SettingsPanel appearance={appearance} wallpaperOptions={[]} accentOptions={[]} wallpaperAccentColor={null} onAppearanceChange={() => {}} />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Open Network settings" }));
+    expect(screen.getByRole("heading", { name: "Network" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "All settings" }));
+    expect(screen.getByRole("button", { name: "Open Network settings" }).getAttribute("aria-current")).toBe("page");
+  });
+
   it("renders Network disconnected state", () => {
     const backend = createBackendMock();
     backend.network.connected = false;
@@ -399,7 +411,7 @@ describe("SettingsPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Network/i }));
+    fireEvent.click(within(screen.getByRole("complementary", { name: "Settings sidebar" })).getByRole("button", { name: /Network/i }));
 
     expect(screen.getByText("Disconnected")).toBeTruthy();
     expect(screen.getByText("Signal --")).toBeTruthy();
@@ -418,7 +430,7 @@ describe("SettingsPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Docker/i }));
+    fireEvent.click(within(screen.getByRole("complementary", { name: "Settings sidebar" })).getByRole("button", { name: /Docker/i }));
 
     expect(screen.getByText("Engine")).toBeTruthy();
     expect(screen.getByText("Maintenance")).toBeTruthy();
@@ -505,7 +517,7 @@ describe("SettingsPanel", () => {
       { wrapper: createWrapper(client) },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Updates/i }));
+    fireEvent.click(within(screen.getByRole("complementary", { name: "Settings sidebar" })).getByRole("button", { name: /Updates/i }));
     fireEvent.click(screen.getByRole("button", { name: "Check" }));
     fireEvent.click(screen.getByRole("button", { name: "Update" }));
 
@@ -552,7 +564,7 @@ describe("SettingsPanel", () => {
       { wrapper: createWrapper(client) },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Updates/i }));
+    fireEvent.click(within(screen.getByRole("complementary", { name: "Settings sidebar" })).getByRole("button", { name: /Updates/i }));
     const select = screen.getByRole<HTMLSelectElement>("combobox", { name: "Update channel" });
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
     expect(select.value).toBe("stable");
@@ -564,6 +576,55 @@ describe("SettingsPanel", () => {
     await waitFor(() => expect(client.getQueryState(queryKeys.systemUpdateChannel)?.fetchStatus).toBe("idle"));
     expect(client.getQueryData(queryKeys.systemUpdateChannel)).toEqual(beta);
     expect(select.value).toBe("beta");
+  });
+
+  it("fetches update status again after saving a channel during the first status load", async () => {
+    const client = createTestQueryClient();
+    const stable = { channel: "stable", disabledReason: null };
+    const beta = { channel: "beta", disabledReason: null };
+    const stableStatus = { latestVersion: "1.11.3" };
+    const betaStatus = { latestVersion: "1.12.0-beta.3" };
+    const staleStatusRequest = Promise.withResolvers<Response>();
+    const statusRequest = vi.fn()
+      .mockImplementationOnce(() => staleStatusRequest.promise)
+      .mockResolvedValueOnce(Response.json({ data: betaStatus }));
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+      if (input === "/api/v1/system/updates") return statusRequest();
+      if (input === "/api/v1/system/updates/channel") {
+        return Response.json({ data: init?.method === "PUT" ? beta : stable });
+      }
+      throw new Error(`Unexpected request: ${input}`);
+    });
+    const observer = new QueryObserver(client, {
+      queryKey: queryKeys.systemUpdates,
+      queryFn: fetchSystemUpdatesRequest,
+    });
+    const unsubscribe = observer.subscribe(() => {});
+    try {
+      render(
+        <SettingsPanel
+          appearance={appearance}
+          wallpaperOptions={[]}
+          accentOptions={[]}
+          onAppearanceChange={() => {}}
+        />,
+        { wrapper: createWrapper(client) },
+      );
+      fireEvent.click(within(screen.getByRole("complementary", { name: "Settings sidebar" })).getByRole("button", { name: /Updates/i }));
+      const select = screen.getByRole<HTMLSelectElement>("combobox", { name: "Update channel" });
+      await waitFor(() => expect(select.value).toBe("stable"));
+      expect(statusRequest).toHaveBeenCalledTimes(1);
+      expect(client.getQueryData(queryKeys.systemUpdates)).toBeUndefined();
+
+      fireEvent.change(select, { target: { value: "beta" } });
+      await waitFor(() => expect(client.getQueryData(queryKeys.systemUpdates)).toEqual(betaStatus));
+      staleStatusRequest.resolve(Response.json({ data: stableStatus }));
+      expect(client.getQueryData(queryKeys.systemUpdates)).toEqual(betaStatus);
+      expect(statusRequest).toHaveBeenCalledTimes(2);
+    } finally {
+      staleStatusRequest.resolve(Response.json({ data: stableStatus }));
+      unsubscribe();
+    }
   });
 
   it("renders real backup controls and removes placeholder backup fields", () => {
@@ -579,7 +640,7 @@ describe("SettingsPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Backup & Restore/i }));
+    fireEvent.click(within(screen.getByRole("complementary", { name: "Settings sidebar" })).getByRole("button", { name: /Backup & Restore/i }));
 
     expect(screen.getByText("Schedule")).toBeTruthy();
     expect(screen.getByText("/DATA/Backups/homeio")).toBeTruthy();
@@ -602,7 +663,7 @@ describe("SettingsPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Backup & Restore/i }));
+    fireEvent.click(within(screen.getByRole("complementary", { name: "Settings sidebar" })).getByRole("button", { name: /Backup & Restore/i }));
     fireEvent.change(screen.getByDisplayValue("7"), {
       target: { value: "14" },
     });
@@ -634,7 +695,7 @@ describe("SettingsPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Users & Access/i }));
+    fireEvent.click(within(screen.getByRole("complementary", { name: "Settings sidebar" })).getByRole("button", { name: /Users & Access/i }));
 
     expect(
       screen.getByText(
@@ -867,7 +928,7 @@ describe("SettingsPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Notifications/i }));
+    fireEvent.click(within(screen.getByRole("complementary", { name: "Settings sidebar" })).getByRole("button", { name: /Notifications/i }));
     expect(screen.queryByText("Not available yet: backend endpoint not implemented")).toBeNull();
     fireEvent.click(screen.getByRole("switch", { name: "Toggle Update notifications" }));
     fireEvent.change(screen.getByDisplayValue("90"), {
